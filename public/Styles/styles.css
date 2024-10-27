@@ -1,4 +1,5 @@
-body, html {
+body,
+html {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -7,13 +8,18 @@ body, html {
 }
 
 .video-bg {
-    position: fixed; /* Fix the position */
+    position: fixed;
+    /* Fix the position */
     top: 0;
     left: 0;
-    width: 100vw; /* Full width */
-    height: 100vh; /* Full height */
-    object-fit: cover; /* Ensures the video covers the entire background */
-    z-index: -1; /* Send video to the background */
+    width: 100vw;
+    /* Full width */
+    height: 100vh;
+    /* Full height */
+    object-fit: cover;
+    /* Ensures the video covers the entire background */
+    z-index: -1;
+    /* Send video to the background */
 }
 
 .content {
