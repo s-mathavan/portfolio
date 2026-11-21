@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Continuous Elastic Reel • Interactive Engine Comparison</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bg-main: #07080d;
+      --card-bg: #111115;
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+    }
+
+    body {
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 24px 0 60px;
+    }
+
+    /* THE REEL STAGE */
+    .reel-stage {
+      position: relative;
+      width: 100vw;
+      max-width: 100%;
+      min-height: 520px;
+      overflow: visible;
+      touch-action: pan-y;
+      user-select: none;
+      -webkit-user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-top: 55px;
+      padding-bottom: 20px;
+    }
+    @media (min-width: 768px) {
+      .reel-stage {
+        min-height: 560px;
+        padding-top: 65px;
+      }
+    }
+
+    /* 🌟 TRACK A: UNIFIED FLEX RAIL (5-Card Window) */
+    .track-flex {
+      position: relative;
+      display: flex;
+      gap: 8px; /* Mobile gap: brings side cards close and clearly visible */
+      align-items: center;
+      justify-content: center;
+      transform: translate3d(var(--track-x, 0px), var(--track-y, 0px), 0) rotate(var(--track-rot, 0deg));
+      transform-origin: center bottom;
+      transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+      cursor: grab;
+    }
+    @media (min-width: 768px) {
+      .track-flex {
+        gap: 28px;
+      }
+    }
+    .track-flex:active {
+      cursor: grabbing;
+    }
+
+    /* 🌟 TRACK B: CONTINUOUS MODULO TRACK (6-Card Loop) */
+    .track-modulo {
+      position: relative;
+      width: 100%;
+      height: 440px;
+      cursor: grab;
+      overflow: visible;
+    }
+    @media (min-width: 768px) {
+      .track-modulo {
+        height: 480px;
+      }
+    }
+    .track-modulo:active {
+      cursor: grabbing;
+    }
+
+    /* CARD SLOT */
+    .reel-card-slot {
+      position: relative;
+      width: min(580px, calc(100vw - 108px));
+      flex-shrink: 0;
+      transform-origin: center bottom;
+      cursor: pointer;
+      contain: layout;
+    }
+    @media (min-width: 640px) {
+      .reel-card-slot {
+        width: min(580px, calc(100vw - 72px));
+      }
+    }
+
+    .track-modulo .reel-card-slot {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      margin-left: calc(-1 * min(580px, calc(100vw - 108px)) / 2);
+    }
+    @media (min-width: 640px) {
+      .track-modulo .reel-card-slot {
+        margin-left: calc(-1 * min(580px, calc(100vw - 72px)) / 2);
+      }
+    }
+
+    /* CARD FRONT SHEET */
+    .blueprint-sheet {
+      position: relative;
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 22px;
+      z-index: 10;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-font-smoothing: antialiased;
+      will-change: transform, opacity;
+      transition: opacity 0.36s cubic-bezier(0.22, 1, 0.36, 1), 
+                  box-shadow 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @media (min-width: 640px) {
+      .blueprint-sheet {
+        border-radius: 26px;
+      }
+    }
+
+    /* 🌟 NATIVE TYPOGRAPHY & LAYOUT HIERARCHY (ZERO REFLOW POP) */
+    
+    /* 1. SIDE CARD STATE (Compact peek clearly visible on mobile) */
+    .reel-card-slot .blueprint-sheet {
+      opacity: 0.55;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transform: translateY(4px);
+    }
+    .reel-card-slot .card-pad {
+      padding: 1.25rem; /* Constant padding: text column never squeezes or shifts */
+    }
+    @media (min-width: 640px) {
+      .reel-card-slot .card-pad {
+        padding: 1.5rem;
+      }
+    }
+    .reel-card-slot .card-preview-box {
+      height: 110px;
+      transition: height 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reel-card-slot .card-title {
+      font-size: 1.25rem; /* Stable base font size */
+      line-height: 1.25;
+      transform: scale(0.86); /* Smooth magnifying glass: zero word-wrap reflow */
+      transform-origin: left center;
+      opacity: 0.75;
+      transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.36s ease;
+    }
+    .reel-card-slot .card-domain {
+      font-size: 0.72rem;
+      opacity: 0.7;
+      transition: opacity 0.36s ease;
+    }
+    .reel-card-slot .card-desc {
+      font-size: 0.875rem; /* Constant font size: words NEVER jump lines */
+      line-height: 1.5;
+      opacity: 0.60;
+      transition: opacity 0.36s ease;
+    }
+    .reel-card-slot .card-footer {
+      opacity: 0.75;
+      transition: opacity 0.36s ease;
+    }
+
+    /* 2. ACTIVE HERO MAIN CARD STATE (Commanding showcase) */
+    .reel-card-slot.is-active .blueprint-sheet {
+      opacity: 1.0;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 28px 70px -15px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      transform: translateY(0px);
+    }
+
+    /* 🌟 MOBILE GPU SHADOW OPTIMIZATION (Cuts blur radius in half for silky 60-120 FPS) */
+    @media (max-width: 768px) {
+      .reel-card-slot .blueprint-sheet {
+        box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+      .reel-card-slot.is-active .blueprint-sheet {
+        box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      }
+    }
+    .reel-card-slot.is-active .card-preview-box {
+      height: 152px; /* Smooth accordion expansion */
+    }
+    .reel-card-slot.is-active .card-title {
+      transform: scale(1.0);
+      opacity: 1.0;
+    }
+    .reel-card-slot.is-active .card-domain {
+      opacity: 1.0;
+    }
+    .reel-card-slot.is-active .card-desc {
+      opacity: 1.0;
+    }
+    .reel-card-slot.is-active .card-footer {
+      opacity: 1.0;
+    }
+
+    /* 🌟 ATOMIC FREEZE KILLER (Eliminates Double-Zoom / Second-Pass Glitches) */
+    .no-transition,
+    .no-transition * {
+      transition: none !important;
+    }
+
+    /* STATIC CENTER PODIUM FOR BOT & PAWS */
+    .reel-center-anchor {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: min(580px, calc(100vw - 108px));
+      margin-left: calc(-1 * min(580px, calc(100vw - 108px)) / 2);
+      height: 0;
+      pointer-events: none;
+      z-index: 20;
+    }
+    @media (min-width: 640px) {
+      .reel-center-anchor {
+        width: min(580px, calc(100vw - 72px));
+        margin-left: calc(-1 * min(580px, calc(100vw - 72px)) / 2);
+      }
+    }
+
+    /* THE COMPANION BOT */
+    .seam-bot-anchor {
+      position: absolute;
+      top: -64px;
+      right: 20px;
+      width: 120px;
+      height: 120px;
+      pointer-events: none;
+      z-index: 5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      transform: scale(0.78);
+      transform-origin: bottom center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.22s ease;
+    }
+    .reel-card-slot.is-active .seam-bot-anchor {
+      opacity: 1;
+      visibility: visible;
+    }
+    .reel-card-slot.is-side .seam-bot-anchor,
+    .reel-card-slot:not(.is-active) .seam-bot-anchor {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      transition: none !important;
+    }
+    .mock-bot {
+      width: 60px;
+      height: 72px;
+      background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+      border-radius: 22px 22px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 28px rgba(56, 189, 248, 0.45);
+      color: #07080d;
+      font-weight: 800;
+      font-size: 11px;
+      position: relative;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .bot-eyes {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .mock-eye {
+      width: 10px;
+      height: 14px;
+      background: #ffffff;
+      border-radius: 50%;
+      position: relative;
+    }
+    .mock-eye::after {
+      content: '';
+      position: absolute;
+      width: 5px;
+      height: 6px;
+      background: #0f172a;
+      border-radius: 50%;
+      top: 4px;
+      left: 2.5px;
+    }
+
+    /* SPEECH BUBBLE */
+    .speech-bubble {
+      position: absolute;
+      top: -55px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-size: 11px;
+      white-space: nowrap;
+      z-index: 9999 !important;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* CLUTCHING CARTOON PAWS */
+    .blueprint-paws {
+      position: absolute;
+      top: -5px;
+      right: 48px;
+      width: 64px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 25;
+    }
+    .cartoon-paw {
+      width: 22px;
+      height: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(226, 232, 240, 0.88) 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.5);
+      border-radius: 6px 6px 8px 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7), inset 0 1px 1.5px rgba(255, 255, 255, 0.9);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .cartoon-paw.paw-left { transform: rotate(-7deg); }
+    .cartoon-paw.paw-right { transform: rotate(7deg); }
+    .blueprint-paws.clutching .cartoon-paw.paw-left {
+      transform: rotate(-14deg) scale(0.9, 0.8) translateY(2px);
+    }
+    .blueprint-paws.clutching .cartoon-paw.paw-right {
+      transform: rotate(14deg) scale(0.9, 0.8) translateY(2px);
+    }
+
+    /* 🌟 SMOOTH ELASTIC POP-OUT FOR NEWLY ACTIVE MAIN CARD */
+    @keyframes smooth-pop-out {
+      0% {
+        transform: scale(1.0) translateY(0);
+        box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7);
+      }
+      50% {
+        transform: scale(1.028) translateY(-3px);
+        box-shadow: 0 32px 75px -12px rgba(0, 0, 0, 0.95);
+      }
+      100% {
+        transform: scale(1.0) translateY(0);
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+    }
+    .blueprint-sheet.pop-out-smooth {
+      animation: smooth-pop-out 0.44s cubic-bezier(0.34, 1.45, 0.64, 1) forwards;
+    }
+
+    /* BOT PERK-UP ANIMATION WHEN LANDING */
+    @keyframes bot-perk-up {
+      0% { transform: scale(0.95) translateY(4px); }
+      50% { transform: scale(1.08) translateY(-4px); }
+      100% { transform: scale(1.0) translateY(0); }
+    }
+    .mock-bot.perk-up {
+      animation: bot-perk-up 0.44s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP ENGINE SWITCHER & CONTROL CONSOLE -->
+  <div class="max-w-4xl mx-auto px-4 mb-6">
+    <div class="p-4 rounded-2xl bg-zinc-900/80 border border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-xs font-mono uppercase tracking-widest text-emerald-400 font-semibold">Continuous Reel Lab</span>
+        </div>
+        <p class="text-xs text-zinc-400">Test half-swiping, elastic tension, and settle continuity side-by-side.</p>
+      </div>
+
+      <!-- Engine Selector Pill -->
+      <div class="flex items-center bg-black/60 p-1 rounded-xl border border-zinc-800">
+        <button id="btn-engine-1" onclick="setEngine(1)" class="px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all bg-sky-500 text-black">
+          Engine 1: 5-Card Window
+        </button>
+        <button id="btn-engine-2" onclick="setEngine(2)" class="px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all text-zinc-400 hover:text-white">
+          Engine 2: 6-Card Modulo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN STAGE CONTAINER -->
+  <div class="max-w-5xl mx-auto px-4">
+    <!-- Header -->
+    <div class="max-w-4xl mx-auto mb-6 pb-3 border-b border-zinc-800 flex flex-col justify-between gap-1">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-mono uppercase tracking-widest text-zinc-400" id="meta-tag">
+          [ 01 / 03 • INFRASTRUCTURE TELEMETRY ]
+        </span>
+      </div>
+      <h3 class="text-3xl font-bold tracking-tight">Selected Works</h3>
+    </div>
+
+    <!-- THE REEL STAGE ARENA -->
+    <div class="reel-stage" id="reel-stage">
+
+      <!-- 🌟 CONTAINER FOR ENGINE 1: 5-CARD STATIC HTML WINDOW -->
+      <div class="track-flex" id="track-flex">
+        
+        <!-- CARD -2 (Far Left Peek) -->
+        <div class="reel-card-slot is-side" id="slot-e1-m2" data-slot="-2">
+          <div class="blueprint-sheet pointer-events-none">
+            <div class="card-pad">
+              <div class="card-preview-box w-full rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col items-center justify-center p-4 mb-4 relative overflow-hidden">
+                <div class="card-grad absolute inset-0 bg-gradient-to-tr from-purple-500/20 via-purple-500/5 to-transparent"></div>
+                <span class="card-badge px-2.5 py-1 rounded-full text-xs font-mono uppercase border mb-2 bg-purple-500/10 text-purple-400 border-purple-500/30">[ LOW-LEVEL DSP ENGINE ]</span>
+                <div class="text-sm font-mono text-zinc-300 font-semibold card-preview">Neural Audio DSP Synthesizer</div>
+              </div>
+              <div class="flex items-baseline justify-between mb-1">
+                <h4 class="font-bold card-title">Neural Audio DSP Synthesizer</h4>
+                <span class="text-xs font-mono font-semibold card-domain text-purple-400">Low-Latency DSP</span>
+              </div>
+              <p class="text-sm text-zinc-400 card-desc mb-4">Neural Audio DSP Synthesizer: Engineered with real-time reactive pipelines.</p>
+              <div class="pt-3 border-t border-zinc-800/80 flex justify-between items-center text-xs font-mono card-footer">
+                <span class="text-zinc-500 card-num">Project 03</span>
+                <a href="#" class="card-link text-purple-400 hover:underline" onclick="event.stopPropagation()">Live Demo ↗</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD -1 (Immediate Left Peek) -->
+        <div class="reel-card-slot is-side" id="slot-e1-m1" data-slot="-1">
+          <div class="blueprint-sheet pointer-events-none">
+            <div class="card-pad">
+              <div class="card-preview-box w-full rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col items-center justify-center p-4 mb-4 relative overflow-hidden">
+                <div class="card-grad absolute inset-0 bg-gradient-to-tr from-emerald-500/20 via-emerald-500/5 to-transparent"></div>
+                <span class="card-badge px-2.5 py-1 rounded-full text-xs font-mono uppercase border mb-2 bg-emerald-500/10 text-emerald-400 border-emerald-500/30">[ ZERO-LATENCY PAYMENTS ]</span>
+                <div class="text-sm font-mono text-zinc-300 font-semibold card-preview">Autonomous Commerce Engine</div>
+              </div>
+              <div class="flex items-baseline justify-between mb-1">
+                <h4 class="font-bold card-title">Autonomous Commerce Engine</h4>
+                <span class="text-xs font-mono font-semibold card-domain text-emerald-400">High-Concurrency Payments</span>
+              </div>
+              <p class="text-sm text-zinc-400 card-desc mb-4">Autonomous Commerce Engine: Engineered with real-time reactive pipelines.</p>
+              <div class="pt-3 border-t border-zinc-800/80 flex justify-between items-center text-xs font-mono card-footer">
+                <span class="text-zinc-500 card-num">Project 02</span>
+                <a href="#" class="card-link text-emerald-400 hover:underline" onclick="event.stopPropagation()">Live Demo ↗</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 0 (Active Center Card) -->
+        <div class="reel-card-slot is-active" id="slot-e1-0" data-slot="0">
+          <!-- Companion Bot Anchor: Sits directly behind card top rim -->
+          <div class="seam-bot-anchor">
+            <div class="mock-bot" id="mock-bot">
+              <div class="bot-eyes">
+                <div class="mock-eye"></div>
+                <div class="mock-eye"></div>
+              </div>
+              BOT
+              <div class="speech-bubble" id="speech-bubble">Swipe me sideways! 👋</div>
+            </div>
+          </div>
+
+          <!-- Blueprint Hands: Clutching the top rim -->
+          <div class="blueprint-paws" id="blueprint-paws">
+            <div class="cartoon-paw paw-left"></div>
+            <div class="cartoon-paw paw-right"></div>
+          </div>
+
+          <div class="blueprint-sheet">
+            <div class="card-pad">
+              <div class="card-preview-box w-full rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col items-center justify-center p-4 mb-4 relative overflow-hidden">
+                <div class="card-grad absolute inset-0 bg-gradient-to-tr from-sky-500/20 via-sky-500/5 to-transparent"></div>
+                <span class="card-badge px-2.5 py-1 rounded-full text-xs font-mono uppercase border mb-2 bg-sky-500/10 text-sky-400 border-sky-500/30">[ LIVE 60 FPS ENGINE ]</span>
+                <div class="text-sm font-mono text-zinc-300 font-semibold card-preview">Kinetic Cloud Dashboard</div>
+              </div>
+              <div class="flex items-baseline justify-between mb-1">
+                <h4 class="font-bold card-title">Kinetic Cloud Dashboard</h4>
+                <span class="text-xs font-mono font-semibold card-domain text-sky-400">Distributed Telemetry</span>
+              </div>
+              <p class="text-sm text-zinc-400 card-desc mb-4">Kinetic Cloud Dashboard: Engineered with real-time reactive pipelines.</p>
+              <div class="pt-3 border-t border-zinc-800/80 flex justify-between items-center text-xs font-mono card-footer">
+                <span class="text-zinc-500 card-num">Project 01</span>
+                <a href="#" class="card-link text-sky-400 hover:underline" onclick="event.stopPropagation()">Live Demo ↗</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD +1 (Immediate Right Peek) -->
+        <div class="reel-card-slot is-side" id="slot-e1-p1" data-slot="1">
+          <div class="blueprint-sheet pointer-events-none">
+            <div class="card-pad">
+              <div class="card-preview-box w-full rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col items-center justify-center p-4 mb-4 relative overflow-hidden">
+                <div class="card-grad absolute inset-0 bg-gradient-to-tr from-emerald-500/20 via-emerald-500/5 to-transparent"></div>
+                <span class="card-badge px-2.5 py-1 rounded-full text-xs font-mono uppercase border mb-2 bg-emerald-500/10 text-emerald-400 border-emerald-500/30">[ ZERO-LATENCY PAYMENTS ]</span>
+                <div class="text-sm font-mono text-zinc-300 font-semibold card-preview">Autonomous Commerce Engine</div>
+              </div>
+              <div class="flex items-baseline justify-between mb-1">
+                <h4 class="font-bold card-title">Autonomous Commerce Engine</h4>
+                <span class="text-xs font-mono font-semibold card-domain text-emerald-400">High-Concurrency Payments</span>
+              </div>
+              <p class="text-sm text-zinc-400 card-desc mb-4">Autonomous Commerce Engine: Engineered with real-time reactive pipelines.</p>
+              <div class="pt-3 border-t border-zinc-800/80 flex justify-between items-center text-xs font-mono card-footer">
+                <span class="text-zinc-500 card-num">Project 02</span>
+                <a href="#" class="card-link text-emerald-400 hover:underline" onclick="event.stopPropagation()">Live Demo ↗</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD +2 (Far Right Peek) -->
+        <div class="reel-card-slot is-side" id="slot-e1-p2" data-slot="2">
+          <div class="blueprint-sheet pointer-events-none">
+            <div class="card-pad">
+              <div class="card-preview-box w-full rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col items-center justify-center p-4 mb-4 relative overflow-hidden">
+                <div class="card-grad absolute inset-0 bg-gradient-to-tr from-purple-500/20 via-purple-500/5 to-transparent"></div>
+                <span class="card-badge px-2.5 py-1 rounded-full text-xs font-mono uppercase border mb-2 bg-purple-500/10 text-purple-400 border-purple-500/30">[ LOW-LEVEL DSP ENGINE ]</span>
+                <div class="text-sm font-mono text-zinc-300 font-semibold card-preview">Neural Audio DSP Synthesizer</div>
+              </div>
+              <div class="flex items-baseline justify-between mb-1">
+                <h4 class="font-bold card-title">Neural Audio DSP Synthesizer</h4>
+                <span class="text-xs font-mono font-semibold card-domain text-purple-400">Low-Latency DSP</span>
+              </div>
+              <p class="text-sm text-zinc-400 card-desc mb-4">Neural Audio DSP Synthesizer: Engineered with real-time reactive pipelines.</p>
+              <div class="pt-3 border-t border-zinc-800/80 flex justify-between items-center text-xs font-mono card-footer">
+                <span class="text-zinc-500 card-num">Project 03</span>
+                <a href="#" class="card-link text-purple-400 hover:underline" onclick="event.stopPropagation()">Live Demo ↗</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 🌟 CONTAINER FOR ENGINE 2: 6-CARD CONTINUOUS MODULO TRACK -->
+      <div class="track-modulo hidden" id="track-modulo">
+        <!-- 6 Native HTML Cards for Engine 2 -->
+      </div>
+
+    </div>
+
+    <!-- Live Telemetry Status Bar -->
+    <div class="mt-4 max-w-4xl mx-auto p-3 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs font-mono text-zinc-400 flex flex-wrap items-center justify-between gap-2">
+      <div id="status-text">👉 Try pulling sideways slowly: notice both left and right cards are fully connected!</div>
+      <div class="text-sky-400" id="drag-readout">Drag: 0px</div>
+    </div>
+  </div>
+
+  <script>
+    const PROJECTS = [
+      {
+        id: 0,
+        title: "Kinetic Cloud Dashboard",
+        domain: "Distributed Telemetry",
+        meta: "[ 01 / 03 • INFRASTRUCTURE TELEMETRY ]",
+        badge: "[ LIVE 60 FPS ENGINE ]",
+        grad: "from-sky-500/20 via-sky-500/5",
+        badgeClass: "bg-sky-500/10 text-sky-400 border-sky-500/30",
+        domainColor: "text-sky-400",
+        desc: "Real-time fleet monitor engineered with WebGL canvas rendering, automated anomaly detection, and WebSocket pipelines.",
+        insight: "Kinetic Cloud Telemetry active! 🚀"
+      },
+      {
+        id: 1,
+        title: "Autonomous Commerce Engine",
+        domain: "High-Concurrency Payments",
+        meta: "[ 02 / 03 • HIGH-CONCURRENCY COMMERCE ]",
+        badge: "[ ZERO-LATENCY PAYMENTS ]",
+        grad: "from-emerald-500/20 via-emerald-500/5",
+        badgeClass: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+        domainColor: "text-emerald-400",
+        desc: "Sub-second checkout platform engineered with PostgreSQL atomic locks, distributed saga transactions, and idempotent retry workers.",
+        insight: "Autonomous Commerce Engine active! 🛒"
+      },
+      {
+        id: 2,
+        title: "Neural Audio DSP Synthesizer",
+        domain: "Low-Latency DSP",
+        meta: "[ 03 / 03 • LOW-LATENCY SIGNAL PROCESSING ]",
+        badge: "[ LOW-LEVEL DSP ENGINE ]",
+        grad: "from-purple-500/20 via-purple-500/5",
+        badgeClass: "bg-purple-500/10 text-purple-400 border-purple-500/30",
+        domainColor: "text-purple-400",
+        desc: "Real-time spatial audio synthesizer powered by C++ compiled to WebAssembly with SIMD math and zero audio-thread memory allocations.",
+        insight: "Neural DSP Synthesizer active! 🎧"
+      }
+    ];
+
+    let currentProjectIdx = 0;
+    let activeEngine = 1;
+
+    const stage = document.getElementById('reel-stage');
+    const trackFlex = document.getElementById('track-flex');
+    const trackModulo = document.getElementById('track-modulo');
+    const paws = document.getElementById('blueprint-paws');
+    const bot = document.getElementById('mock-bot');
+    const bubble = document.getElementById('speech-bubble');
+    const metaTag = document.getElementById('meta-tag');
+    const statusText = document.getElementById('status-text');
+    const dragReadout = document.getElementById('drag-readout');
+
+    // Populate Engine 2's 6 static cards in HTML
+    for (let i = 0; i < 6; i++) {
+      const p = PROJECTS[i % 3];
+      const card = document.createElement('div');
+      card.className = 'reel-card-slot';
+      card.dataset.index = i;
+      card.innerHTML = `
+        <div class="blueprint-sheet">
+          <div class="p-6">
+            <div class="w-full h-36 rounded-2xl bg-zinc-950 border border-zinc-800 flex flex-col items-center justify-center p-4 mb-4 relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-tr ${p.grad} via-transparent to-transparent"></div>
+              <span class="px-2.5 py-1 rounded-full text-xs font-mono uppercase bg-white/5 text-sky-400 border border-white/10 mb-2">${p.badge}</span>
+              <div class="text-sm font-mono text-zinc-300 font-semibold">${p.title}</div>
+            </div>
+            <div class="flex items-baseline justify-between mb-1">
+              <h4 class="text-2xl font-bold">${p.title}</h4>
+              <span class="text-xs font-mono text-sky-400 font-semibold">${p.domain}</span>
+            </div>
+            <p class="text-sm text-zinc-400 mb-4">${p.title} slot #${i}. Continuous modulo ribbon.</p>
+            <div class="pt-3 border-t border-zinc-800 flex justify-between text-xs font-mono">
+              <span class="text-zinc-500">Card #${i}</span>
+              <a href="#" class="text-sky-400 hover:underline" onclick="event.stopPropagation()">Demo ↗</a>
+            </div>
+          </div>
+        </div>
+      `;
+      trackModulo.appendChild(card);
+    }
+
+    // Measure card pitch
+    function getCardPitch() {
+      const sample = document.querySelector('.reel-card-slot');
+      if (!sample) return 608;
+      const track = activeEngine === 1 ? trackFlex : trackModulo;
+      const gap = parseFloat(window.getComputedStyle(track).gap) || (window.innerWidth < 768 ? 8 : 28);
+      return sample.offsetWidth + gap;
+    }
+
+    // Switch between Engine 1 and Engine 2
+    function setEngine(num) {
+      activeEngine = num;
+      const btn1 = document.getElementById('btn-engine-1');
+      const btn2 = document.getElementById('btn-engine-2');
+
+      if (num === 1) {
+        btn1.className = "px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all bg-sky-500 text-black";
+        btn2.className = "px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all text-zinc-400 hover:text-white";
+        trackFlex.classList.remove('hidden');
+        trackModulo.classList.add('hidden');
+        resetEngine1();
+        statusText.textContent = "Engine 1 Active: 5-Card Native Sliding Window with Hooke's Elasticity.";
+      } else {
+        btn2.className = "px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all bg-sky-500 text-black";
+        btn1.className = "px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all text-zinc-400 hover:text-white";
+        trackModulo.classList.remove('hidden');
+        trackFlex.classList.add('hidden');
+        resetEngine2();
+        statusText.textContent = "Engine 2 Active: 6-Card Continuous Modulo Ring Buffer.";
+      }
+    }
+
+    // ========================================================
+    // 🌟 ENGINE 1: 5-CARD SLIDING WINDOW WITH SEAMLESS TRANSITIONS
+    // ========================================================
+    const e1Slots = [
+      document.getElementById('slot-e1-m2'),
+      document.getElementById('slot-e1-m1'),
+      document.getElementById('slot-e1-0'),
+      document.getElementById('slot-e1-p1'),
+      document.getElementById('slot-e1-p2')
+    ];
+
+    function updateEngine1Cards() {
+      const offsets = [-2, -1, 0, 1, 2];
+      offsets.forEach((off, i) => {
+        const pIdx = ((currentProjectIdx + off) % 3 + 3) % 3;
+        const p = PROJECTS[pIdx];
+        const slot = e1Slots[i];
+        if (!slot) return;
+
+        const title = slot.querySelector('.card-title');
+        const domain = slot.querySelector('.card-domain');
+        const desc = slot.querySelector('.card-desc');
+        const preview = slot.querySelector('.card-preview');
+        const badge = slot.querySelector('.card-badge');
+        const grad = slot.querySelector('.card-grad');
+        const num = slot.querySelector('.card-num');
+        const link = slot.querySelector('.card-link');
+        const sheet = slot.querySelector('.blueprint-sheet');
+
+        if (title) title.textContent = p.title;
+        if (domain) {
+          domain.textContent = p.domain;
+          domain.className = `text-xs font-mono font-semibold card-domain ${p.domainColor}`;
+        }
+        if (desc) desc.textContent = p.desc;
+        if (preview) preview.textContent = p.title;
+        if (badge) {
+          badge.textContent = p.badge;
+          badge.className = `card-badge px-2.5 py-1 rounded-full text-xs font-mono uppercase border mb-2 ${p.badgeClass}`;
+        }
+        if (grad) {
+          grad.className = `card-grad absolute inset-0 bg-gradient-to-tr ${p.grad} via-transparent to-transparent`;
+        }
+        if (num) num.textContent = `Project 0${p.id + 1}`;
+        if (link) {
+          link.className = `hover:underline card-link ${p.domainColor}`;
+        }
+
+        if (sheet) {
+          if (off === 0) {
+            sheet.classList.remove('pointer-events-none');
+            slot.classList.add('is-active');
+            slot.classList.remove('is-side');
+          } else {
+            sheet.classList.add('pointer-events-none');
+            slot.classList.remove('is-active');
+            slot.classList.add('is-side');
+          }
+        }
+      });
+
+      metaTag.textContent = PROJECTS[currentProjectIdx].meta;
+    }
+
+    function setEngine1VisualProgress(shiftPx, animate) {
+      const pitch = getCardPitch();
+
+      e1Slots.forEach((slot, i) => {
+        if (!slot) return;
+
+        // Visual position relative to screen center podium
+        const visualPos = (i - 2) * pitch + shiftPx;
+        const dist = Math.abs(visualPos);
+
+        // Native Semantic Hierarchy: Nearest card to center podium becomes hero active
+        const isBecomingMain = dist < pitch * 0.45;
+
+        if (isBecomingMain) {
+          slot.classList.add('is-active');
+          slot.classList.remove('is-side');
+        } else {
+          slot.classList.remove('is-active');
+          slot.classList.add('is-side');
+        }
+
+        // 🌟 NO RASTER SCALE TRICKS: Native 1:1 vector resolution for crisp text!
+        slot.style.transform = 'none';
+        slot.style.transition = 'none';
+      });
+    }
+
+    let isE1Transitioning = false;
+    let pendingTargetIdx = null;
+    let glideTimer1 = null;
+    let glideTimer2 = null;
+
+    function resetEngine1() {
+      clearTimeout(glideTimer1);
+      clearTimeout(glideTimer2);
+      isE1Transitioning = false;
+      pendingTargetIdx = null;
+      trackFlex.classList.add('no-transition');
+      trackFlex.style.setProperty('--track-x', '0px');
+      trackFlex.style.setProperty('--track-y', '0px');
+      trackFlex.style.setProperty('--track-rot', '0deg');
+      updateEngine1Cards();
+      setEngine1VisualProgress(0, false);
+      void trackFlex.offsetWidth;
+      trackFlex.classList.remove('no-transition');
+    }
+
+    function switchEngine1Project(newProjectIdx, direction) {
+      // 🌟 RAPID-SWIPE INTERRUPTIBILITY: If already gliding, immediately fast-forward so swipes never drop!
+      if (isE1Transitioning) {
+        clearTimeout(glideTimer1);
+        clearTimeout(glideTimer2);
+        if (pendingTargetIdx !== null) {
+          currentProjectIdx = pendingTargetIdx;
+        }
+        trackFlex.classList.add('no-transition');
+        updateEngine1Cards();
+        trackFlex.style.setProperty('--track-x', '0px');
+        trackFlex.style.setProperty('--track-y', '0px');
+        trackFlex.style.setProperty('--track-rot', '0deg');
+        setEngine1VisualProgress(0, false);
+        void trackFlex.offsetWidth;
+        trackFlex.classList.remove('no-transition');
+      }
+
+      isE1Transitioning = true;
+      pendingTargetIdx = ((newProjectIdx % 3) + 3) % 3;
+      try { navigator.vibrate?.(10); } catch(e) {}
+
+      const pitch = getCardPitch();
+      const shiftX = direction === 'next' ? -pitch : pitch;
+      const bendAngle = direction === 'next' ? -3.2 : 3.2;
+
+      // 🌟 STAGE 1 (0 to 130ms): Responsive momentum bend & lift
+      trackFlex.style.transition = 'transform 0.14s cubic-bezier(0.22, 1, 0.36, 1)';
+      trackFlex.style.setProperty('--track-x', `${shiftX * 0.52}px`);
+      trackFlex.style.setProperty('--track-y', '-6px');
+      trackFlex.style.setProperty('--track-rot', `${bendAngle}deg`);
+
+      // All 5 slots dynamically crossfade their native typography & preview height in 0.36s
+      setEngine1VisualProgress(shiftX, true);
+
+      // 🌟 STAGE 2 (130ms to 340ms): Smooth ease-drop into resting plane
+      glideTimer1 = setTimeout(() => {
+        trackFlex.style.transition = 'transform 0.22s cubic-bezier(0.34, 1.2, 0.64, 1)';
+        trackFlex.style.setProperty('--track-x', `${shiftX}px`);
+        trackFlex.style.setProperty('--track-y', '0px');
+        trackFlex.style.setProperty('--track-rot', '0deg');
+      }, 130);
+
+      // 🌟 STAGE 3 (360ms): Zero-chop atomic substitution
+      glideTimer2 = setTimeout(() => {
+        trackFlex.classList.add('no-transition');
+
+        currentProjectIdx = pendingTargetIdx;
+        pendingTargetIdx = null;
+
+        // Content AND Color update for the new center project
+        updateEngine1Cards();
+
+        // Silent reset: matching coordinates and rest styles
+        trackFlex.style.setProperty('--track-x', '0px');
+        trackFlex.style.setProperty('--track-y', '0px');
+        trackFlex.style.setProperty('--track-rot', '0deg');
+        setEngine1VisualProgress(0, false);
+
+        // Synchronous reflow commit with transitions disabled
+        void trackFlex.offsetWidth;
+        trackFlex.classList.remove('no-transition');
+
+        if (bot) {
+          bot.classList.remove('perk-up');
+          void bot.offsetWidth;
+          bot.classList.add('perk-up');
+        }
+
+        isE1Transitioning = false;
+        bubble.textContent = PROJECTS[currentProjectIdx].insight;
+      }, 360);
+    }
+
+    // Click on side cards
+    e1Slots[1].addEventListener('click', () => switchEngine1Project(currentProjectIdx - 1, 'prev'));
+    e1Slots[3].addEventListener('click', () => switchEngine1Project(currentProjectIdx + 1, 'next'));
+
+    // ========================================================
+    // 🌟 ENGINE 2: 6-CARD CONTINUOUS MODULO RING BUFFER
+    // ========================================================
+    const e2Cards = Array.from(trackModulo.querySelectorAll('.reel-card-slot'));
+    const e2PrevOffsets = new Array(6).fill(0);
+    let e2TrackX = 0;
+    let e2TargetIdx = 0;
+
+    function renderEngine2Cards(animate = false) {
+      const pitch = getCardPitch();
+      const totalSpan = 6 * pitch;
+
+      e2Cards.forEach((card, i) => {
+        const rawX = i * pitch + e2TrackX;
+        let offset = ((rawX % totalSpan) + totalSpan) % totalSpan;
+        if (offset > totalSpan / 2) offset -= totalSpan;
+
+        const isWrapping = Math.abs(offset - e2PrevOffsets[i]) > totalSpan / 2;
+        e2PrevOffsets[i] = offset;
+
+        if (animate && !isWrapping) {
+          card.style.transition = 'transform 0.52s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.35s ease';
+        } else {
+          card.style.transition = 'none';
+        }
+
+        const dist = Math.abs(offset);
+        const progress = Math.min(1, dist / pitch);
+        const scale = 1 - progress * 0.08;
+        const opacity = 1 - progress * 0.64;
+        const rot = Math.max(-4.5, Math.min(4.5, (offset / pitch) * -3));
+
+        card.style.transform = `translate3d(${offset}px, 0, 0) scale(${scale}) rotate(${rot}deg)`;
+        card.style.opacity = `${opacity}`;
+        card.style.zIndex = dist < pitch * 0.5 ? '10' : '4';
+      });
+
+      const nearestIdx = Math.round(-e2TrackX / pitch);
+      const activeProjIdx = ((nearestIdx % 3) + 3) % 3;
+      metaTag.textContent = PROJECTS[activeProjIdx].meta;
+    }
+
+    function resetEngine2() {
+      e2TrackX = 0;
+      e2TargetIdx = 0;
+      renderEngine2Cards(false);
+    }
+
+    // ========================================================
+    // 🌟 UNIFIED TACTILE ELASTIC DRAG PHYSICS (Hooke's Law)
+    // ========================================================
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let dragStartTrackX = 0;
+    let hasMoved = false;
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('a')) return;
+      isDragging = true;
+      hasMoved = false;
+      startX = e.clientX;
+      startY = e.clientY;
+
+      if (activeEngine === 1) {
+        if (isE1Transitioning) {
+          // If user touches mid-flight, immediately complete previous slide and hand over control!
+          clearTimeout(glideTimer1);
+          clearTimeout(glideTimer2);
+          if (pendingTargetIdx !== null) {
+            currentProjectIdx = pendingTargetIdx;
+            pendingTargetIdx = null;
+          }
+          trackFlex.classList.add('no-transition');
+          updateEngine1Cards();
+          trackFlex.style.setProperty('--track-x', '0px');
+          trackFlex.style.setProperty('--track-y', '0px');
+          trackFlex.style.setProperty('--track-rot', '0deg');
+          setEngine1VisualProgress(0, false);
+          void trackFlex.offsetWidth;
+          trackFlex.classList.remove('no-transition');
+          isE1Transitioning = false;
+        }
+        trackFlex.style.transition = 'none';
+        if (bot) bot.classList.remove('perk-up');
+      } else {
+        dragStartTrackX = e2TrackX;
+        e2Cards.forEach(c => c.style.transition = 'none');
+      }
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const rawDeltaX = e.clientX - startX;
+      const rawDeltaY = e.clientY - startY;
+
+      // Vertical scroll check
+      if (!hasMoved && Math.abs(rawDeltaY) > Math.abs(rawDeltaX)) {
+        isDragging = false;
+        if (activeEngine === 1) resetEngine1();
+        else renderEngine2Cards(true);
+        return;
+      }
+
+      if (Math.abs(rawDeltaX) > 6) hasMoved = true;
+
+      // 🌟 NON-LINEAR HOOKE'S LAW SPRING TENSION
+      const tension = 0.60 / (1 + Math.abs(rawDeltaX) * 0.0016);
+      const dampedDeltaX = rawDeltaX * tension;
+      // 🌟 FULL DYNAMIC ELASTIC BEND RESTORED!
+      const rot = Math.max(-4.2, Math.min(4.2, dampedDeltaX * 0.024));
+      const botTilt = Math.max(-14, Math.min(14, dampedDeltaX * 0.085));
+      const liftY = -Math.min(10, Math.abs(dampedDeltaX) * 0.04);
+
+      paws.classList.add('clutching');
+      bot.style.transform = `rotate(${botTilt}deg)`;
+      dragReadout.textContent = `Drag: ${Math.round(dampedDeltaX)}px (Tension: ${(tension * 100).toFixed(0)}%)`;
+
+      if (activeEngine === 1) {
+        trackFlex.style.setProperty('--track-x', `${dampedDeltaX}px`);
+        trackFlex.style.setProperty('--track-y', `${liftY}px`);
+        trackFlex.style.setProperty('--track-rot', `${rot}deg`);
+        setEngine1VisualProgress(dampedDeltaX, false);
+      } else {
+        e2TrackX = dragStartTrackX + dampedDeltaX;
+        renderEngine2Cards(false);
+      }
+    });
+
+    function endDrag(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      paws.classList.remove('clutching');
+      bot.style.transform = 'rotate(0deg)';
+      dragReadout.textContent = 'Drag: 0px';
+
+      const rawDeltaX = e.clientX - startX;
+      const rawDeltaY = e.clientY - startY;
+      const pitch = getCardPitch();
+      const flickThreshold = Math.min(52, pitch * 0.12);
+
+      if (activeEngine === 1) {
+        if (hasMoved && Math.abs(rawDeltaX) > flickThreshold && Math.abs(rawDeltaX) > Math.abs(rawDeltaY)) {
+          if (rawDeltaX < 0) switchEngine1Project(currentProjectIdx + 1, 'next');
+          else switchEngine1Project(currentProjectIdx - 1, 'prev');
+        } else {
+          // TWANG: Snap back elastically to rest!
+          trackFlex.style.transition = 'transform 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.25)';
+          trackFlex.style.setProperty('--track-x', '0px');
+          trackFlex.style.setProperty('--track-y', '0px');
+          trackFlex.style.setProperty('--track-rot', '0deg');
+          setEngine1VisualProgress(0, true);
+        }
+      } else {
+        if (hasMoved && Math.abs(rawDeltaX) > flickThreshold && Math.abs(rawDeltaX) > Math.abs(rawDeltaY)) {
+          const startIdx = Math.round(-dragStartTrackX / pitch);
+          e2TargetIdx = rawDeltaX < 0 ? startIdx + 1 : startIdx - 1;
+        } else {
+          e2TargetIdx = Math.round(-dragStartTrackX / pitch);
+        }
+        e2TrackX = -e2TargetIdx * pitch;
+        renderEngine2Cards(true);
+      }
+    }
+
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('pointercancel', endDrag);
+
+    // Init
+    updateEngine1Cards();
+    setEngine1VisualProgress(0, false);
+  </script>
+</body>
+</html>

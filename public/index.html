@@ -1,47 +1,2877 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio</title>
-    <link rel="stylesheet" href="Styles/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Companion Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+    :root {
+      --bg-main: #07080d;
+      --bg-works: #0a0b0e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-accent: #ffffff;
+      --nav-bg: rgba(15, 17, 21, 0.85);
+      --nav-border: rgba(255, 255, 255, 0.05);
+      --card-bg: rgba(255, 255, 255, 0.02);
+      --card-border: rgba(255, 255, 255, 0.05);
+      --card-hover-bg: rgba(255, 255, 255, 0.04);
+      --card-hover-border: rgba(255, 255, 255, 0.1);
+      --card-thumb: rgba(255, 255, 255, 0.05);
+      --bot-bg: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+      --bot-border: rgba(255, 255, 255, 0.15);
+      --bot-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 2px 20px rgba(255,255,255,0.1);
+      --bubble-bg: rgba(0, 0, 0, 0.75);
+      --bubble-text: #ffffff;
+      --bubble-border: rgba(255, 255, 255, 0.2);
+      --bubble-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      --eye-bg: #ffffff;
+      --eye-border: transparent;
+      --eye-shadow: 0 0 15px rgba(255,255,255,0.2);
+      --pupil-bg: #000000;
+    }
+
+    body.light-theme {
+      --bg-main: #f3f5f9;
+      --bg-works: #e8ecf4;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-accent: #0284c7;
+      --nav-bg: rgba(243, 245, 249, 0.88);
+      --nav-border: rgba(0, 0, 0, 0.08);
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(0, 0, 0, 0.08);
+      --card-hover-bg: rgba(255, 255, 255, 0.98);
+      --card-hover-border: rgba(0, 0, 0, 0.15);
+      --card-thumb: rgba(0, 0, 0, 0.05);
+      --bot-bg: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(226,232,240,0.85));
+      --bot-border: rgba(0, 0, 0, 0.12);
+      --bot-shadow: 0 20px 40px rgba(0,0,0,0.12), inset 0 2px 15px rgba(255,255,255,0.9);
+      --bubble-bg: rgba(255, 255, 255, 0.95);
+      --bubble-text: #0f172a;
+      --bubble-border: rgba(0, 0, 0, 0.15);
+      --bubble-shadow: 0 12px 30px rgba(0,0,0,0.12);
+      --eye-bg: #ffffff;
+      --eye-border: rgba(0, 0, 0, 0.15);
+      --eye-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --pupil-bg: #0f172a;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      margin: 0;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* Hero Bot Anchor: Center-aligned floating arena */
+    .bot-hero-anchor {
+      position: relative;
+      width: 100%;
+      height: 140px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Standardized Bot Slot at the TOP of content sections */
+    .section-bot-slot {
+      position: relative;
+      width: 100%;
+      height: 140px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    /* Peeking Station with Frosted Glass Horizon Ledge */
+    .peek-station {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .peek-ledge {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 136px;
+      height: 44px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(10, 10, 16, 0.9) 100%);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--card-border);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.28);
+      border-bottom: none;
+      border-radius: 18px 18px 0 0;
+      box-shadow: 0 -4px 18px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2);
+      z-index: 10;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    body.light-theme .peek-ledge {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(226, 232, 240, 0.92) 100%);
+      border-color: rgba(0, 0, 0, 0.1);
+      border-top: 1.5px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.08), inset 0 1px 2px rgba(255,255,255,0.8);
+    }
+
+    /* Cute Gripping Paws clutching the top edge of the wall ledge */
+    .wall-paws {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 68px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 25; /* Sits right on top of the wall ledge rim! */
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .bot-container.is-peeking:not(.popped-out) .wall-paws {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .bot-container.is-peeking.popped-out .wall-paws {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-22px) scale(0.9);
+    }
+
+    .bot-container:not(.is-peeking) .wall-paws {
+      opacity: 0;
+      display: none;
+    }
+
+    .paw {
+      width: 14px;
+      height: 9px;
+      background: var(--bot-bg);
+      backdrop-filter: blur(8px);
+      border: 1.5px solid var(--bot-border);
+      border-bottom: none;
+      border-radius: 6px 6px 2px 2px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    /* Grip Shake: holding on tight to the wall during vigorous movement! */
+    @keyframes grip-shake {
+      0%, 100% { transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + 18px)); }
+      20% { transform: translate(calc(var(--drag-x, 0px) - 3px), calc(var(--drag-y, 0px) + 17px)) rotate(-2.5deg); }
+      40% { transform: translate(calc(var(--drag-x, 0px) + 3px), calc(var(--drag-y, 0px) + 19px)) rotate(2.5deg); }
+      60% { transform: translate(calc(var(--drag-x, 0px) - 2px), calc(var(--drag-y, 0px) + 18px)) rotate(-1.5deg); }
+      80% { transform: translate(calc(var(--drag-x, 0px) + 2px), calc(var(--drag-y, 0px) + 18px)) rotate(1.5deg); }
+    }
+
+    .bot-body.grip-shake {
+      animation: grip-shake 0.12s infinite !important;
+    }
+
+    /* Character Design (The Observer) */
+    .bot-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      perspective: 1000px;
+      -webkit-user-select: none;
+      user-select: none;
+      z-index: 5;
+      /* Smooth physics fallback for CSS */
+      transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* Peeking Rest: Body is tucked 18px down behind the wall ledge so eyes peek over top */
+    .bot-container.is-peeking:not(.popped-out) .bot-body {
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + 18px)) rotate(var(--bot-tilt, 0deg));
+      transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Popped Out: Springs up over the ledge into full view when speaking, tapped, or dragged */
+    .bot-container.is-peeking.popped-out .bot-body {
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) - 22px)) scale(1.05) rotate(var(--bot-tilt, 0deg));
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Hero Default (not peeking): Normal centered floating body */
+    .bot-container:not(.is-peeking) .bot-body {
+      transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) rotate(var(--bot-tilt, 0deg));
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .bot-container .speech-bubble {
+      top: -75px;
+      max-width: 250px;
+      z-index: 40;
+    }
+
+    
+    /* The Posture Cane / Walking Stick (Appears when user stays tilted too long) */
+    .walking-stick {
+      position: absolute;
+      right: -14px;
+      bottom: -6px;
+      width: 6px;
+      height: 75px;
+      background: linear-gradient(to bottom, #d97706, #92400e);
+      border-radius: 4px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      transform-origin: top center;
+      transform: rotate(15deg);
+      opacity: 0;
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+      z-index: 10;
+    }
+    .walking-stick::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      left: -8px;
+      width: 14px;
+      height: 8px;
+      border: 4px solid #b45309;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+    }
+    .bot-body.using-cane .walking-stick {
+      opacity: 1;
+      transform: rotate(-12deg);
+    }
+
+
+    /* Tap Hit / Poke Recoil Animation */
+    @keyframes hit-recoil {
+      0% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(0.85, 1.15) translateY(-8px); }
+      35% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(1.15, 0.85) translateY(12px); }
+      70% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(0.95, 1.05) translateY(-3px); }
+      100% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(1, 1) translateY(0); }
+    }
+
+    .bot-body.hit {
+      animation: hit-recoil 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .bot-body.hit .eye {
+      height: 6px !important;
+      border-radius: 6px !important;
+      transform: scaleX(0.85);
+    }
+
+    .bot-body {
+      touch-action: none; /* Prevents mobile browser from hijacking drag as a page scroll */
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bot-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--bot-border);
+      border-radius: 40%;
+      box-shadow: var(--bot-shadow);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      transform-style: preserve-3d;
+      transform: translate(var(--drag-x, 0px), var(--drag-y, 0px));
+    }
+
+    /* Click Interaction */
+    .bot-body:not(.panic):active {
+      transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(0.9) translateY(10px);
+    }
+
+    /* Panic State (Hard Tilt/Aggressive Mouse) */
+    .bot-body.panic {
+      animation: panic-shake 0.15s infinite;
+      background: rgba(255, 60, 60, 0.05);
+      border-color: rgba(255, 60, 60, 0.3);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 2px 20px rgba(255, 60, 60, 0.2);
+    }
+    .bot-body.panic .eye {
+      height: 48px;
+      width: 32px;
+      border-radius: 50%;
+      box-shadow: 0 0 25px rgba(255, 60, 60, 0.4);
+    }
+    .bot-body.panic .pupil {
+      width: 4px;
+      height: 4px;
+      background: #ff3333;
+    }
+
+    /* Curious State (Inspecting Projects) */
+    .bot-body.curious {
+      background: rgba(0, 255, 200, 0.03);
+      border-color: rgba(0, 255, 200, 0.2);
+    }
+    .bot-body.curious .eye {
+      height: 12px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 255, 200, 0.6);
+    }
+    .bot-body.curious .pupil {
+      background: #00ffcc;
+      box-shadow: 0 0 10px #00ffcc;
+    }
+
+    /* Angry State (After being dragged) */
+    .bot-body.angry {
+      background: rgba(255, 80, 0, 0.05);
+      border-color: rgba(255, 80, 0, 0.3);
+    }
+    .bot-body.angry .eye {
+      height: 14px;
+      border-radius: 5px;
+      box-shadow: 0 0 15px rgba(255, 80, 0, 0.5);
+    }
+    /* Slant the eyes for an angry expression */
+    .bot-body.angry .eye:nth-child(1) { transform: rotate(18deg); }
+    .bot-body.angry .eye:nth-child(2) { transform: rotate(-18deg); }
+    .bot-body.angry .pupil {
+      background: #ff5500;
+      box-shadow: 0 0 10px #ff5500;
+    }
+
+    /* Annoyed State (When interrupted while speaking an important line) */
+    .bot-body.annoyed {
+      background: rgba(245, 158, 11, 0.06);
+      border-color: rgba(245, 158, 11, 0.4);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 2px 20px rgba(245, 158, 11, 0.2);
+    }
+    .bot-body.annoyed .eye:nth-child(1) {
+      height: 12px;
+      border-radius: 6px;
+      transform: rotate(15deg);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+    }
+    .bot-body.annoyed .eye:nth-child(2) {
+      height: 22px;
+      border-radius: 10px;
+      transform: rotate(-8deg);
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+    }
+    .bot-body.annoyed .pupil {
+      background: #f59e0b;
+      box-shadow: 0 0 10px #f59e0b;
+    }
+
+    /* Tired/Exhausted State (After being dragged) */
+    .bot-body.tired {
+      background: rgba(60, 90, 140, 0.08);
+      border-color: rgba(60, 90, 140, 0.3);
+      /* The body physically slumps down and tilts from exhaustion */
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + 15px)) rotate(-4deg);
+      box-shadow: 0 30px 40px rgba(0,0,0,0.6), inset 0 -5px 20px rgba(60, 90, 140, 0.2);
+    }
+    .bot-body.tired .eye {
+      border-radius: 15px 15px 5px 5px;
+      opacity: 0.5;
+      /* Heavy bags under the eyes */
+      box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
+    }
+    /* Uneven, sad/exhausted eye slant */
+    .bot-body.tired .eye:nth-child(1) {
+      height: 4px;
+      transform: rotate(-12deg);
+    }
+    .bot-body.tired .eye:nth-child(2) {
+      height: 9px;
+      transform: rotate(8deg);
+    }
+    .bot-body.tired .pupil {
+      background: #5577aa;
+    }
+
+    /* Dizzy / Swirly State (After being slung violently) */
+    .bot-body.dizzy {
+      background: rgba(168, 85, 247, 0.08);
+      border-color: rgba(168, 85, 247, 0.35);
+      animation: dizzy-sway 1s ease-in-out infinite alternate;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 25px rgba(168, 85, 247, 0.3);
+    }
+    .bot-body.dizzy .eye {
+      height: 38px;
+      width: 38px;
+      border-radius: 50%;
+      border: 2px dashed rgba(168, 85, 247, 0.6);
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+    }
+    .bot-body.dizzy .eye:nth-child(1) .pupil {
+      animation: dizzy-spin 0.6s linear infinite;
+      background: #c084fc;
+      box-shadow: 0 0 8px #c084fc;
+    }
+    .bot-body.dizzy .eye:nth-child(2) .pupil {
+      animation: dizzy-spin 0.6s linear infinite reverse;
+      background: #c084fc;
+      box-shadow: 0 0 8px #c084fc;
+    }
+
+    @keyframes dizzy-spin {
+      0% { transform: rotate(0deg) translate(8px) rotate(0deg); }
+      100% { transform: rotate(360deg) translate(8px) rotate(-360deg); }
+    }
+
+    @keyframes dizzy-sway {
+      0% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) rotate(-6deg); }
+      100% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) rotate(6deg); }
+    }
+
+
+    /* Speech Bubble */
+    .speech-bubble {
+      position: absolute;
+      top: -70px;
+      left: 50%;
+      -webkit-user-select: none;
+      user-select: none;
+      background: var(--bubble-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--bubble-border);
+      padding: 12px 20px;
+      border-radius: 20px;
+      color: var(--bubble-text);
+      font-weight: 500;
+      font-size: 14px;
+      white-space: normal;
+      width: max-content;
+      max-width: 240px;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateX(-50%) translateY(10px) scale(0.9);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: var(--bubble-shadow);
+      z-index: 9999 !important;
+    }
+    
+    .speech-bubble.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    @keyframes panic-shake {
+      0%, 100% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)); }
+      25% { transform: translate(calc(var(--drag-x, 0px) - 4px), calc(var(--drag-y, 0px) + 3px)) rotate(-2deg); }
+      50% { transform: translate(calc(var(--drag-x, 0px) + 4px), calc(var(--drag-y, 0px) - 3px)) rotate(2deg); }
+      75% { transform: translate(calc(var(--drag-x, 0px) - 4px), calc(var(--drag-y, 0px) - 3px)) rotate(-1deg); }
+    }
+
+    /* The Eyes */
+    .eye {
+      width: 28px;
+      height: 38px;
+      background: var(--eye-bg);
+      border: 1px solid var(--eye-border);
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: var(--eye-shadow);
+      overflow: hidden;
+      transition: height 0.1s, background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* Squinting on click */
+    .bot-body:not(.panic):active .eye {
+      height: 8px;
+      border-radius: 10px;
+    }
+
+    /* Blinking Animation */
+    .blink .eye {
+      height: 2px !important;
+      border-radius: 10px !important;
+    }
+
+    /* The Pupils */
+    .pupil {
+      width: 14px;
+      height: 14px;
+      background: var(--pupil-bg);
+      border-radius: 50%;
+      position: absolute;
+      transition: transform 0.05s linear, background-color 0.3s ease;
+    }
+
+    /* Layout Styling */
+    .glass-nav {
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--nav-border);
+      transition: background-color 0.4s ease, border-color 0.4s ease;
+    }
+    
+    .project-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      transition: all 0.3s ease;
+    }
+    .project-card:hover {
+      background: var(--card-hover-bg);
+      transform: translateY(-5px);
+      border-color: var(--card-hover-border);
+    }
+
+    /* Experience Timeline */
+    .timeline-item {
+      position: relative;
+      padding-left: 28px;
+      border-left: 2px solid var(--card-border);
+      transition: border-color 0.3s ease;
+    }
+    .timeline-item:hover {
+      border-color: var(--text-accent);
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -7px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--bg-main);
+      border: 2px solid var(--text-accent);
+      box-shadow: 0 0 8px var(--text-accent);
+      transition: all 0.3s ease;
+    }
+    .timeline-item:hover .timeline-dot {
+      transform: scale(1.3);
+      background: var(--text-accent);
+    }
+
+    /* Contact Card */
+    .contact-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+    }
+    .copy-btn {
+      background: var(--card-hover-bg);
+      border: 1px solid var(--card-border);
+      transition: all 0.2s ease;
+    }
+    .copy-btn:hover {
+      border-color: var(--text-accent);
+      transform: translateY(-2px);
+    }
+
+    /* Childish Hide-and-Seek Entrance (Peeking from behind Mathavan's Name) */
+    @keyframes sneaky-peek {
+      0% {
+        transform: translate3d(0, 135px, 0) scale(0.62);
+        opacity: 0;
+      }
+      22% {
+        transform: translate3d(0, 108px, 0) scale(0.74);
+        opacity: 1;
+      }
+      50% {
+        transform: translate3d(0, 102px, 0) scale(0.78);
+        opacity: 1;
+      }
+      70% {
+        transform: translate3d(0, 112px, 0) scale(0.8);
+        opacity: 1;
+      }
+      82% {
+        /* Bouncy cartoon leap up into the air */
+        transform: translate3d(0, -36px, 0) scale(0.85, 1.25);
+        opacity: 1;
+      }
+      90% {
+        /* Squash on landing */
+        transform: translate3d(0, 12px, 0) scale(1.32, 0.72);
+        opacity: 1;
+      }
+      96% {
+        /* Rebound wobble */
+        transform: translate3d(0, -5px, 0) scale(0.95, 1.05);
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(0, 0, 0) scale(1, 1);
+        opacity: 1;
+      }
+    }
+
+    .bot-container.sneaky-entrance {
+      animation: sneaky-peek 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+      pointer-events: none;
+    }
+
+    /* ============================================== */
+    /* KINETIC BLUEPRINT REEL (SELECTED PROJECTS)     */
+    /* ============================================== */
+    /* REEL STAGE ARENA */
+    .reel-stage {
+      position: relative;
+      width: 100vw;
+      max-width: 100%;
+      min-height: 480px;
+      overflow: visible !important;
+      touch-action: pan-y;
+      user-select: none;
+      padding-top: 55px;
+      padding-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    @media (min-width: 768px) {
+      .reel-stage {
+        min-height: 560px;
+        padding-top: 65px;
+      }
+    }
+
+    /* 🌟 THE RESPONSIVE UNIFIED KINETIC TRACK (Engine 1: 5-Card Sliding Window) */
+    .reel-track {
+      position: relative;
+      display: flex;
+      gap: 8px; /* Mobile gap: 8px brings side cards close and clearly visible */
+      align-items: center;
+      justify-content: center;
+      transform: translate3d(var(--track-x, 0px), var(--track-y, 0px), 0) rotate(var(--track-rot, 0deg));
+      transform-origin: center bottom;
+      transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+      cursor: grab;
+    }
+    @media (min-width: 768px) {
+      .reel-track {
+        gap: 28px; /* Desktop gap: 28px */
+      }
+    }
+    .reel-track:active {
+      cursor: grabbing;
+    }
+
+    /* BOT TUG ON THE ENTIRE TRACK */
+    @keyframes track-bot-tug {
+      0% { transform: translate3d(0px, 0, 0) rotate(0deg); }
+      25% { transform: translate3d(-32px, 0, 0) rotate(-1.6deg); }
+      50% { transform: translate3d(6px, 0, 0) rotate(0.4deg); }
+      75% { transform: translate3d(-2px, 0, 0) rotate(-0.1deg); }
+      100% { transform: translate3d(0px, 0, 0) rotate(0deg); }
+    }
+    .reel-track.bot-tug {
+      animation: track-bot-tug 0.95s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* CARD SLOT ON THE TRACK */
+    .reel-card-slot {
+      position: relative;
+      width: min(580px, calc(100vw - 108px));
+      flex-shrink: 0;
+      transform-origin: center bottom;
+      cursor: pointer;
+      contain: layout;
+    }
+    @media (min-width: 640px) {
+      .reel-card-slot {
+        width: min(580px, calc(100vw - 72px));
+      }
+    }
+
+    /* TACTILE GLANCE ANIMATION FOR THE BOT */
+    .bot-body.glance-side .pupil {
+      transform: translate(-3.5px, 1px) !important;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Solid Opaque Card (Acts as the natural occlusion wall) */
+    .blueprint-sheet {
+      position: relative;
+      width: 100%;
+      background: #111115;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 22px;
+      z-index: 10;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      -webkit-font-smoothing: antialiased;
+      will-change: transform, opacity;
+      transition: opacity 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @media (min-width: 640px) {
+      .blueprint-sheet {
+        border-radius: 26px;
+      }
+    }
+
+    /* 🌟 NATIVE TYPOGRAPHY & LAYOUT HIERARCHY (ZERO REFLOW POP) */
+    
+    /* 1. SIDE CARD STATE (Compact peek clearly visible on mobile) */
+    .reel-card-slot .blueprint-sheet {
+      opacity: 0.55;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transform: translateY(4px);
+    }
+    .reel-card-slot .card-pad {
+      padding: 1.25rem; /* Constant padding: text column never squeezes or shifts */
+    }
+    @media (min-width: 640px) {
+      .reel-card-slot .card-pad {
+        padding: 1.5rem;
+      }
+    }
+    .reel-card-slot .card-preview-box {
+      height: 110px;
+      transition: height 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reel-card-slot .card-title {
+      font-size: 1.25rem; /* Stable base font size */
+      line-height: 1.25;
+      transform: scale(0.86); /* Smooth magnifying glass: zero word-wrap reflow */
+      transform-origin: left center;
+      opacity: 0.75;
+      transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.36s ease;
+    }
+    .reel-card-slot .card-domain {
+      font-size: 0.72rem;
+      opacity: 0.7;
+      transition: opacity 0.36s ease;
+    }
+    .reel-card-slot .card-desc {
+      font-size: 0.875rem; /* Constant font size: words NEVER jump lines */
+      line-height: 1.5;
+      opacity: 0.60;
+      transition: opacity 0.36s ease;
+    }
+    .reel-card-slot .card-footer {
+      opacity: 0.75;
+      transition: opacity 0.36s ease;
+    }
+
+    /* 2. ACTIVE HERO MAIN CARD STATE (Commanding showcase) */
+    .reel-card-slot.is-active .blueprint-sheet {
+      opacity: 1.0;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 28px 70px -15px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      transform: translateY(0px);
+    }
+
+    /* 🌟 MOBILE GPU SHADOW OPTIMIZATION (Cuts blur radius in half for silky 60-120 FPS) */
+    @media (max-width: 768px) {
+      .reel-card-slot .blueprint-sheet {
+        box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+      .reel-card-slot.is-active .blueprint-sheet {
+        box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      }
+    }
+    .reel-card-slot.is-active .card-preview-box {
+      height: 152px; /* Smooth accordion expansion */
+    }
+    .reel-card-slot.is-active .card-title {
+      transform: scale(1.0);
+      opacity: 1.0;
+    }
+    .reel-card-slot.is-active .card-domain {
+      opacity: 1.0;
+    }
+    .reel-card-slot.is-active .card-desc {
+      opacity: 1.0;
+    }
+    .reel-card-slot.is-active .card-footer {
+      opacity: 1.0;
+    }
+
+    /* 🌟 ATOMIC FREEZE KILLER (Eliminates Double-Zoom / Second-Pass Glitches) */
+    .no-transition,
+    .no-transition * {
+      transition: none !important;
+    }
+
+    body.light-theme .blueprint-sheet {
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    body.light-theme #reel-project-tags span {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: #334155;
+    }
+
+    /* Seam Bot Anchor: Sits BEHIND the card rim (z-index: 5) */
+    .seam-bot-anchor {
+      position: absolute;
+      top: -64px;
+      right: 20px;
+      width: 120px;
+      height: 120px;
+      pointer-events: none;
+      z-index: 5; /* Behind the card (z: 10) so the card naturally cuts off the lower body! */
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      transform: scale(0.78);
+      transform-origin: bottom center;
+      opacity: 0;
+      visibility: hidden;
+    }
+    .seam-bot-anchor.visible {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.22s ease;
+    }
+    /* 🌟 OCCLUSION CULLING: Instant zero-opacity when submerged or swiping - zero ghosting */
+    .seam-bot-anchor:not(.visible) {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      transition: none !important;
+    }
+    /* 🌟 SIDE CARD HARD BOUNDARY: Side cards can NEVER render or shine the bot through translucent sheets */
+    .reel-card-slot.is-side .seam-bot-anchor,
+    .reel-card-slot:not(.is-active) .seam-bot-anchor {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      transition: none !important;
+    }
+    .seam-bot-anchor .bot-container {
+      pointer-events: auto;
+    }
+
+    /* 1. Submerged Behind Card: Hidden 55px deep behind the solid blueprint sheet */
+    .seam-bot-anchor:not(.visible) .bot-container.is-peeking .bot-body {
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + 55px)) scale(0.92) rotate(var(--bot-tilt, 0deg));
+      transition: transform 0.25s ease;
+    }
+
+    /* 2. Peeking Rest: Physically pulls itself up from behind the slide to peek over paws! */
+    .seam-bot-anchor.visible .bot-container.is-peeking:not(.popped-out) .bot-body {
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) - 28px)) scale(1) rotate(var(--bot-tilt, 0deg));
+      transition: transform 0.48s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* 3. Popped out: Springs up higher to deliver project walkthrough */
+    .seam-bot-anchor.visible .bot-container.is-peeking.popped-out .bot-body {
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) - 54px)) scale(1.1) rotate(var(--bot-tilt, 0deg));
+      transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Kinematic Ledge Grab: Hands rise from BEHIND, clear the rim mid-air, flip z-index, and clamp down onto front rim */
+    @keyframes paw-wall-grab {
+      0% {
+        opacity: 0;
+        transform: translateY(28px) scale(0.85); /* Starting low behind the wall */
+        z-index: 5; /* 1. BEHIND the card (z: 10) -> Completely occluded by the slide! */
+      }
+      38% {
+        opacity: 1;
+        transform: translateY(-10px) scale(1.08, 1.12); /* 2. Reaches up BEHIND the ledge into the open air */
+        z-index: 5; /* Still behind */
+      }
+      40% {
+        z-index: 25; /* 3. FLIPS TO FRONT the exact instant it clears the rim! */
+      }
+      72% {
+        transform: translateY(2px) scale(1.04, 0.88); /* 4. Slaps DOWN onto the front face of the rim! */
+        z-index: 25;
+      }
+      88% {
+        transform: translateY(-0.5px) scale(0.99, 1.01); /* Micro recoil */
+        z-index: 25;
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1, 1); /* Locked firm grip on front rim */
+        z-index: 25;
+      }
+    }
+
+    /* Blueprint Hands: Cute Cartoon Paws clutching the sheet rim */
+    .blueprint-paws {
+      position: absolute;
+      top: -5px; /* Sits right at the card rim */
+      right: 48px;
+      width: 64px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 5; /* Initially behind the card (z: 10) */
+      opacity: 0; /* Initially hidden below rim */
+      visibility: hidden;
+      transform: translateY(28px);
+    }
+    .blueprint-paws.visible {
+      opacity: 1;
+      visibility: visible;
+      animation: paw-wall-grab 0.46s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    /* Paws strictly culled on side cards and when not visible */
+    .blueprint-paws:not(.visible),
+    .reel-card-slot.is-side .blueprint-paws,
+    .reel-card-slot:not(.is-active) .blueprint-paws {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      animation: none !important;
+    }
+
+    /* Single unified cute cartoon paw */
+    .cartoon-paw {
+      width: 22px;
+      height: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(226, 232, 240, 0.88) 100%);
+      border: 1.5px solid rgba(56, 189, 248, 0.5); /* Cyan robotic accent */
+      border-radius: 6px 6px 8px 8px; /* Cute rounded mitten/paw curling over rim */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7), inset 0 1px 1.5px rgba(255, 255, 255, 0.9);
+      position: relative;
+      display: flex;
+      justify-content: space-evenly;
+      align-items: flex-end;
+      padding-bottom: 2px;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* 2 subtle cute finger divider grooves giving 3 chubby cartoon fingers */
+    .cartoon-paw::before,
+    .cartoon-paw::after {
+      content: '';
+      width: 1.2px;
+      height: 5.5px;
+      background: rgba(100, 116, 139, 0.45);
+      border-radius: 1px;
+      box-shadow: 0.5px 0 0 rgba(255, 255, 255, 0.7);
+    }
+
+    /* Natural outward paw flare */
+    .cartoon-paw.paw-left {
+      transform: rotate(-7deg);
+    }
+    .cartoon-paw.paw-right {
+      transform: rotate(7deg);
+    }
+
+    body.light-theme .cartoon-paw {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(241, 245, 249, 0.95) 100%);
+      border-color: rgba(2, 132, 199, 0.4);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 1);
+    }
+
+    /* Tactile Grip Squeeze: Paws cutely flex and tighten when card is dragged */
+    .blueprint-paws.clutching .cartoon-paw.paw-left,
+    .blueprint-sheet.clutching ~ .blueprint-paws .cartoon-paw.paw-left,
+    .blueprint-sheet.clutching .cartoon-paw.paw-left {
+      transform: rotate(-10deg) scale(0.92, 0.82) translateY(2px);
+    }
+    .blueprint-paws.clutching .cartoon-paw.paw-right,
+    .blueprint-sheet.clutching ~ .blueprint-paws .cartoon-paw.paw-right,
+    .blueprint-sheet.clutching .cartoon-paw.paw-right {
+      transform: rotate(10deg) scale(0.92, 0.82) translateY(2px);
+    }
+
+    /* Hide internal wall-paws inside companion when in seam anchor because blueprint-paws are used */
+    .seam-bot-anchor .wall-paws {
+      display: none !important;
+    }
+
+    /* Speech bubble projects inward towards the project center, expands UPWARDS */
+    .seam-bot-anchor .speech-bubble {
+      top: auto;
+      bottom: 136px; /* Floats safely right above bot head */
+      right: -8px;
+      left: auto;
+      transform: translateY(8px) scale(0.9);
+      transform-origin: bottom right;
+      max-width: 250px;
+      z-index: 9999 !important; /* Top-most in the Z-axis */
+    }
+    @media (min-width: 640px) {
+      .seam-bot-anchor .speech-bubble {
+        bottom: 140px;
+        right: -10px;
+        max-width: 320px;
+      }
+    }
+    .seam-bot-anchor .speech-bubble.visible {
+      transform: translateY(0) scale(1.05);
+      z-index: 9999 !important;
+    }
+    .seam-bot-anchor .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      right: 44px;
+      left: auto;
+      width: 12px;
+      height: 12px;
+      background: var(--bubble-bg);
+      border-right: 1px solid var(--bubble-border);
+      border-bottom: 1px solid var(--bubble-border);
+      transform: rotate(45deg);
+    }
+  </style>
 </head>
-
 <body>
-    <video autoplay muted loop class="video-bg">
-        <source src="Assets/sura.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
 
-    <div class="content">
-        <p>Hang Tight! My portfolio is cooking right now🛠!!... </p>
-    </div>
+  <main class="relative z-10">
+    <!-- 1. Hero Section -->
+    <section id="hero-section" class="min-h-screen flex flex-col items-center justify-center text-center px-6">
+      
+      <!-- HERO ANCHOR (Clean & Free Floating - Original Hero Bot) -->
+      <div id="hero-bot-anchor" class="bot-hero-anchor">
+        <!-- THE CHARACTER COMPANION -->
+        <div id="companion" class="bot-container">
+          <div class="bot-body" id="bot-body">
+            <div class="eye"><div class="pupil"></div></div>
+            <div class="eye"><div class="pupil"></div></div>
+            <div class="walking-stick" id="walking-stick"></div>
+          </div>
+          <!-- Cute Gripping Paws (Clutch wall rim when peeking in other sections) -->
+          <div class="wall-paws" id="wall-paws">
+            <div class="paw"></div>
+            <div class="paw"></div>
+          </div>
+          <div class="speech-bubble" id="bot-speech"></div>
+        </div>
+      </div>
 
-    <script src="Scripts/script.js"></script>
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
+      <h1 class="text-4xl md:text-6xl font-light tracking-tight mt-6" style="color: var(--text-main)">
+        Hi, I'm <span class="font-semibold" style="color: var(--text-accent)">Mathavan</span>.
+      </h1>
+      <p class="max-w-md mt-6 text-lg leading-relaxed" style="color: var(--text-muted)">
+        I build high-performance full-stack systems and interactive web experiences. Say hi to my little companion above. Try tilting your phone or nudging him around!
+      </p>
+    </section>
 
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-            apiKey: "AIzaSyA2_eqCh6XSD5XRxA05x3168WHkmPfHkwI",
-            authDomain: "mathavan-portfolio.firebaseapp.com",
-            projectId: "mathavan-portfolio",
-            storageBucket: "mathavan-portfolio.appspot.com",
-            messagingSenderId: "731398037124",
-            appId: "1:731398037124:web:3b04f754267016e6ad6cd1",
-            measurementId: "G-LTMGTGP12W"
-        };
+    <!-- 2. Work Experience Section -->
+    <section id="experience-section" class="min-h-screen px-6 md:px-12 lg:px-24 py-24 flex items-center" style="background-color: var(--bg-works); transition: background-color 0.4s ease;">
+      <div class="max-w-4xl mx-auto w-full">
+        <!-- BOT SLOT ON TOP OF WORK EXPERIENCE -->
+        <div id="experience-bot-slot" class="section-bot-slot">
+          <div class="peek-station">
+            <div class="peek-ledge"></div>
+          </div>
+        </div>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-    </script>
+        <h2 class="text-sm tracking-widest uppercase mb-3 text-center md:text-left" style="color: var(--text-muted)">Track Record</h2>
+        <h3 class="text-3xl md:text-4xl font-semibold mb-12 text-center md:text-left" style="color: var(--text-main)">Work Experience</h3>
+
+        <div class="space-y-12">
+          <!-- Experience 1 -->
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
+              <h4 class="text-xl font-semibold" style="color: var(--text-main)">Senior Full-Stack Engineer <span style="color: var(--text-accent)">@ Tech Systems</span></h4>
+              <span class="text-sm font-medium" style="color: var(--text-muted)">2023 — Present</span>
+            </div>
+            <p class="text-sm mb-3" style="color: var(--text-muted)">Engineered high-concurrency microservices and real-time frontend architectures.</p>
+            <ul class="text-sm space-y-1.5" style="color: var(--text-main)">
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span>Reduced end-to-end API response latency by 35% through Redis caching and query indexing.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span>Led modern responsive UI migration using React, Tailwind CSS, and WebSocket data streams.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Experience 2 -->
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
+              <h4 class="text-xl font-semibold" style="color: var(--text-main)">Software Engineer <span style="color: var(--text-accent)">@ Digital Labs</span></h4>
+              <span class="text-sm font-medium" style="color: var(--text-muted)">2021 — 2023</span>
+            </div>
+            <p class="text-sm mb-3" style="color: var(--text-muted)">Developed customer-facing web applications and automated data pipelines.</p>
+            <ul class="text-sm space-y-1.5" style="color: var(--text-main)">
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span>Architected RESTful and GraphQL APIs serving 50k+ daily active users.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span>Built automated unit and integration test suites maintaining 98% coverage.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Experience 3 -->
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
+              <h4 class="text-xl font-semibold" style="color: var(--text-main)">Frontend Developer Intern <span style="color: var(--text-accent)">@ Creative Studio</span></h4>
+              <span class="text-sm font-medium" style="color: var(--text-muted)">2020 — 2021</span>
+            </div>
+            <p class="text-sm mb-3" style="color: var(--text-muted)">Crafted interactive landing pages and reusable component libraries.</p>
+            <ul class="text-sm space-y-1.5" style="color: var(--text-main)">
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span>Improved Lighthouse performance scores from 64 to 96 across core marketing pages.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Selected Projects Section -->
+    <section id="projects-section" class="min-h-screen px-0 sm:px-6 md:px-12 lg:px-24 py-20 flex items-center justify-center" style="background-color: var(--bg-main); transition: background-color 0.4s ease;">
+      <div class="max-w-5xl mx-auto w-full">
+        
+        <!-- MINIMALIST HEADER: Zero progress dots, pure typography -->
+        <div class="px-4 sm:px-0 max-w-4xl mx-auto mb-6 sm:mb-8 pb-3 sm:pb-4 border-b flex flex-col justify-between gap-1" style="border-color: var(--card-border)">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="reel-meta-tag" class="text-[11px] sm:text-xs font-mono uppercase tracking-widest" style="color: var(--text-muted)">
+              [ 01 / 03 • INFRASTRUCTURE TELEMETRY ]
+            </span>
+          </div>
+          <h3 class="text-2xl sm:text-4xl font-semibold tracking-tight" style="color: var(--text-main)">
+            Selected Works
+          </h3>
+        </div>
+
+        <!-- THE KINETIC REEL STAGE ARENA -->
+        <div class="reel-stage" id="reel-stage">
+
+          <!-- 🌟 THE RESPONSIVE UNIFIED KINETIC TRACK (Engine 1: 5-Card Sliding Window) -->
+          <div class="reel-track" id="reel-track">
+
+            <!-- SLOT -2: FAR PREVIOUS CARD -->
+            <div class="reel-card-slot is-side" id="slot-far-prev" data-slot="-2">
+              <div class="blueprint-sheet pointer-events-none">
+                <div class="card-pad p-4 sm:p-7 flex flex-col justify-between select-none">
+                  <div class="card-preview-box w-full rounded-xl sm:rounded-2xl bg-zinc-950 border border-zinc-800/80 flex flex-col items-center justify-center p-3 sm:p-4 relative overflow-hidden mb-3 sm:mb-5">
+                    <div class="card-grad absolute inset-0 bg-gradient-to-tr from-purple-500/20 via-purple-500/5 to-transparent"></div>
+                    <span class="card-badge px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-mono tracking-widest uppercase bg-purple-500/10 text-purple-400 border border-purple-500/30 mb-1 sm:mb-2">
+                      [ LOW-LEVEL DSP ENGINE ]
+                    </span>
+                    <div class="card-preview text-[11px] sm:text-sm font-mono text-zinc-300 font-semibold text-center truncate w-full">
+                      Neural Audio DSP • WebAssembly & C++ Engine
+                    </div>
+                  </div>
+                  <div class="flex items-baseline justify-between mb-1 sm:mb-2 gap-1">
+                    <h4 class="font-bold tracking-tight card-title" style="color: var(--text-main)">Neural Audio DSP Synthesizer</h4>
+                    <span class="card-domain text-[11px] sm:text-xs font-mono font-semibold text-purple-400">Low-Latency DSP</span>
+                  </div>
+                  <p class="card-desc text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5" style="color: var(--text-muted)">
+                    Real-time spatial audio synthesizer powered by C++ compiled to WebAssembly with SIMD math and zero audio-thread memory allocations.
+                  </p>
+                  <div class="card-footer flex items-center justify-between pt-3 sm:pt-4 border-t" style="border-color: var(--card-border)">
+                    <div class="flex items-center gap-2">
+                      <span class="card-num text-[11px] sm:text-xs font-mono" style="color: var(--text-muted)">Project 03</span>
+                      <div class="card-tags hidden sm:flex flex-wrap gap-1">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">WebAssembly</span>
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">C++</span>
+                      </div>
+                    </div>
+                    <a href="https://github.com/Mathavan-A" target="_blank" rel="noopener noreferrer" class="card-link text-purple-400 hover:underline inline-flex items-center gap-1 font-semibold text-xs font-mono" onclick="event.stopPropagation()">Live Demo ↗</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SLOT -1: IMMEDIATE PREVIOUS CARD -->
+            <div class="reel-card-slot is-side" id="slot-prev" data-slot="-1">
+              <div class="blueprint-sheet pointer-events-none">
+                <div class="card-pad p-4 sm:p-7 flex flex-col justify-between select-none">
+                  <div class="card-preview-box w-full rounded-xl sm:rounded-2xl bg-zinc-950 border border-zinc-800/80 flex flex-col items-center justify-center p-3 sm:p-4 relative overflow-hidden mb-3 sm:mb-5">
+                    <div class="card-grad absolute inset-0 bg-gradient-to-tr from-emerald-500/20 via-emerald-500/5 to-transparent"></div>
+                    <span class="card-badge px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-mono tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 mb-1 sm:mb-2">
+                      [ ZERO-LATENCY PAYMENTS ]
+                    </span>
+                    <div class="card-preview text-[11px] sm:text-sm font-mono text-zinc-300 font-semibold text-center truncate w-full">
+                      Autonomous Commerce • Stripe & Redis Engine
+                    </div>
+                  </div>
+                  <div class="flex items-baseline justify-between mb-1 sm:mb-2 gap-1">
+                    <h4 class="font-bold tracking-tight card-title" style="color: var(--text-main)">Autonomous Commerce Engine</h4>
+                    <span class="card-domain text-[11px] sm:text-xs font-mono font-semibold text-emerald-400">High-Concurrency Payments</span>
+                  </div>
+                  <p class="card-desc text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5" style="color: var(--text-muted)">
+                    Sub-second checkout platform engineered with PostgreSQL atomic locks, Stripe webhook reconciliation, and Redis session caches.
+                  </p>
+                  <div class="card-footer flex items-center justify-between pt-3 sm:pt-4 border-t" style="border-color: var(--card-border)">
+                    <div class="flex items-center gap-2">
+                      <span class="card-num text-[11px] sm:text-xs font-mono" style="color: var(--text-muted)">Project 02</span>
+                      <div class="card-tags hidden sm:flex flex-wrap gap-1">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">Next.js</span>
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">PostgreSQL</span>
+                      </div>
+                    </div>
+                    <a href="https://github.com/Mathavan-A" target="_blank" rel="noopener noreferrer" class="card-link text-emerald-400 hover:underline inline-flex items-center gap-1 font-semibold text-xs font-mono" onclick="event.stopPropagation()">Live Demo ↗</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SLOT 0: ACTIVE CENTER CARD + COMPANION BOT -->
+            <div class="reel-card-slot is-active" id="slot-active" data-slot="0">
+              
+              <!-- 1. Bot Seam Anchor (z: 5) -->
+              <div class="seam-bot-anchor" id="projects-bot-slot"></div>
+
+              <!-- 2. Blueprint Hands (Dynamic Z-Index) -->
+              <div class="blueprint-paws" id="blueprint-paws">
+                <div class="cartoon-paw paw-left"></div>
+                <div class="cartoon-paw paw-right"></div>
+              </div>
+
+              <!-- 3. Active Blueprint Sheet (z: 10) -->
+              <div class="blueprint-sheet" id="blueprint-sheet">
+                <div class="card-pad p-4 sm:p-7 flex flex-col justify-between select-none">
+                  
+                  <!-- Telemetry Viewport -->
+                  <div class="card-preview-box w-full rounded-xl sm:rounded-2xl bg-zinc-950 border border-zinc-800/80 flex flex-col items-center justify-center p-3 sm:p-4 relative overflow-hidden mb-3 sm:mb-5">
+                    <div class="card-grad absolute inset-0 bg-gradient-to-tr from-sky-500/20 via-sky-500/5 to-transparent"></div>
+                    
+                    <span class="card-badge px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-mono tracking-widest uppercase bg-sky-500/10 text-sky-400 border border-sky-500/30 mb-1 sm:mb-2">
+                      [ LIVE 60 FPS ENGINE ]
+                    </span>
+                    <div class="card-preview text-[11px] sm:text-sm font-mono text-zinc-300 font-semibold text-center truncate w-full">
+                      Kinetic Cloud Dashboard • WebGL Telemetry Pipeline
+                    </div>
+                  </div>
+
+                  <!-- Title & Domain Subtitle -->
+                  <div class="flex items-baseline justify-between mb-1 sm:mb-2 gap-1">
+                    <h4 class="font-bold tracking-tight card-title" style="color: var(--text-main)">
+                      Kinetic Cloud Dashboard
+                    </h4>
+                    <span class="card-domain text-[11px] sm:text-xs font-mono font-semibold text-sky-400">
+                      Distributed Telemetry
+                    </span>
+                  </div>
+
+                  <!-- Description -->
+                  <p class="card-desc text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5" style="color: var(--text-muted)">
+                    Real-time fleet monitor engineered with WebGL canvas rendering, automated anomaly detection, and bidirectional WebSocket pipelines for sub-second metrics.
+                  </p>
+
+                  <!-- Tech Tags & Action Links -->
+                  <div class="card-footer flex items-center justify-between pt-3 sm:pt-4 border-t" style="border-color: var(--card-border)">
+                    <div class="flex items-center gap-2">
+                      <span class="card-num text-[11px] sm:text-xs font-mono" style="color: var(--text-muted)">Project 01</span>
+                      <div class="card-tags hidden sm:flex flex-wrap gap-1">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">React</span>
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">TypeScript</span>
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">WebSockets</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-mono">
+                      <a href="https://github.com/Mathavan-A" target="_blank" rel="noopener noreferrer" class="card-link text-sky-400 hover:text-sky-300 transition-colors inline-flex items-center gap-1 font-semibold" onclick="event.stopPropagation()">
+                        Live Demo ↗
+                      </a>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
+            <!-- SLOT +1: IMMEDIATE NEXT CARD -->
+            <div class="reel-card-slot is-side" id="slot-next" data-slot="1">
+              <div class="blueprint-sheet pointer-events-none">
+                <div class="card-pad p-4 sm:p-7 flex flex-col justify-between select-none">
+                  <div class="card-preview-box w-full rounded-xl sm:rounded-2xl bg-zinc-950 border border-zinc-800/80 flex flex-col items-center justify-center p-3 sm:p-4 relative overflow-hidden mb-3 sm:mb-5">
+                    <div class="card-grad absolute inset-0 bg-gradient-to-tr from-emerald-500/20 via-emerald-500/5 to-transparent"></div>
+                    <span class="card-badge px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-mono tracking-widest uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 mb-1 sm:mb-2">
+                      [ ZERO-LATENCY PAYMENTS ]
+                    </span>
+                    <div class="card-preview text-[11px] sm:text-sm font-mono text-zinc-300 font-semibold text-center truncate w-full">
+                      Autonomous Commerce • Stripe & Redis Engine
+                    </div>
+                  </div>
+                  <div class="flex items-baseline justify-between mb-1 sm:mb-2 gap-1">
+                    <h4 class="font-bold tracking-tight card-title" style="color: var(--text-main)">Autonomous Commerce Engine</h4>
+                    <span class="card-domain text-[11px] sm:text-xs font-mono font-semibold text-emerald-400">High-Concurrency Payments</span>
+                  </div>
+                  <p class="card-desc text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5" style="color: var(--text-muted)">
+                    Sub-second checkout platform engineered with PostgreSQL atomic locks, Stripe webhook reconciliation, and Redis session caches.
+                  </p>
+                  <div class="card-footer flex items-center justify-between pt-3 sm:pt-4 border-t" style="border-color: var(--card-border)">
+                    <div class="flex items-center gap-2">
+                      <span class="card-num text-[11px] sm:text-xs font-mono" style="color: var(--text-muted)">Project 02</span>
+                      <div class="card-tags hidden sm:flex flex-wrap gap-1">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">Next.js</span>
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">PostgreSQL</span>
+                      </div>
+                    </div>
+                    <a href="https://github.com/Mathavan-A" target="_blank" rel="noopener noreferrer" class="card-link text-emerald-400 hover:underline inline-flex items-center gap-1 font-semibold text-xs font-mono" onclick="event.stopPropagation()">Live Demo ↗</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SLOT +2: FAR NEXT CARD -->
+            <div class="reel-card-slot is-side" id="slot-far-next" data-slot="2">
+              <div class="blueprint-sheet pointer-events-none">
+                <div class="card-pad p-4 sm:p-7 flex flex-col justify-between select-none">
+                  <div class="card-preview-box w-full rounded-xl sm:rounded-2xl bg-zinc-950 border border-zinc-800/80 flex flex-col items-center justify-center p-3 sm:p-4 relative overflow-hidden mb-3 sm:mb-5">
+                    <div class="card-grad absolute inset-0 bg-gradient-to-tr from-purple-500/20 via-purple-500/5 to-transparent"></div>
+                    <span class="card-badge px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-mono tracking-widest uppercase bg-purple-500/10 text-purple-400 border border-purple-500/30 mb-1 sm:mb-2">
+                      [ LOW-LEVEL DSP ENGINE ]
+                    </span>
+                    <div class="card-preview text-[11px] sm:text-sm font-mono text-zinc-300 font-semibold text-center truncate w-full">
+                      Neural Audio DSP • WebAssembly & C++ Engine
+                    </div>
+                  </div>
+                  <div class="flex items-baseline justify-between mb-1 sm:mb-2 gap-1">
+                    <h4 class="font-bold tracking-tight card-title" style="color: var(--text-main)">Neural Audio DSP Synthesizer</h4>
+                    <span class="card-domain text-[11px] sm:text-xs font-mono font-semibold text-purple-400">Low-Latency DSP</span>
+                  </div>
+                  <p class="card-desc text-xs sm:text-sm leading-relaxed mb-3 sm:mb-5" style="color: var(--text-muted)">
+                    Real-time spatial audio synthesizer powered by C++ compiled to WebAssembly with SIMD math and zero audio-thread memory allocations.
+                  </p>
+                  <div class="card-footer flex items-center justify-between pt-3 sm:pt-4 border-t" style="border-color: var(--card-border)">
+                    <div class="flex items-center gap-2">
+                      <span class="card-num text-[11px] sm:text-xs font-mono" style="color: var(--text-muted)">Project 03</span>
+                      <div class="card-tags hidden sm:flex flex-wrap gap-1">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">WebAssembly</span>
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400">C++</span>
+                      </div>
+                    </div>
+                    <a href="https://github.com/Mathavan-A" target="_blank" rel="noopener noreferrer" class="card-link text-purple-400 hover:underline inline-flex items-center gap-1 font-semibold text-xs font-mono" onclick="event.stopPropagation()">Live Demo ↗</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. Contact Section -->
+    <section id="contact-section" class="min-h-screen px-6 md:px-12 lg:px-24 py-24 flex items-center justify-center" style="background-color: var(--bg-works); transition: background-color 0.4s ease;">
+      <div class="max-w-2xl w-full contact-card p-8 md:p-14 text-center">
+        <!-- BOT SLOT ON TOP OF CONTACT -->
+        <div id="contact-bot-slot" class="section-bot-slot">
+          <div class="peek-station">
+            <div class="peek-ledge"></div>
+          </div>
+        </div>
+
+        <h2 class="text-sm tracking-widest uppercase mb-3" style="color: var(--text-muted)">Get In Touch</h2>
+        <h3 class="text-3xl md:text-5xl font-semibold mb-6 tracking-tight" style="color: var(--text-main)">Let's build something remarkable.</h3>
+        <p class="text-base mb-8 max-w-lg mx-auto leading-relaxed" style="color: var(--text-muted)">
+          Whether you're looking to build a high-performance web platform, optimize complex systems, or just chat engineering architecture—my inbox is open.
+        </p>
+
+        <!-- 1-Click Copy Email Button -->
+        <div class="inline-block mb-10">
+          <button onclick="copyEmail()" class="copy-btn px-6 py-4 rounded-xl flex items-center gap-3 cursor-pointer mx-auto">
+            <span class="text-lg">📧</span>
+            <span id="email-text" class="font-mono text-base font-medium" style="color: var(--text-main)">mathavan.dev@example.com</span>
+            <span id="copy-feedback" class="text-xs px-2.5 py-1 rounded-md ml-2" style="background: var(--card-border); color: var(--text-accent)">Click to copy 📋</span>
+          </button>
+        </div>
+
+        <!-- Social Links & Resume -->
+        <div class="flex flex-wrap items-center justify-center gap-6 text-sm font-medium">
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-1.5" style="color: var(--text-main)">
+            <span>GitHub</span> ↗
+          </a>
+          <span style="color: var(--card-border)">•</span>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-1.5" style="color: var(--text-main)">
+            <span>LinkedIn</span> ↗
+          </a>
+          <span style="color: var(--card-border)">•</span>
+          <a href="#resume" class="hover:underline flex items-center gap-1.5" style="color: var(--text-accent)">
+            <span>Download Resume</span> 📄
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const companion = document.getElementById('companion');
+    const botBody = document.getElementById('bot-body');
+    const pupils = document.querySelectorAll('.pupil');
+    const botSpeech = document.getElementById('bot-speech');
+
+    // ============================================================
+    // 🎭 CUSTOMIZABLE DIALOGUE REGISTRY
+    // Easily add, edit, or customize dialogue sets for future features!
+    // ============================================================
+    const DIALOGUES = {
+      // 1. Core Introductions & Descriptions (Marked Important - Has Interruption Memory)
+      welcome: [
+        "Welcome to Mathavan's portfolio! 👋 I'm his digital twin—trying my best to act just like him! 👔🤖"
+      ],
+
+      // 2. Annoyed Interruption Retorts (Spoken when user pokes or drags while bot is in mid-sentence)
+      interruptedRetorts: [
+        "Ahem! As I was trying to say before that rude poke... ✋🧐",
+        "Patience, please! Give me just five seconds to finish my thought! 😤",
+        "Interrupting while I'm in the middle of talking? Bold move! 😅",
+        "Hold your horses! Let me finish my sentence first! 🐴✋",
+        "Excuse me! Mathavan raised me with better conversational etiquette than this! 🎩",
+        "Hey! Let a bot finish his line, will ya? 🤖💨"
+      ],
+
+      // 3. Conversational Resumptions (Transitions smoothly back into the saved thought)
+      resumptions: [
+        "Now, as I was saying: ",
+        "Where was I? Ah, right: ",
+        "Picking up right where you cut me off: ",
+        "As I was explaining before the interruption: "
+      ],
+
+      // 4. Hit / Poke Remarks (Normal idle taps)
+      tapRemarks: [
+        "Ouch! Watch the elbows, please! 🤕",
+        "Hey! A polite handshake would suffice! 🤝😅",
+        "Poke me again and I'm telling Mathavan! 😤",
+        "Oof! My turn to poke back? 👉✨",
+        "Boop! Did that test pass your QA checklist? 📋😂",
+        "Careful! I bruise like a fresh peach! 🍑"
+      ],
+
+      // 5. Multi-Hit Barrage Remarks (Spoken after continuous rapid hits settle)
+      comboRemarks: [
+        "Whoa! That was rapid-fire poke torture! 😵‍💫",
+        "Combo attack detected! 🥊 Give my circuits a second to reboot! ⚡",
+        "Phew... is the barrage finally over? 🤖💫",
+        "Hey! Double-tapping won't unlock secret cheat codes! 🎮😅",
+        "Oof! My collision detection just got severely stress-tested! 💥🤖",
+        "Patience, human! I'm a companion bot, not a speedbag! 🥊😂"
+      ],
+
+      // 5. Environmental & Theme Adaptations
+      theme: {
+        dark: [
+          "Ah, dark mode... 🌙 Pure cozy bliss for my digital eyes. 😌✨",
+          "Dark mode detected! 🌙 Impeccable taste—my eyes thank you deeply. ☕🖤",
+          "So sleek in the dark. 🌙 Mathavan's cosmic theme feels like a warm cyber blanket. 🌌",
+          "Dark mode active! 🌙 Maximum aesthetic, zero eye-strain. We approve! 👾"
+        ],
+        light: [
+          "Whoa... so much light! ☀️ How are your eyes handling this brightness? 👀",
+          "A rare light-mode explorer! ☀️ Mathavan forgot to code me a pair of sunglasses! 🕶️✨",
+          "Bright mode detected! ☀️ Respect to your retinas, but my circuits are squinting! 😵‍💫",
+          "Power of the sun! ☀️ Hope your eyes have high-contrast protection activated! 😅"
+        ],
+        liveSwitchToDark: "Ah, switching to dark mode! 🌙 My eyes thank you! 😌✨",
+        liveSwitchToLight: "Whoa! Lights just turned on! ☀️ Hold on, let me squint! 😵‍💫"
+      },
+
+      // 6. Display Resolution Remarks
+      resolution: {
+        '4k': [
+          "Whoa, 4K resolution detected! 🤯 That is an insane amount of pixels on my face! 💎✨",
+          "Holy 4K! 🚀 Mathavan's code looks razor-sharp down to every single sub-pixel! 📐✨"
+        ],
+        '2k': [
+          "Look at that 2K Quad-HD display! 🤩 You've got serious pixel real estate here! 🖥️✨",
+          "2K resolution detected! 💎 So much room for clean code and razor-sharp curves! 📐🚀"
+        ],
+        'ultra-hd': [
+          "Higher than 1080p detected! 💎 That extra pixel density makes everything look so crisp! ✨"
+        ]
+      },
+
+      // 7. Drag Panic Remarks (Violent pull)
+      panic: [
+        "Whoa whoa! Personal space, please! 😅",
+        "Hey, gentle! I get dizzy easily! 😱",
+        "Hold on, I didn't sign up for bungee jumping! 🫣",
+        "Whoa! Mind putting me back down softly? 🎢",
+        "Careful! You're gonna make me drop my tea! ☕💨"
+      ],
+
+      // 8. Drag Recovery Remarks
+      recovery: {
+        angry: [
+          "I shall politely ask you not to do that again. 🧐",
+          "Mathavan treats his code with far more gentleness than that! 🎩",
+          "I am calm, composed, and very mildly offended. ☕",
+          "Let's channel that energy into checking out the projects below, shall we? 💼",
+          "My jacket is wrinkled now, but my manners remain intact. 👔"
+        ],
+        dizzy: [
+          "Whoa... which one of you is looking at me right now? 😵‍💫🌀",
+          "Is the room doing 360-degree cartwheels, or just my head? 🎪",
+          "I see three cursors and two screens... perfectly normal! 💫",
+          "Hold on, let the room stop revolving first... 🎠🥴",
+          "Spinning... still spinning... okay, almost stabilized! 🌀✨"
+        ],
+        tired: [
+          "Phew... I definitely need a cup of coffee after that. ☕",
+          "Give me just five seconds to catch my breath... 😮‍💨",
+          "Taking a quick breather to compose myself... 🧘",
+          "I'm fine, I'm fine... just give me a moment to sit down. 🫠",
+          "A gentle sit-down is officially on my calendar today. 🪑"
+        ]
+      },
+
+      // 9. Tilt & Posture Remarks
+      tilt: {
+        warnings: [
+          "Are you relaxing on the couch? I'm sliding down here! 🛋️😅",
+          "Quick posture check! Don't strain your neck reading like that! 🧘‍♂️",
+          "Pardon me, but which way is up right now? 🙃",
+          "Whoa, easy there! You're holding the phone upside down! 📐"
+        ],
+        caneActive: "Whoa, hold on! Grabbing my walking stick so I don't tumble over! 🦯😅",
+        canePacked: "Phew! That's much better. Walking stick safely packed away! 🎒✨"
+      },
+
+      // 10. Section Scroll Remarks (Spoken as user explores different sections)
+      sections: {
+        experience: [
+          "Here's Mathavan's career journey! Real impact, zero fluff. 💼✨",
+          "Work experience section! Check out the teams he's accelerated! 🚀",
+          "Proven engineering track record right here. 📈"
+        ],
+        projects: [
+          "My favorite zone: Selected Works! Click any card to inspect! 🛠️✨",
+          "High-performance systems ahead. Built with clean code and coffee! ☕🚀",
+          "Check out the code architectures below! 📐✨"
+        ],
+        contact: [
+          "You made it to the end! Mathavan's inbox is always open! ☕📨",
+          "Looking for a strong engineer? Drop him a message! 🤝✨",
+          "One click to copy his email—let's build something! 🚀"
+        ]
+      }
+    };
+
+    // 0. ENHANCED SPEECH ENGINE WITH PRIORITY & INTERRUPTION MEMORY
+    let speechTimer = null;
+    let resumeTimer = null;
+    let peekTimer = null;
+    let currentSpeech = null;      // { text: string, isImportant: boolean }
+    let interruptedThought = null; // Saves the important dialogue when interrupted
+
+    // ==========================================
+    // 0. EMOTION & EXPRESSION STATE CONTROLLER
+    // ==========================================
+    const TEMPORARY_EMOTIONS = ['annoyed', 'angry', 'tired', 'dizzy', 'panic', 'grip-shake', 'curious'];
+    let emotionTimer = null;
+
+    function clearAllEmotions() {
+      clearTimeout(emotionTimer);
+      TEMPORARY_EMOTIONS.forEach(cls => botBody.classList.remove(cls));
+    }
+
+    function setEmotion(emotion, duration = 3000) {
+      clearAllEmotions();
+      if (emotion && TEMPORARY_EMOTIONS.includes(emotion)) {
+        botBody.classList.add(emotion);
+        if (duration > 0) {
+          emotionTimer = setTimeout(() => {
+            clearAllEmotions();
+          }, duration);
+        }
+      }
+    }
+
+    // PEEK & POP-OUT COORDINATOR
+    function popOutPeek(duration = 4000) {
+      clearTimeout(peekTimer);
+      companion.classList.add('popped-out');
+      if (duration > 0) {
+        peekTimer = setTimeout(() => {
+          if (!isDraggingBot && (!currentSpeech || !currentSpeech.isImportant)) {
+            companion.classList.remove('popped-out');
+          }
+        }, duration);
+      }
+    }
+
+    function speak(text, duration = 3000, isImportant = false) {
+      clearTimeout(speechTimer);
+
+      currentSpeech = {
+        text: text,
+        isImportant: isImportant
+      };
+
+      // Whenever speaking in peek mode, emerge over the ledge so the visitor sees and hears the bot!
+      if (companion.classList.contains('is-peeking')) {
+        popOutPeek(duration > 0 ? duration + 600 : 0);
+      }
+
+      botSpeech.innerText = text;
+      botSpeech.classList.add('visible');
+
+      if (duration > 0) {
+        speechTimer = setTimeout(() => {
+          botSpeech.classList.remove('visible');
+          currentSpeech = null;
+          // When speech bubble closes, guarantee any temporary face expression returns to normal!
+          clearAllEmotions();
+        }, duration);
+      }
+    }
+
+    // Interruption Handler: Slants eyes annoyed, delivers quick retort, then resumes the original thought!
+    function interruptAndResume(retortDuration = 3200) {
+      if (!currentSpeech || !currentSpeech.isImportant) return false;
+
+      // Preserve the thought that was cut off
+      interruptedThought = currentSpeech.text;
+
+      // Set the annoyed face with guaranteed auto-cleanup
+      setEmotion('annoyed', retortDuration + 300);
+
+      // Pick an annoyed retort
+      const retorts = DIALOGUES.interruptedRetorts;
+      const retort = retorts[Math.floor(Math.random() * retorts.length)];
+      speak(retort, retortDuration, false);
+
+      // Resume the original important thought right after the retort
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => {
+        clearAllEmotions();
+        if (interruptedThought) {
+          const resumptions = DIALOGUES.resumptions;
+          const prefix = resumptions[Math.floor(Math.random() * resumptions.length)];
+          speak(prefix + `"${interruptedThought}"`, 5000, true);
+          interruptedThought = null;
+        }
+      }, retortDuration + 300);
+
+      return true;
+    }
+
+    // ==========================================
+    // THEME & DISPLAY ADAPTIVE SYSTEM
+    // ==========================================
+    const themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function applyTheme(isDark) {
+      if (isDark) {
+        document.body.classList.remove('light-theme');
+        document.body.classList.add('dark-theme');
+      } else {
+        document.body.classList.remove('dark-theme');
+        document.body.classList.add('light-theme');
+      }
+    }
+
+    // Initialize immediate theme preference
+    applyTheme(themeMedia.matches);
+
+    // Live theme-switching listener (if user toggles dark/light mode on the fly)
+    themeMedia.addEventListener('change', (e) => {
+      applyTheme(e.matches);
+      if (e.matches) {
+        speak(DIALOGUES.theme.liveSwitchToDark, 4000, false);
+      } else {
+        speak(DIALOGUES.theme.liveSwitchToLight, 4000, false);
+      }
+    });
+
+    // Screen Resolution Detector (> 1080p Detection)
+    function getDisplayResolutionInfo() {
+      const dpr = window.devicePixelRatio || 1;
+      const physicalW = Math.round(window.screen.width * dpr);
+      const physicalH = Math.round(window.screen.height * dpr);
+      const maxRes = Math.max(physicalW, physicalH);
+      const minRes = Math.min(physicalW, physicalH);
+
+      // Check if display exceeds standard 1080p:
+      // Standard 1080p is 1920x1080 desktop or 1080x2400 phone.
+      let category = null;
+      if (maxRes >= 3800 || minRes >= 2100) {
+        category = '4K';
+      } else if (physicalW >= 2400 || (minRes >= 1200 && maxRes > 2500)) {
+        category = '2K';
+      } else if (physicalW > 1920 || minRes > 1100 || maxRes > 2520) {
+        category = 'Ultra-HD';
+      }
+      return { category, physicalW, physicalH, maxRes, minRes, dpr };
+    }
+
+    // SEQUENCED GREETINGS (Hero Only):
+    // Theme Adaptation Dialogue (Only if user remains in Hero)
+    setTimeout(() => {
+      if (interruptedThought) return;
+      if (companion.parentElement !== botSlots['hero-section']) return;
+      const themeRemarks = themeMedia.matches ? DIALOGUES.theme.dark : DIALOGUES.theme.light;
+      speak(themeRemarks[Math.floor(Math.random() * themeRemarks.length)], 4000, false);
+    }, 8000);
+
+    // Screen Resolution Dialogue (Hero Only, if screen > 1080p)
+    setTimeout(() => {
+      if (interruptedThought) return;
+      if (companion.parentElement !== botSlots['hero-section']) return;
+      const res = getDisplayResolutionInfo();
+      if (res.category === '4K') {
+        const remarks4K = DIALOGUES.resolution['4k'];
+        speak(remarks4K[Math.floor(Math.random() * remarks4K.length)], 4500, false);
+      } else if (res.category === '2K') {
+        const remarks2K = DIALOGUES.resolution['2k'];
+        speak(remarks2K[Math.floor(Math.random() * remarks2K.length)], 4500, false);
+      }
+    }, 14000);
+
+    // Global developer helper functions for console testing:
+    window.testTheme = (mode) => applyTheme(mode === 'dark');
+    window.testResolution = (type = '2k') => {
+      if (type.toLowerCase() === '4k') {
+        speak(DIALOGUES.resolution['4k'][0], 4000, true);
+      } else {
+        speak(DIALOGUES.resolution['2k'][0], 4000, true);
+      }
+    };
+
+    // 1. RANDOM BLINKING LOGIC
+    function blink() {
+      botBody.classList.add('blink');
+      setTimeout(() => {
+        botBody.classList.remove('blink');
+      }, 150); // Blink duration
+      
+      // Schedule next blink randomly between 2s and 6s
+      setTimeout(blink, Math.random() * 4000 + 2000);
+    }
+    setTimeout(blink, 2000);
+
+    // 2. EYE TRACKING (Mouse & Touch)
+    function updateEyes(x, y) {
+      if (botBody.classList.contains('glance-side')) return;
+      pupils.forEach(pupil => {
+        const eye = pupil.parentElement;
+        const rect = eye.getBoundingClientRect();
+        
+        // Find center of the eye on the screen
+        const eyeCenterX = rect.left + rect.width / 2;
+        const eyeCenterY = rect.top + rect.height / 2;
+        
+        // Calculate angle from eye to cursor/finger
+        const angle = Math.atan2(y - eyeCenterY, x - eyeCenterX);
+        
+        // Calculate distance (limit it so pupil stays in the eye)
+        const distance = Math.min(8, Math.hypot(x - eyeCenterX, y - eyeCenterY) * 0.02);
+        
+        // Move pupil
+        pupil.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+      });
+    }
+
+    // 2.5 IDLE EXPLORATION LOGIC
+    let idleTimer = null;
+    let isIdle = false;
+
+    function resetIdleTimer() {
+      clearTimeout(idleTimer);
+      isIdle = false;
+      idleTimer = setTimeout(() => {
+        isIdle = true;
+        idleExplore();
+      }, 2500); // Triggers 2.5 seconds after your last movement
+    }
+
+    function idleExplore() {
+      // Don't explore if currently panicking, reading, or recovering from a drag
+      if (!isIdle || botBody.classList.contains('panic') || botBody.classList.contains('tired') || botBody.classList.contains('angry') || botBody.classList.contains('dizzy') || botBody.classList.contains('curious')) {
+        if (isIdle) setTimeout(idleExplore, 1000);
+        return;
+      }
+      
+      const botRect = companion.getBoundingClientRect();
+      const centerX = botRect.left + botRect.width / 2;
+      const centerY = botRect.top + botRect.height / 2;
+      
+      // Generate a random coordinate around the screen to dart to
+      const randomX = centerX + (Math.random() * 800 - 400);
+      const randomY = centerY + (Math.random() * 800 - 400);
+      
+      updateEyes(randomX, randomY);
+      
+      // Schedule the next eye dart randomly between 0.6s and 2.6s
+      setTimeout(idleExplore, 600 + Math.random() * 2000);
+    }
+    
+    resetIdleTimer();
+
+    window.addEventListener('mousemove', (e) => {
+      resetIdleTimer();
+      updateEyes(e.clientX, e.clientY);
+      
+      // Desktop Parallax for body (Fallback for no gyro)
+      const moveX = (e.clientX / window.innerWidth - 0.5) * 30;
+      const moveY = (e.clientY / window.innerHeight - 0.5) * 30;
+      
+      // Apply transform to container to leave body free for CSS animations
+      companion.style.transform = `translate(${moveX}px, ${moveY}px) rotateY(${moveX}deg) rotateX(${-moveY}deg)`;
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      resetIdleTimer();
+      updateEyes(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+
+    // 3. ADAPTIVE GYROSCOPE GRAVITY (Sleeping/Bed & Desk Posture Auto-Zeroing)
+    let tiltWarningCooldown = false;
+    let severeTiltStartTime = 0;
+    let caneActive = false;
+    let gripShakeTimer = null;
+
+    // Shortest angular difference on a circle (-180 to +180)
+    function angleDelta(a, b) {
+      let diff = (a - b) % 360;
+      if (diff > 180) diff -= 360;
+      if (diff < -180) diff += 360;
+      return diff;
+    }
+
+    // Dynamic Resting Baseline: Adapts to user's holding posture (sitting, in bed, lying down)
+    let restingBeta = null;
+    let restingGamma = null;
+    let lastRawBeta = 0;
+    let lastRawGamma = 0;
+
+    function handleOrientation(e) {
+      if (e.beta === null || e.gamma === null) return;
+
+      const rawBeta = e.beta;
+      const rawGamma = e.gamma;
+
+      // 1. Initialise baseline on first valid reading
+      if (restingBeta === null || restingGamma === null) {
+        restingBeta = rawBeta;
+        restingGamma = rawGamma;
+        lastRawBeta = rawBeta;
+        lastRawGamma = rawGamma;
+        return;
+      }
+
+      // Check whether screen is facing downwards (sleeping overhead pose, abs(beta) > 90)
+      const isFaceDown = Math.abs(rawBeta) > 90;
+
+      // 2. Circular delta to avoid 180 / -180 boundary jumps
+      const dRawBeta = Math.abs(angleDelta(rawBeta, lastRawBeta));
+      const dRawGamma = Math.abs(angleDelta(rawGamma, lastRawGamma));
+      const isGimbalFlip = (dRawBeta > 60 || dRawGamma > 60);
+
+      if (!isGimbalFlip) {
+        // When user is holding phone relatively steady, gently glide resting baseline to their posture!
+        // This makes "sleeping position" in bed or on side feel 100% natural and centered!
+        if (dRawBeta < 2.0 && dRawGamma < 2.0) {
+          const deltaB = angleDelta(rawBeta, restingBeta);
+          const deltaG = angleDelta(rawGamma, restingGamma);
+          restingBeta += deltaB * 0.035;
+          restingGamma += deltaG * 0.035;
+        }
+      }
+
+      lastRawBeta = rawBeta;
+      lastRawGamma = rawGamma;
+
+      // 3. Calculate dynamic relative tilt using circular difference
+      let rawDiffBeta = angleDelta(rawBeta, restingBeta);
+      let rawDiffGamma = angleDelta(rawGamma, restingGamma);
+
+      // INVERSION CORRECTION FOR SLEEPING/OVERHEAD POSE:
+      // When screen faces the ground (overhead bed hold, abs(beta) > 90),
+      // the Euler coordinate frame inverts relative to the user's eyes!
+      if (isFaceDown) {
+        rawDiffGamma = -rawDiffGamma;
+        rawDiffBeta = -rawDiffBeta;
+      }
+
+      // Deadzone of 2.5 deg to eliminate resting hand tremors / sensor noise
+      let diffBeta = Math.abs(rawDiffBeta) > 2.5 ? (rawDiffBeta - Math.sign(rawDiffBeta) * 2.5) : 0;
+      let diffGamma = Math.abs(rawDiffGamma) > 2.5 ? (rawDiffGamma - Math.sign(rawDiffGamma) * 2.5) : 0;
+
+      const isPeekingSection = companion.classList.contains('is-peeking');
+
+      if (isPeekingSection) {
+        // ========================================================
+        // SECTION WALL-GRIP MODE: Clinging to the content wall!
+        // ========================================================
+        if (caneActive) {
+          caneActive = false;
+          botBody.classList.remove('using-cane');
+        }
+
+        // Eyes track gravity smoothly relative to user's posture
+        if (!botBody.classList.contains('glance-side')) {
+          const eyeX = Math.max(-10, Math.min(10, diffGamma * 0.35));
+          const eyeY = Math.max(-10, Math.min(10, diffBeta * 0.35));
+          pupils.forEach(pupil => {
+            pupil.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
+          });
+        }
+
+        // Subtle anchored body sway (clamped to +/- 4px so it never detaches)
+        let moveY = Math.max(-4, Math.min(4, diffBeta * 0.12));
+        let moveX = Math.max(-5, Math.min(5, diffGamma * 0.12));
+        companion.style.transform = `translate(${moveX}px, ${moveY}px) rotate(${moveX * 0.3}deg)`;
+
+        // Violent shake detection: only on intentional rapid shake, NOT gimbal jumps
+        if (!isGimbalFlip) {
+          const tiltVelocity = dRawBeta + dRawGamma;
+          if (tiltVelocity > 45 && tiltVelocity < 130) {
+            botBody.classList.add('grip-shake');
+            clearTimeout(gripShakeTimer);
+            gripShakeTimer = setTimeout(() => {
+              botBody.classList.remove('grip-shake');
+            }, 450);
+          }
+        }
+        return;
+      }
+
+      // ========================================================
+      // HERO MODE: Original floating bot with cane & free 3D tilt!
+      // ========================================================
+      botBody.classList.remove('grip-shake');
+
+      // In Hero, severe tilt is measured RELATIVE to user's resting posture!
+      // This means lying in bed will NEVER falsely trigger the cane!
+      let isSevereTilt = (Math.abs(diffBeta) > 42 || Math.abs(diffGamma) > 40);
+
+      if (isSevereTilt) {
+        let now = Date.now();
+        if (!severeTiltStartTime) severeTiltStartTime = now;
+        
+        let tiltDuration = now - severeTiltStartTime;
+
+        // If held severely tilted (>42 deg away from comfortable hold) for > 4 seconds:
+        if (tiltDuration > 4000 && !caneActive) {
+          caneActive = true;
+          botBody.classList.add('using-cane');
+          speak(DIALOGUES.tilt.caneActive, 4000, false);
+        }
+        else if (!tiltWarningCooldown && !caneActive) {
+          tiltWarningCooldown = true;
+          const tiltRemarks = DIALOGUES.tilt.warnings;
+          speak(tiltRemarks[Math.floor(Math.random() * tiltRemarks.length)], 3500, false);
+          setTimeout(() => { tiltWarningCooldown = false; }, 8000);
+        }
+      } else {
+        severeTiltStartTime = 0;
+        if (caneActive) {
+          caneActive = false;
+          botBody.classList.remove('using-cane');
+          speak(DIALOGUES.tilt.canePacked, 3000, false);
+        }
+      }
+
+      // Full free movement range in Hero (clamped to comfortable +/- 30px bounds)
+      let moveY = Math.max(-30, Math.min(30, diffBeta * 0.8));
+      let moveX = Math.max(-30, Math.min(30, diffGamma * 0.8));
+
+      companion.style.transform = `translate(${moveX}px, ${moveY}px) rotate(${moveX * 0.35}deg)`;
+    }
+
+    // iOS 13+ Gyroscope unlock via first interaction
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      const initHiddenGyro = () => {
+        DeviceOrientationEvent.requestPermission()
+          .then(permissionState => {
+            if (permissionState === 'granted') {
+              window.addEventListener('deviceorientation', handleOrientation);
+            }
+          })
+          .catch(console.error);
+        
+        // Clean up listeners after the first tap
+        document.removeEventListener('click', initHiddenGyro);
+        document.removeEventListener('touchstart', initHiddenGyro);
+      };
+      
+      // Bind to actual active gestures (no passive flag)
+      document.addEventListener('click', initHiddenGyro);
+      document.addEventListener('touchstart', initHiddenGyro);
+    } else {
+      // Android / Older browsers don't need permission
+      window.addEventListener('deviceorientation', handleOrientation);
+    }
+
+    // ==========================================
+    // 4. KINETIC BLUEPRINT REEL ENGINE (Engine 1: 5-Card Sliding Window)
+    // ==========================================
+    const REEL_PROJECTS = [
+      {
+        id: 0,
+        title: "Kinetic Cloud Dashboard",
+        domain: "Distributed Telemetry",
+        meta: "[ 01 / 03 • INFRASTRUCTURE TELEMETRY ]",
+        desc: "Real-time fleet monitor engineered with WebGL canvas rendering, automated anomaly detection, and bidirectional WebSocket pipelines for sub-second fleet metrics.",
+        previewBadge: "[ LIVE 60 FPS ENGINE ]",
+        previewTitle: "Kinetic Cloud Dashboard • WebGL Telemetry Pipeline",
+        gradient: "from-sky-500/20 via-sky-500/5",
+        badgeClass: "bg-sky-500/10 text-sky-400 border-sky-500/30",
+        domainColor: "text-sky-400",
+        tags: ["React", "TypeScript", "WebSockets", "Node.js"],
+        liveUrl: "https://github.com/Mathavan-A",
+        insight: "Kinetic Cloud: Built with 60fps canvas telemetry and real-time WebSockets! 🚀"
+      },
+      {
+        id: 1,
+        title: "Autonomous Commerce Engine",
+        domain: "High-Concurrency Payments",
+        meta: "[ 02 / 03 • HIGH-CONCURRENCY COMMERCE ]",
+        desc: "Sub-second checkout platform engineered with PostgreSQL row-level locks, Stripe webhook reconciliation, Docker clustering, and Redis session caches.",
+        previewBadge: "[ ZERO-LATENCY PAYMENTS ]",
+        previewTitle: "Autonomous Commerce • Stripe & Redis Engine",
+        gradient: "from-emerald-500/20 via-emerald-500/5",
+        badgeClass: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+        domainColor: "text-emerald-400",
+        tags: ["Next.js", "PostgreSQL", "Stripe API", "Redis", "Docker"],
+        liveUrl: "https://github.com/Mathavan-A",
+        insight: "Autonomous Commerce: Sub-second checkout with PostgreSQL atomic row locks and Redis caching! 🛒✨"
+      },
+      {
+        id: 2,
+        title: "Neural Audio DSP Synthesizer",
+        domain: "Low-Latency DSP",
+        meta: "[ 03 / 03 • LOW-LATENCY SIGNAL PROCESSING ]",
+        desc: "Real-time spatial audio synthesizer powered by C++ compiled to WebAssembly with SIMD math and zero audio-thread memory allocations.",
+        previewBadge: "[ LOW-LEVEL DSP ENGINE ]",
+        previewTitle: "Neural Audio DSP • WebAssembly & C++ Engine",
+        gradient: "from-purple-500/20 via-purple-500/5",
+        badgeClass: "bg-purple-500/10 text-purple-400 border-purple-500/30",
+        domainColor: "text-purple-400",
+        tags: ["WebAssembly", "C++", "AudioWorklet", "SIMD"],
+        liveUrl: "https://github.com/Mathavan-A",
+        insight: "Neural Audio DSP: WebAudio worklets with C++ SIMD spatial synthesis and zero garbage collection! 🎧⚡"
+      }
+    ];
+
+    let currentReelIndex = 0;
+    const reelStage = document.getElementById('reel-stage');
+    const reelTrack = document.getElementById('reel-track');
+    const blueprintSheet = document.getElementById('blueprint-sheet');
+    const pawsEl = document.getElementById('blueprint-paws');
+    const reelMetaTag = document.getElementById('reel-meta-tag');
+
+    // 🌟 5-CARD STATIC HTML WINDOW (ISOMORPHIC SLOTS)
+    const reelSlots = [
+      document.getElementById('slot-far-prev'),
+      document.getElementById('slot-prev'),
+      document.getElementById('slot-active'),
+      document.getElementById('slot-next'),
+      document.getElementById('slot-far-next')
+    ];
+
+    let hasUserInteracted = false;
+
+    // 🌟 DYNAMIC RESPONSIVE PITCH CALCULATOR: Adapts seamlessly to any screen width!
+    function getCardPitch() {
+      const sample = document.querySelector('.reel-card-slot');
+      if (!sample || !reelTrack) return 608;
+      const gap = parseFloat(window.getComputedStyle(reelTrack).gap) || (window.innerWidth < 768 ? 8 : 28);
+      return sample.offsetWidth + gap;
+    }
+
+    function updateTrackCards() {
+      const offsets = [-2, -1, 0, 1, 2];
+      offsets.forEach((off, i) => {
+        const pIdx = ((currentReelIndex + off) % 3 + 3) % 3;
+        const p = REEL_PROJECTS[pIdx];
+        const slot = reelSlots[i];
+        if (!slot) return;
+
+        const title = slot.querySelector('.card-title');
+        const domain = slot.querySelector('.card-domain');
+        const desc = slot.querySelector('.card-desc');
+        const preview = slot.querySelector('.card-preview');
+        const badge = slot.querySelector('.card-badge');
+        const grad = slot.querySelector('.card-grad');
+        const num = slot.querySelector('.card-num');
+        const link = slot.querySelector('.card-link');
+        const tags = slot.querySelector('.card-tags');
+        const sheet = slot.querySelector('.blueprint-sheet');
+
+        if (title) title.textContent = p.title;
+        if (domain) {
+          domain.textContent = p.domain;
+          domain.className = `card-domain text-[11px] sm:text-xs font-mono font-semibold ${p.domainColor}`;
+        }
+        if (desc) desc.textContent = p.desc;
+        if (preview) preview.textContent = p.previewTitle;
+        if (badge) {
+          badge.textContent = p.previewBadge;
+          badge.className = `card-badge px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-mono tracking-widest uppercase mb-1 sm:mb-2 border ${p.badgeClass}`;
+        }
+        if (grad) {
+          grad.className = `card-grad absolute inset-0 bg-gradient-to-tr ${p.gradient} via-transparent to-transparent`;
+        }
+        if (num) num.textContent = `Project 0${p.id + 1}`;
+        if (link) {
+          link.className = `card-link hover:underline inline-flex items-center gap-1 font-semibold text-xs font-mono ${p.domainColor}`;
+          link.href = p.liveUrl;
+        }
+        if (tags) {
+          tags.innerHTML = '';
+          p.tags.slice(0, 3).forEach(t => {
+            const s = document.createElement('span');
+            s.className = 'px-2 py-0.5 rounded-md text-[10px] font-mono bg-zinc-900 border border-zinc-800 text-zinc-400';
+            s.textContent = t;
+            tags.appendChild(s);
+          });
+        }
+
+        if (sheet) {
+          if (off === 0) {
+            sheet.classList.remove('pointer-events-none');
+            slot.classList.add('is-active');
+            slot.classList.remove('is-side');
+          } else {
+            sheet.classList.add('pointer-events-none');
+            slot.classList.remove('is-active');
+            slot.classList.add('is-side');
+          }
+        }
+      });
+
+      if (reelMetaTag) reelMetaTag.textContent = REEL_PROJECTS[currentReelIndex].meta;
+    }
+
+    function setReelVisualProgress(shiftPx, animate) {
+      const pitch = getCardPitch();
+
+      reelSlots.forEach((slot, i) => {
+        if (!slot) return;
+        const visualPos = (i - 2) * pitch + shiftPx;
+        const dist = Math.abs(visualPos);
+        const isBecomingMain = dist < pitch * 0.45;
+
+        if (isBecomingMain) {
+          slot.classList.add('is-active');
+          slot.classList.remove('is-side');
+        } else {
+          slot.classList.remove('is-active');
+          slot.classList.add('is-side');
+        }
+
+        slot.style.transform = 'none';
+        slot.style.transition = 'none';
+      });
+    }
+
+    let currentActiveSectionId = 'hero-section';
+    let isTransitioning = false;
+    let pendingReelTargetIdx = null;
+    let reelGlideTimer1 = null;
+    let reelGlideTimer2 = null;
+    let entranceTimer1 = null;
+    let entranceTimer2 = null;
+    let entranceTimer3 = null;
+    let botTugTimer = null;
+    let botIdleTimer = null;
+
+    function cancelBotTug() {
+      clearTimeout(botTugTimer);
+      if (reelTrack) reelTrack.classList.remove('bot-tug');
+      if (botBody) botBody.classList.remove('glance-side');
+    }
+
+    // 🌟 INSTANT BOT HIDE: Ducks immediately when user moves or scrolls
+    function hideProjectBotInstantly() {
+      clearTimeout(tapSettleTimer);
+      tapHitCount = 0;
+      clearTimeout(botIdleTimer);
+      clearTimeout(entranceTimer1);
+      clearTimeout(entranceTimer2);
+      clearTimeout(entranceTimer3);
+      cancelBotTug();
+
+      const paws = document.getElementById('blueprint-paws');
+      const seamSlot = botSlots ? botSlots['projects-section'] : document.getElementById('projects-bot-slot');
+
+      if (paws) paws.classList.remove('visible');
+      if (seamSlot) seamSlot.classList.remove('visible');
+      if (companion) {
+        companion.classList.remove('popped-out');
+        companion.classList.add('is-peeking');
+      }
+      if (botSpeech) botSpeech.classList.remove('visible');
+    }
+
+    function isReelStageInView() {
+      if (!reelStage) return false;
+      const rect = reelStage.getBoundingClientRect();
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      return rect.top < vh * 0.82 && rect.bottom > vh * 0.18;
+    }
+
+    // 🌟 IDLE SETTLE SCHEDULER: Only appears when the user stops moving and card is fully settled
+    function scheduleProjectBotSettleEntrance(delayMs = 900) {
+      clearTimeout(botIdleTimer);
+      if (!isReelStageInView() && currentActiveSectionId !== 'projects-section') return;
+
+      botIdleTimer = setTimeout(() => {
+        if ((isReelStageInView() || currentActiveSectionId === 'projects-section') && !isReelDragging && !isTransitioning) {
+          const seamSlot = botSlots ? botSlots['projects-section'] : document.getElementById('projects-bot-slot');
+          if (seamSlot && companion.parentElement !== seamSlot) {
+            seamSlot.appendChild(companion);
+          }
+          currentActiveSectionId = 'projects-section';
+          triggerProjectBotEntrance(() => {
+            speak(REEL_PROJECTS[currentReelIndex].insight, 4600, true);
+          });
+        }
+      }, delayMs);
+    }
+
+    function switchReelProject(newIndex, direction = 'next') {
+      cancelBotTug();
+      hasUserInteracted = true;
+      hideProjectBotInstantly(); // Instantly duck on any project gesture
+
+      // 🌟 RAPID-SWIPE INTERRUPTIBILITY: Fast-forward previous glide instantly so gestures never drop!
+      if (isTransitioning) {
+        clearTimeout(reelGlideTimer1);
+        clearTimeout(reelGlideTimer2);
+        if (pendingReelTargetIdx !== null) {
+          currentReelIndex = pendingReelTargetIdx;
+        }
+        reelTrack.classList.add('no-transition');
+        updateTrackCards();
+        reelTrack.style.setProperty('--track-x', '0px');
+        reelTrack.style.setProperty('--track-y', '0px');
+        reelTrack.style.setProperty('--track-rot', '0deg');
+        setReelVisualProgress(0, false);
+        void reelTrack.offsetWidth;
+        reelTrack.classList.remove('no-transition');
+      }
+
+      isTransitioning = true;
+      pendingReelTargetIdx = ((newIndex % 3) + 3) % 3;
+      try { navigator.vibrate?.(10); } catch(e) {}
+
+      const pitch = getCardPitch();
+      const shiftX = direction === 'next' ? -pitch : pitch;
+      const bendAngle = direction === 'next' ? -3.2 : 3.2;
+
+      // STAGE 1 (0 to 130ms): Responsive momentum bend & lift
+      reelTrack.style.transition = 'transform 0.14s cubic-bezier(0.22, 1, 0.36, 1)';
+      reelTrack.style.setProperty('--track-x', `${shiftX * 0.52}px`);
+      reelTrack.style.setProperty('--track-y', '-6px');
+      reelTrack.style.setProperty('--track-rot', `${bendAngle}deg`);
+
+      // All 5 slots dynamically crossfade their native typography & preview height in 0.36s
+      setReelVisualProgress(shiftX, true);
+
+      // STAGE 2 (130ms to 340ms): Smooth ease-drop into resting plane
+      reelGlideTimer1 = setTimeout(() => {
+        reelTrack.style.transition = 'transform 0.22s cubic-bezier(0.34, 1.2, 0.64, 1)';
+        reelTrack.style.setProperty('--track-x', `${shiftX}px`);
+        reelTrack.style.setProperty('--track-y', '0px');
+        reelTrack.style.setProperty('--track-rot', '0deg');
+      }, 130);
+
+      // STAGE 3 (360ms): Zero-chop atomic substitution
+      reelGlideTimer2 = setTimeout(() => {
+        reelTrack.classList.add('no-transition');
+
+        currentReelIndex = pendingReelTargetIdx;
+        pendingReelTargetIdx = null;
+
+        updateTrackCards();
+
+        reelTrack.style.setProperty('--track-x', '0px');
+        reelTrack.style.setProperty('--track-y', '0px');
+        reelTrack.style.setProperty('--track-rot', '0deg');
+        setReelVisualProgress(0, false);
+
+        void reelTrack.offsetWidth;
+        reelTrack.classList.remove('no-transition');
+
+        isTransitioning = false;
+
+        // 🌟 BOT IDLE SETTLE: Card has settled! Awaken after smooth settle delay
+        if (isReelStageInView() || currentActiveSectionId === 'projects-section') {
+          scheduleProjectBotSettleEntrance(1100);
+        }
+      }, 360);
+    }
+
+    function triggerProjectBotEntrance(onReadySpeak) {
+      clearTimeout(entranceTimer1);
+      clearTimeout(entranceTimer2);
+      clearTimeout(entranceTimer3);
+      cancelBotTug();
+
+      const paws = document.getElementById('blueprint-paws');
+      const seamSlot = botSlots ? botSlots['projects-section'] : document.getElementById('projects-bot-slot');
+
+      if (paws) paws.classList.remove('visible');
+      if (seamSlot) seamSlot.classList.remove('visible');
+      companion.classList.remove('popped-out');
+      companion.classList.add('is-peeking');
+      botSpeech.classList.remove('visible');
+
+      // Stage 1 (220ms): Paws rise from behind and slap down onto front rim
+      entranceTimer1 = setTimeout(() => {
+        if (isReelDragging || isTransitioning || (!isReelStageInView() && currentActiveSectionId !== 'projects-section')) return;
+        if (paws) paws.classList.add('visible');
+        setTimeout(() => {
+          try { navigator.vibrate?.(12); } catch(e) {}
+        }, 180);
+      }, 220);
+
+      // Stage 2 (480ms): Head pulls up from behind slide into shy peek
+      entranceTimer2 = setTimeout(() => {
+        if (isReelDragging || isTransitioning || (!isReelStageInView() && currentActiveSectionId !== 'projects-section')) return;
+        if (seamSlot) seamSlot.classList.add('visible');
+      }, 480);
+
+      // Stage 3 (850ms): Springs up into presenter mode
+      entranceTimer3 = setTimeout(() => {
+        if (isReelDragging || isTransitioning || (!isReelStageInView() && currentActiveSectionId !== 'projects-section')) return;
+        companion.classList.add('popped-out');
+        if (onReadySpeak) onReadySpeak();
+
+        // 🌟 SYNCHRONIZED BOT TUG: Pulls the ENTIRE rail at 2.0s if still idle!
+        if (!hasUserInteracted) {
+          botTugTimer = setTimeout(() => {
+            if (!isReelDragging && !hasUserInteracted && (isReelStageInView() || currentActiveSectionId === 'projects-section')) {
+              botBody.classList.add('glance-side');
+              if (reelTrack) reelTrack.classList.add('bot-tug');
+              try { navigator.vibrate?.(15); } catch(e) {}
+              
+              setTimeout(() => {
+                if (reelTrack) reelTrack.classList.remove('bot-tug');
+                botBody.classList.remove('glance-side');
+              }, 980);
+            }
+          }, 800);
+        }
+
+      }, 850);
+    }
+
+    function triggerReelProjectSpeech() {
+      const p = REEL_PROJECTS[currentReelIndex];
+      speak(p.insight, 4600, true);
+    }
+
+    // 🌟 UNIFIED TACTILE DRAG PHYSICS (Hooke's Spring Law & Preemptible Swipes)
+    let isReelDragging = false;
+    let reelStartX = 0;
+    let reelStartY = 0;
+    let reelHasMoved = false;
+
+    if (reelStage) {
+      // Tap on peeking side cards immediately slides the track!
+      if (reelSlots[1]) reelSlots[1].addEventListener('click', () => switchReelProject(currentReelIndex - 1, 'prev'));
+      if (reelSlots[3]) reelSlots[3].addEventListener('click', () => switchReelProject(currentReelIndex + 1, 'next'));
+
+      reelStage.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('#companion') || e.target.closest('a')) return;
+        hideProjectBotInstantly(); // 🌟 Instantly hide bot the microsecond user touches reel
+        
+        // Instant interruptibility: immediately commit inflight transitions
+        if (isTransitioning) {
+          clearTimeout(reelGlideTimer1);
+          clearTimeout(reelGlideTimer2);
+          if (pendingReelTargetIdx !== null) {
+            currentReelIndex = pendingReelTargetIdx;
+            pendingReelTargetIdx = null;
+          }
+          reelTrack.classList.add('no-transition');
+          updateTrackCards();
+          reelTrack.style.setProperty('--track-x', '0px');
+          reelTrack.style.setProperty('--track-y', '0px');
+          reelTrack.style.setProperty('--track-rot', '0deg');
+          setReelVisualProgress(0, false);
+          void reelTrack.offsetWidth;
+          reelTrack.classList.remove('no-transition');
+          isTransitioning = false;
+        }
+
+        isReelDragging = true;
+        reelHasMoved = false;
+        reelStartX = e.clientX;
+        reelStartY = e.clientY;
+        cancelBotTug();
+        hasUserInteracted = true;
+        if (reelTrack) reelTrack.style.transition = 'none';
+      });
+
+      reelStage.addEventListener('pointermove', (e) => {
+        if (!isReelDragging || !reelTrack) return;
+        hideProjectBotInstantly(); // Keep bot tucked while dragging
+        const deltaX = e.clientX - reelStartX;
+        const deltaY = e.clientY - reelStartY;
+
+        if (!reelHasMoved && Math.abs(deltaY) > Math.abs(deltaX)) {
+          isReelDragging = false;
+          reelTrack.style.transition = 'transform 0.36s cubic-bezier(0.22, 1, 0.36, 1)';
+          return;
+        }
+
+        if (Math.abs(deltaX) > 6) reelHasMoved = true;
+        const paws = document.getElementById('blueprint-paws');
+        if (paws) paws.classList.add('clutching');
+
+        // Hooke's Law Damped Spring Elasticity
+        const tension = 0.60 / (1 + Math.abs(deltaX) * 0.0016);
+        const dampedX = deltaX * tension;
+        const rotation = Math.max(-4.2, Math.min(4.2, dampedX * 0.024));
+        const botTilt = Math.max(-14, Math.min(14, dampedX * 0.085));
+        const liftY = -Math.min(10, Math.abs(dampedX) * 0.04);
+
+        // Move the entire track
+        reelTrack.style.setProperty('--track-x', `${dampedX}px`);
+        reelTrack.style.setProperty('--track-y', `${liftY}px`);
+        reelTrack.style.setProperty('--track-rot', `${rotation}deg`);
+        botBody.style.setProperty('--bot-tilt', `${botTilt}deg`);
+
+        setReelVisualProgress(dampedX, false);
+      });
+
+      function endReelDrag(e) {
+        if (!isReelDragging || !reelTrack) return;
+        isReelDragging = false;
+        const paws = document.getElementById('blueprint-paws');
+        if (paws) paws.classList.remove('clutching');
+        botBody.style.setProperty('--bot-tilt', '0deg');
+
+        const deltaX = e.clientX - reelStartX;
+        const deltaY = e.clientY - reelStartY;
+
+        const pitch = getCardPitch();
+        const threshold = Math.min(52, pitch * 0.12);
+
+        if (reelHasMoved && Math.abs(deltaX) > threshold && Math.abs(deltaX) > Math.abs(deltaY)) {
+          if (deltaX < 0) {
+            switchReelProject(currentReelIndex + 1, 'next');
+          } else {
+            switchReelProject(currentReelIndex - 1, 'prev');
+          }
+        } else {
+          // Snap back elastically to center
+          reelTrack.style.transition = 'transform 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.25)';
+          reelTrack.style.setProperty('--track-x', '0px');
+          reelTrack.style.setProperty('--track-y', '0px');
+          reelTrack.style.setProperty('--track-rot', '0deg');
+          setReelVisualProgress(0, true);
+          if (isReelStageInView() || currentActiveSectionId === 'projects-section') {
+            scheduleProjectBotSettleEntrance(1100);
+          }
+        }
+      }
+
+      reelStage.addEventListener('pointerup', endReelDrag);
+      reelStage.addEventListener('pointercancel', endReelDrag);
+    }
+
+    // 5. BOT GRAB PANIC & STRUGGLE PHYSICS (Dragging the bot)
+    let isDraggingBot = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+
+    let hasPanickedDuringDrag = false;
+
+    let totalDragDistance = 0;
+
+    function startBotDrag(clientX, clientY) {
+      clearTimeout(tapSettleTimer);
+      tapHitCount = 0;
+      isDraggingBot = true;
+      hasPanickedDuringDrag = false;
+      totalDragDistance = 0;
+      dragStartX = clientX;
+      dragStartY = clientY;
+      botBody.style.transition = 'none'; // Snappy response while dragging
+
+      // If peeking, pop out immediately when dragged so visitor can move the bot
+      if (companion.classList.contains('is-peeking')) {
+        popOutPeek(0);
+      }
+    }
+
+    function handleBotDrag(clientX, clientY) {
+      if (!isDraggingBot) return;
+      
+      let dx = clientX - dragStartX;
+      let dy = clientY - dragStartY;
+      let rawDistance = Math.hypot(dx, dy);
+      totalDragDistance = Math.max(totalDragDistance, rawDistance);
+      
+      // Resistance factor: The bot actively fights being pulled
+      let pullX = dx * 0.18; 
+      let pullY = dy * 0.18;
+      
+      // Cap the maximum pull distance
+      pullX = Math.max(-55, Math.min(55, pullX));
+      pullY = Math.max(-55, Math.min(55, pullY));
+
+      // Inject displacement into CSS variables
+      botBody.style.setProperty('--drag-x', `${pullX}px`);
+      botBody.style.setProperty('--drag-y', `${pullY}px`);
+
+      // PANIC ONLY IF DRAGGED TOO HARD IN HERO (Distance > 90px threshold)
+      if (rawDistance > 90) {
+        if (companion.classList.contains('is-peeking')) {
+          // When gripping wall in other sections, do NOT scream panic or trigger panic dialogues!
+          botBody.classList.remove('panic');
+        } else if (!botBody.classList.contains('panic')) {
+          botBody.classList.add('panic');
+          hasPanickedDuringDrag = true;
+          
+          // Save active important dialogue to resume after recovery!
+          if (currentSpeech && currentSpeech.isImportant) {
+            interruptedThought = currentSpeech.text;
+          }
+
+          const panicTexts = DIALOGUES.panic;
+          const randomPanic = panicTexts[Math.floor(Math.random() * panicTexts.length)];
+          speak(randomPanic, 0, false); // Stays open while being violently dragged
+        }
+      } else {
+        // If pulled gently, remove panic and hide bubble if not actively speaking an important line
+        if (botBody.classList.contains('panic')) {
+          botBody.classList.remove('panic');
+          if (!currentSpeech || !currentSpeech.isImportant) {
+            botSpeech.classList.remove('visible');
+          }
+        }
+      }
+    }
+
+    // 🌟 RAPID-HIT DEBOUNCED SETTLE SYSTEM
+    let tapSettleTimer = null;
+    let tapHitCount = 0;
+    let lastTapTimestamp = 0;
+
+    function handleBotTap() {
+      const now = Date.now();
+      // Guard against synthetic duplicate touch+mouse events within 50ms
+      if (now - lastTapTimestamp < 50) return;
+      lastTapTimestamp = now;
+
+      tapHitCount++;
+
+      // 1. INSTANT PHYSICAL RECOIL (Zero lockout: every hit squashes immediately!)
+      botBody.classList.remove('hit');
+      void botBody.offsetWidth; // Force instant layout flush so CSS keyframe re-triggers on every tap
+      botBody.classList.add('hit');
+      try {
+        navigator.vibrate?.(tapHitCount > 2 ? 22 : 12);
+      } catch (e) {}
+
+      // Keep speech bubble tucked while hits are landing continuously
+      if (!currentSpeech || !currentSpeech.isImportant) {
+        botSpeech.classList.remove('visible');
+      }
+
+      // If user is pummeling, squint eyes or express dizzy stress during the barrage
+      if (tapHitCount >= 3) {
+        setEmotion('dizzy', 600);
+      }
+
+      // 2. DEBOUNCED SETTLE WINDOW: Waits 460ms for hits to settle before opening dialogue
+      clearTimeout(tapSettleTimer);
+      tapSettleTimer = setTimeout(() => {
+        botBody.classList.remove('hit');
+        const hitsDelivered = tapHitCount;
+        tapHitCount = 0;
+
+        // If in peek mode, pop out cleanly so speech is visible
+        if (companion.classList.contains('is-peeking')) {
+          const wasPoppedOut = companion.classList.contains('popped-out');
+          popOutPeek(3800);
+          if (!wasPoppedOut && hitsDelivered < 3) {
+            const peekRemarks = [
+              "Peek-a-boo! You found my hiding spot! 🫣✨",
+              "Busted! I was just admiring Mathavan's code from back here! 🕵️‍♂️",
+              "Hey! Can't a bot do some undercover QA testing here? 🔍😅",
+              "Oof! Watch the elbows, I'm peeking here! 📦😂"
+            ];
+            speak(peekRemarks[Math.floor(Math.random() * peekRemarks.length)], 3200, false);
+            return;
+          }
+        }
+
+        // PRIORITY CHECK: If bot was speaking an important dialogue, complain & resume!
+        if (currentSpeech && currentSpeech.isImportant) {
+          interruptAndResume(3200);
+          return;
+        }
+
+        // 3. DIALOGUE SETTLE DELIVERY
+        if (hitsDelivered >= 3) {
+          setEmotion('dizzy', 2800);
+          const comboList = DIALOGUES.comboRemarks || [
+            `Whoa! ${hitsDelivered} hits in a row?! Give my circuits a second! 😵‍💫`,
+            "Combo attack detected! 🥊 Rebooting gyro stabilization! ⚡",
+            "Phew... is the barrage finally over? 🤖💫",
+            "Oof! My collision detection just got severely stress-tested! 💥🤖"
+          ];
+          const remark = comboList[Math.floor(Math.random() * comboList.length)];
+          speak(remark, 3400, false);
+        } else {
+          clearAllEmotions();
+          const hitRemarks = DIALOGUES.tapRemarks;
+          const randomRemark = hitRemarks[Math.floor(Math.random() * hitRemarks.length)];
+          speak(randomRemark, 3000, false);
+        }
+      }, 460);
+    }
+
+    function endBotDrag() {
+      if (!isDraggingBot) return;
+      isDraggingBot = false;
+      botBody.classList.remove('panic');
+      
+      // Check if this was a quick TAP / POKE (moved less than 12px total)
+      if (!hasPanickedDuringDrag && totalDragDistance < 12) {
+        handleBotTap();
+      } else if (hasPanickedDuringDrag) {
+        // Only show dramatic angry/tired reaction if dragged hard into panic!
+        const expressions = ['angry', 'tired', 'dizzy'];
+        const recoveryEmotion = expressions[Math.floor(Math.random() * expressions.length)];
+        setEmotion(recoveryEmotion, 2800);
+        
+        const texts = DIALOGUES.recovery[recoveryEmotion];
+        speak(texts[Math.floor(Math.random() * texts.length)], 3500, false);
+        
+        setTimeout(() => {
+          clearAllEmotions();
+
+          // If an important dialogue was cut off by violent dragging, resume it now!
+          if (interruptedThought) {
+            const prefix = DIALOGUES.resumptions[Math.floor(Math.random() * DIALOGUES.resumptions.length)];
+            speak(prefix + `"${interruptedThought}"`, 5000, true);
+            interruptedThought = null;
+          }
+        }, 2800);
+      } else {
+        // Gentle release: only close speech bubble if not actively speaking an important dialogue
+        if (!currentSpeech || !currentSpeech.isImportant) {
+          botSpeech.classList.remove('visible');
+        }
+        clearAllEmotions();
+      }
+      
+      // Restore smooth elastic transition and snap back to center
+      botBody.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      botBody.style.setProperty('--drag-x', `0px`);
+      botBody.style.setProperty('--drag-y', `0px`);
+      setTimeout(() => { botBody.style.transition = ''; }, 350);
+
+      // If peeking, retreat back down into peek position after settling
+      if (companion.classList.contains('is-peeking')) {
+        popOutPeek(hasPanickedDuringDrag ? 4200 : 2200);
+      }
+    }
+
+    // Mouse Drag Listeners
+    botBody.addEventListener('mousedown', (e) => startBotDrag(e.clientX, e.clientY));
+    window.addEventListener('mousemove', (e) => handleBotDrag(e.clientX, e.clientY));
+    window.addEventListener('mouseup', endBotDrag);
+    
+    // Touch Drag Listeners
+    botBody.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length > 0) {
+        startBotDrag(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (isDraggingBot && e.touches && e.touches.length > 0) {
+        if (e.cancelable) e.preventDefault(); // Stop mobile browser from canceling the drag
+        handleBotDrag(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', endBotDrag);
+    window.addEventListener('touchcancel', endBotDrag);
+
+    // ==========================================
+    // 6. SECTION TOP ANCHOR COORDINATOR
+    // ==========================================
+    const botSlots = {
+      'hero-section': document.getElementById('hero-bot-anchor'),
+      'experience-section': document.getElementById('experience-bot-slot'),
+      'projects-section': document.getElementById('projects-bot-slot'),
+      'contact-section': document.getElementById('contact-bot-slot')
+    };
+
+    const sectionsToWatch = document.querySelectorAll('section[id]');
+
+    function updateBotSectionPlacement(activeSectionId) {
+      currentActiveSectionId = activeSectionId;
+      const targetSlot = botSlots[activeSectionId];
+      if (!targetSlot) return;
+
+      if (activeSectionId === 'hero-section') {
+        cancelBotTug();
+        hideProjectBotInstantly();
+        // Return to Hero: clean, free-floating, no ledge, no peeking!
+        if (companion.parentElement !== targetSlot) {
+          targetSlot.appendChild(companion);
+        }
+        companion.classList.remove('is-peeking', 'popped-out');
+        clearAllEmotions();
+        companion.style.transform = '';
+
+        const pawsEl = document.getElementById('blueprint-paws');
+        if (pawsEl) pawsEl.classList.remove('visible');
+        if (botSlots['projects-section']) botSlots['projects-section'].classList.remove('visible');
+      } else if (activeSectionId === 'projects-section') {
+        currentActiveSectionId = 'projects-section';
+        // Blueprint Reel Seam Anchor: Perched directly on the active sheet!
+        if (companion.parentElement !== targetSlot) {
+          targetSlot.appendChild(companion);
+        }
+        clearAllEmotions();
+        hideProjectBotInstantly();
+        scheduleProjectBotSettleEntrance(900); // 🌟 Crisp 900ms settle after section scroll settles!
+      } else {
+        cancelBotTug();
+        hideProjectBotInstantly();
+        // Other sections: Wall-grip peeking mode!
+        const station = targetSlot.querySelector('.peek-station');
+        if (station && companion.parentElement !== station) {
+          station.insertBefore(companion, station.firstChild);
+        }
+        companion.classList.add('is-peeking');
+        clearAllEmotions();
+
+        const pawsEl = document.getElementById('blueprint-paws');
+        if (pawsEl) pawsEl.classList.remove('visible');
+        if (botSlots['projects-section']) botSlots['projects-section'].classList.remove('visible');
+      }
+    }
+
+    // 🌟 INSTANT DUCK ON SCROLL & SETTLE WAKEUP: Ducks immediately while scrolling, wakes up 800ms after resting
+    let scrollSettleDebounceTimer = null;
+    window.addEventListener('scroll', () => {
+      if (isReelStageInView() || currentActiveSectionId === 'projects-section') {
+        hideProjectBotInstantly();
+        clearTimeout(scrollSettleDebounceTimer);
+        scrollSettleDebounceTimer = setTimeout(() => {
+          if (isReelStageInView() && !isReelDragging && !isTransitioning) {
+            scheduleProjectBotSettleEntrance(800);
+          }
+        }, 120);
+      }
+    }, { passive: true });
+
+    // Section Observer
+    const visitedSections = new Set();
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const sectionId = entry.target.id;
+          updateBotSectionPlacement(sectionId);
+
+          if (!visitedSections.has(sectionId) && sectionId !== 'hero-section') {
+            visitedSections.add(sectionId);
+            if (sectionId === 'experience-section') {
+              const remarks = DIALOGUES.sections.experience;
+              speak(remarks[Math.floor(Math.random() * remarks.length)], 4000, false);
+            } else if (sectionId === 'contact-section') {
+              const remarks = DIALOGUES.sections.contact;
+              speak(remarks[Math.floor(Math.random() * remarks.length)], 4500, false);
+            }
+          }
+        }
+      });
+    }, { threshold: 0.25 });
+
+    sectionsToWatch.forEach(sec => sectionObserver.observe(sec));
+
+    // ==========================================
+    // INITIAL CHILDISH HIDE-AND-SEEK ENTRANCE
+    // ==========================================
+    let hasCompletedEntrance = false;
+
+    function runChildishEntrance() {
+      if (hasCompletedEntrance) return;
+      hasCompletedEntrance = true;
+
+      // 1. Bot starts tucked down behind the letters of "Mathavan"
+      companion.classList.add('sneaky-entrance');
+
+      // 2. Sneak eyes up and deliver quick peek quip
+      setTimeout(() => {
+        speak("Psst! You're early! 🫣", 1100, true);
+      }, 350);
+
+      // 3. BOING! Leap up into the air and squash on landing into hero anchor
+      setTimeout(() => {
+        companion.classList.remove('sneaky-entrance');
+        botBody.classList.add('hit');
+        setTimeout(() => botBody.classList.remove('hit'), 380);
+
+        // Grand greeting
+        speak("Whew! Landed safely. 🚀 Hi! I'm Mathavan's digital companion. Try nudging or tilting me!", 4800, true);
+      }, 1500);
+    }
+
+    // Initialize track card contents for preview
+    updateTrackCards();
+
+    // Run entrance after initial DOM settle
+    setTimeout(runChildishEntrance, 400);
+
+    // 1-Click Copy Email Handler
+    function copyEmail() {
+      const email = document.getElementById('email-text') ? document.getElementById('email-text').innerText : "mathavan.dev@example.com";
+      navigator.clipboard.writeText(email).then(() => {
+        const feedback = document.getElementById('copy-feedback');
+        if (feedback) {
+          feedback.innerText = "Copied! 📋✨";
+          setTimeout(() => { feedback.innerText = "Click to copy 📋"; }, 2500);
+        }
+        speak("Email copied to clipboard! Mathavan looks forward to hearing from you! 📨✨", 3500, false);
+      }).catch(() => {
+        speak(`Email: ${email} 📨`, 3500, false);
+      });
+    }
+  </script>
+
+  <!-- Firebase Analytics Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2_eqCh6XSD5XRxA05x3168WHkmPfHkwI",
+      authDomain: "mathavan-portfolio.firebaseapp.com",
+      projectId: "mathavan-portfolio",
+      storageBucket: "mathavan-portfolio.appspot.com",
+      messagingSenderId: "731398037124",
+      appId: "1:731398037124:web:3b04f754267016e6ad6cd1",
+      measurementId: "G-LTMGTGP12W"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
 </body>
-
 </html>
