@@ -817,7 +817,8 @@
       box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
     }
 
-    body.light-theme #reel-project-tags span {
+    body.light-theme #reel-project-tags span,
+    body.light-theme .timeline-badge {
       background: #f1f5f9;
       border-color: #cbd5e1;
       color: #334155;
@@ -1079,63 +1080,78 @@
         </div>
 
         <h2 class="text-sm tracking-widest uppercase mb-3 text-center md:text-left" style="color: var(--text-muted)">Track Record</h2>
-        <h3 class="text-3xl md:text-4xl font-semibold mb-12 text-center md:text-left" style="color: var(--text-main)">Work Experience</h3>
+        <h3 class="text-3xl md:text-4xl font-semibold mb-12 text-center md:text-left" style="color: var(--text-main)">Career Pathway</h3>
 
         <div class="space-y-12">
-          <!-- Experience 1 -->
+          <!-- Pathway Node 1: Industry Work Experience -->
           <div class="timeline-item">
             <div class="timeline-dot"></div>
-            <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
-              <h4 class="text-xl font-semibold" style="color: var(--text-main)">Senior Full-Stack Engineer <span style="color: var(--text-accent)">@ Tech Systems</span></h4>
-              <span class="text-sm font-medium" style="color: var(--text-muted)">2023 — Present</span>
+            <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-1.5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h4 class="text-xl font-semibold" style="color: var(--text-main)">Web Developer <span style="color: var(--text-accent)">@ MeddApp India Healthcare</span></h4>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-mono tracking-wider uppercase border border-emerald-500/30 text-emerald-400 bg-emerald-500/10">Industry Experience</span>
+              </div>
+              <span class="text-sm font-mono font-medium mt-1 sm:mt-0" style="color: var(--text-muted)">Sep 2024 — Sep 2026</span>
             </div>
-            <p class="text-sm mb-3" style="color: var(--text-muted)">Engineered high-concurrency microservices and real-time frontend architectures.</p>
-            <ul class="text-sm space-y-1.5" style="color: var(--text-main)">
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold">✓</span>
-                <span>Reduced end-to-end API response latency by 35% through Redis caching and query indexing.</span>
+            <p class="text-sm mb-3 font-medium" style="color: var(--text-muted)">Remote • Full-Stack Healthcare Systems, PWAs & Medical Deep Learning</p>
+            <ul class="text-sm space-y-2 mb-4" style="color: var(--text-main)">
+              <li class="flex items-start gap-2.5">
+                <span class="text-emerald-400 font-bold leading-relaxed">✓</span>
+                <span class="leading-relaxed"><strong>Cross-Platform Healthcare PWA:</strong> Developed and maintained responsive clinical workflows and user-facing modules for a high-availability hospital management Progressive Web Application across Web, Android, and iOS.</span>
               </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold">✓</span>
-                <span>Led modern responsive UI migration using React, Tailwind CSS, and WebSocket data streams.</span>
+              <li class="flex items-start gap-2.5">
+                <span class="text-emerald-400 font-bold leading-relaxed">✓</span>
+                <span class="leading-relaxed"><strong>Core Java Enterprise Architecture:</strong> Engineered system feature modules, critical business logic fixes, and performance-tuned Oracle PL/SQL database procedures for a Java Swing enterprise hospital management platform.</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-emerald-400 font-bold leading-relaxed">✓</span>
+                <span class="leading-relaxed"><strong>Medical AI Vision Diagnostics:</strong> Researched and developed an automated diabetic retinopathy detection pipeline utilizing a hybrid <strong>MobileNetV2 + SwinV2</strong> transformer deep learning model with PyTorch and OpenCV.</span>
               </li>
             </ul>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">Java</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">PWA</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">JavaScript</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">Oracle PL/SQL</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">Python</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">PyTorch</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">OpenCV</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">Deep Learning</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">MobileNetV2</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">SwinV2</span>
+            </div>
           </div>
 
-          <!-- Experience 2 -->
+          <!-- Pathway Node 2: Academic & Engineering Foundation -->
           <div class="timeline-item">
             <div class="timeline-dot"></div>
-            <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
-              <h4 class="text-xl font-semibold" style="color: var(--text-main)">Software Engineer <span style="color: var(--text-accent)">@ Digital Labs</span></h4>
-              <span class="text-sm font-medium" style="color: var(--text-muted)">2021 — 2023</span>
+            <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-1.5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h4 class="text-xl font-semibold" style="color: var(--text-main)">B.Tech in Computer & Communication <span style="color: var(--text-accent)">@ SMVEC</span></h4>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-mono tracking-wider uppercase border border-cyan-500/30 text-cyan-400 bg-cyan-500/10">Academic Foundation</span>
+              </div>
+              <span class="text-sm font-mono font-medium mt-1 sm:mt-0" style="color: var(--text-muted)">2020 — 2024</span>
             </div>
-            <p class="text-sm mb-3" style="color: var(--text-muted)">Developed customer-facing web applications and automated data pipelines.</p>
-            <ul class="text-sm space-y-1.5" style="color: var(--text-main)">
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold">✓</span>
-                <span>Architected RESTful and GraphQL APIs serving 50k+ daily active users.</span>
+            <p class="text-sm mb-3 font-medium" style="color: var(--text-muted)">Sri Manakula Vinayagar Engineering College • CGPA: 7.61 / 10.0</p>
+            <ul class="text-sm space-y-2 mb-4" style="color: var(--text-main)">
+              <li class="flex items-start gap-2.5">
+                <span class="text-cyan-400 font-bold leading-relaxed">✓</span>
+                <span class="leading-relaxed"><strong>Core Systems & Architecture:</strong> Built a deep theoretical and practical foundation in algorithms, data structures, network communication protocols, and full-stack systems engineering.</span>
               </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold">✓</span>
-                <span>Built automated unit and integration test suites maintaining 98% coverage.</span>
+              <li class="flex items-start gap-2.5">
+                <span class="text-cyan-400 font-bold leading-relaxed">✓</span>
+                <span class="leading-relaxed"><strong>Flagship Engineering Projects:</strong> Engineered a real-time Collaborative Whiteboard with Java Spring Boot, WebSockets (STOMP), and HTML5 Canvas API, alongside an NLP Fake News Detection system utilizing LSTM deep learning.</span>
               </li>
             </ul>
-          </div>
-
-          <!-- Experience 3 -->
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
-              <h4 class="text-xl font-semibold" style="color: var(--text-main)">Frontend Developer Intern <span style="color: var(--text-accent)">@ Creative Studio</span></h4>
-              <span class="text-sm font-medium" style="color: var(--text-muted)">2020 — 2021</span>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">Core CS</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">Java</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">Spring Boot</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">WebSockets</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">React</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">Python</span>
+              <span class="timeline-badge px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-zinc-800/60 border border-zinc-700/60 text-zinc-300">LSTM / NLP</span>
             </div>
-            <p class="text-sm mb-3" style="color: var(--text-muted)">Crafted interactive landing pages and reusable component libraries.</p>
-            <ul class="text-sm space-y-1.5" style="color: var(--text-main)">
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-400 font-bold">✓</span>
-                <span>Improved Lighthouse performance scores from 64 to 96 across core marketing pages.</span>
-              </li>
-            </ul>
           </div>
         </div>
       </div>
@@ -1551,9 +1567,9 @@
       // 10. Section Scroll Remarks (Spoken as user explores different sections)
       sections: {
         experience: [
-          "Here's Mathavan's career journey! Real impact, zero fluff. 💼✨",
-          "Work experience section! Check out the teams he's accelerated! 🚀",
-          "Proven engineering track record right here. 📈"
+          "Here's Mathavan's career pathway! 2 years shipping healthcare PWAs & AI vision at MeddApp! 🏥✨",
+          "From B.Tech foundation to production systems at MeddApp—clean track record, zero fluff! 🚀",
+          "Career pathway! Check out Mathavan's real-world engineering journey. 📈"
         ],
         projects: [
           "My favorite zone: Selected Works! Click any card to inspect! 🛠️✨",
