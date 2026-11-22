@@ -846,20 +846,24 @@
       visibility: visible;
       transition: opacity 0.25s ease;
     }
-    /* 🌟 QUICK DUCK HIDE: Smooth 0.22s ducking animation plays first, then fades out */
+    /* 🌟 QUICK DUCK HIDE: Fast physical plunge behind the card, opacity stays 1.0 until tucked! */
     .seam-bot-anchor:not(.visible) {
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1) 0.10s;
+      transition: opacity 0.14s ease 0.18s;
+    }
+    .seam-bot-anchor:not(.visible) .speech-bubble {
+      opacity: 0 !important;
+      transition: opacity 0.1s ease !important;
     }
     .seam-bot-anchor .bot-container {
       pointer-events: auto;
     }
 
-    /* 1. Submerged Behind Card: Hidden 65px deep behind the blueprint sheet */
-    .seam-bot-anchor:not(.visible) .bot-container.is-peeking .bot-body {
-      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + 65px)) scale(0.9) rotate(var(--bot-tilt, 0deg));
-      transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    /* 1. Submerged Behind Card: Plunges 85px deep so head is completely behind the sheet rim */
+    .seam-bot-anchor:not(.visible) .bot-container .bot-body {
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + 85px)) scale(0.88) rotate(var(--bot-tilt, 0deg));
+      transition: transform 0.18s cubic-bezier(0.3, 0, 0.2, 1);
     }
 
     /* 2. Peeking Rest: Physically pulls itself up from behind the slide to peek over paws! */
@@ -926,7 +930,7 @@
     .blueprint-paws:not(.visible) {
       opacity: 0;
       transform: translateY(28px);
-      transition: opacity 0.18s ease, transform 0.18s ease;
+      transition: opacity 0.14s ease 0.15s, transform 0.18s cubic-bezier(0.3, 0, 0.2, 1);
     }
 
     /* Single unified cute cartoon paw */
