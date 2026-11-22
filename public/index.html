@@ -839,36 +839,27 @@
       transform: scale(0.78);
       transform-origin: bottom center;
       opacity: 0;
-      visibility: hidden;
+      transition: opacity 0.22s ease;
     }
     .seam-bot-anchor.visible {
       opacity: 1;
       visibility: visible;
-      transition: opacity 0.22s ease;
+      transition: opacity 0.25s ease;
     }
-    /* 🌟 OCCLUSION CULLING: Instant zero-opacity when submerged or swiping - zero ghosting */
+    /* 🌟 QUICK DUCK HIDE: Smooth 0.22s ducking animation plays first, then fades out */
     .seam-bot-anchor:not(.visible) {
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-      transition: none !important;
-    }
-    /* 🌟 SIDE CARD HARD BOUNDARY: Side cards can NEVER render or shine the bot through translucent sheets */
-    .reel-card-slot.is-side .seam-bot-anchor,
-    .reel-card-slot:not(.is-active) .seam-bot-anchor {
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-      transition: none !important;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1) 0.10s;
     }
     .seam-bot-anchor .bot-container {
       pointer-events: auto;
     }
 
-    /* 1. Submerged Behind Card: Hidden 55px deep behind the solid blueprint sheet */
+    /* 1. Submerged Behind Card: Hidden 65px deep behind the blueprint sheet */
     .seam-bot-anchor:not(.visible) .bot-container.is-peeking .bot-body {
-      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + 55px)) scale(0.92) rotate(var(--bot-tilt, 0deg));
-      transition: transform 0.25s ease;
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + 65px)) scale(0.9) rotate(var(--bot-tilt, 0deg));
+      transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* 2. Peeking Rest: Physically pulls itself up from behind the slide to peek over paws! */
@@ -924,22 +915,18 @@
       pointer-events: none;
       z-index: 5; /* Initially behind the card (z: 10) */
       opacity: 0; /* Initially hidden below rim */
-      visibility: hidden;
       transform: translateY(28px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
     }
     .blueprint-paws.visible {
       opacity: 1;
       visibility: visible;
       animation: paw-wall-grab 0.46s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
-    /* Paws strictly culled on side cards and when not visible */
-    .blueprint-paws:not(.visible),
-    .reel-card-slot.is-side .blueprint-paws,
-    .reel-card-slot:not(.is-active) .blueprint-paws {
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-      animation: none !important;
+    .blueprint-paws:not(.visible) {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
     }
 
     /* Single unified cute cartoon paw */
