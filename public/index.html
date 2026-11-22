@@ -1594,11 +1594,13 @@
     // ==========================================
     // 0. EMOTION & EXPRESSION STATE CONTROLLER
     // ==========================================
-    const TEMPORARY_EMOTIONS = ['annoyed', 'angry', 'tired', 'dizzy', 'panic', 'grip-shake', 'curious'];
+    const TEMPORARY_EMOTIONS = ['annoyed', 'angry', 'tired', 'dizzy', 'panic', 'grip-shake', 'curious', 'hit'];
     let emotionTimer = null;
+    let hitRecoilTimer = null;
 
     function clearAllEmotions() {
       clearTimeout(emotionTimer);
+      clearTimeout(hitRecoilTimer);
       TEMPORARY_EMOTIONS.forEach(cls => botBody.classList.remove(cls));
     }
 
@@ -1866,11 +1868,12 @@
       return diff;
     }
 
-    // Dynamic Resting Baseline: Adapts to user's holding posture (sitting, in bed, lying down)
-    let restingBeta = null;
-    let restingGamma = null;
+    // Dynamic Resting Baseline: Calibrates once on startup without continuous auto-centering drift
+    let restingBeta = 45; // Ergonomic 45-degree comfortable holding tilt
+    let restingGamma = 0; // Upright 0-degree straight tilt
     let lastRawBeta = 0;
     let lastRawGamma = 0;
+    let hasCalibratedGyro = false;
 
     function handleOrientation(e) {
       if (e.beta === null || e.gamma === null) return;
@@ -1878,10 +1881,11 @@
       const rawBeta = e.beta;
       const rawGamma = e.gamma;
 
-      // 1. Initialise baseline on first valid reading
-      if (restingBeta === null || restingGamma === null) {
-        restingBeta = rawBeta;
-        restingGamma = rawGamma;
+      // 1. Initialise baseline once on first valid reading
+      if (!hasCalibratedGyro) {
+        hasCalibratedGyro = true;
+        restingBeta = Math.max(25, Math.min(65, rawBeta));
+        restingGamma = Math.max(-20, Math.min(20, rawGamma));
         lastRawBeta = rawBeta;
         lastRawGamma = rawGamma;
         return;
@@ -1895,21 +1899,10 @@
       const dRawGamma = Math.abs(angleDelta(rawGamma, lastRawGamma));
       const isGimbalFlip = (dRawBeta > 60 || dRawGamma > 60);
 
-      if (!isGimbalFlip) {
-        // When user is holding phone relatively steady, gently glide resting baseline to their posture!
-        // This makes "sleeping position" in bed or on side feel 100% natural and centered!
-        if (dRawBeta < 2.0 && dRawGamma < 2.0) {
-          const deltaB = angleDelta(rawBeta, restingBeta);
-          const deltaG = angleDelta(rawGamma, restingGamma);
-          restingBeta += deltaB * 0.035;
-          restingGamma += deltaG * 0.035;
-        }
-      }
-
       lastRawBeta = rawBeta;
       lastRawGamma = rawGamma;
 
-      // 3. Calculate dynamic relative tilt using circular difference
+      // 3. Calculate dynamic relative tilt using circular difference (No auto-centering drift: persists gravity!)
       let rawDiffBeta = angleDelta(rawBeta, restingBeta);
       let rawDiffGamma = angleDelta(rawGamma, restingGamma);
 
@@ -2214,6 +2207,8 @@
     // 🌟 INSTANT BOT HIDE: Ducks immediately when user moves or scrolls
     function hideProjectBotInstantly() {
       clearTimeout(tapSettleTimer);
+      clearTimeout(hitRecoilTimer);
+      if (botBody) botBody.classList.remove('hit');
       tapHitCount = 0;
       clearTimeout(botIdleTimer);
       clearTimeout(entranceTimer1);
@@ -2514,6 +2509,8 @@
 
     function startBotDrag(clientX, clientY) {
       clearTimeout(tapSettleTimer);
+      clearTimeout(hitRecoilTimer);
+      if (botBody) botBody.classList.remove('hit');
       tapHitCount = 0;
       isDraggingBot = true;
       hasPanickedDuringDrag = false;
@@ -2590,10 +2587,15 @@
 
       tapHitCount++;
 
-      // 1. INSTANT PHYSICAL RECOIL (Zero lockout: every hit squashes immediately!)
+      // 1. INSTANT PHYSICAL RECOIL (Dedicated 350ms timer guarantees eyes always reopen!)
+      clearTimeout(hitRecoilTimer);
       botBody.classList.remove('hit');
       void botBody.offsetWidth; // Force instant layout flush so CSS keyframe re-triggers on every tap
       botBody.classList.add('hit');
+      hitRecoilTimer = setTimeout(() => {
+        botBody.classList.remove('hit');
+      }, 350);
+
       try {
         navigator.vibrate?.(tapHitCount > 2 ? 22 : 12);
       } catch (e) {}
@@ -2612,6 +2614,7 @@
       clearTimeout(tapSettleTimer);
       tapSettleTimer = setTimeout(() => {
         botBody.classList.remove('hit');
+        clearTimeout(hitRecoilTimer);
         const hitsDelivered = tapHitCount;
         tapHitCount = 0;
 
