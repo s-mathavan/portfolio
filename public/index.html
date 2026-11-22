@@ -2508,10 +2508,6 @@
     let totalDragDistance = 0;
 
     function startBotDrag(clientX, clientY) {
-      clearTimeout(tapSettleTimer);
-      clearTimeout(hitRecoilTimer);
-      if (botBody) botBody.classList.remove('hit');
-      tapHitCount = 0;
       isDraggingBot = true;
       hasPanickedDuringDrag = false;
       totalDragDistance = 0;
@@ -2532,6 +2528,12 @@
       let dy = clientY - dragStartY;
       let rawDistance = Math.hypot(dx, dy);
       totalDragDistance = Math.max(totalDragDistance, rawDistance);
+
+      // If user ACTUALLY drags beyond tap threshold (> 22px), cancel tap combos
+      if (totalDragDistance > 22) {
+        clearTimeout(tapSettleTimer);
+        tapHitCount = 0;
+      }
       
       // Resistance factor: The bot actively fights being pulled
       let pullX = dx * 0.18; 
@@ -2665,10 +2667,12 @@
       isDraggingBot = false;
       botBody.classList.remove('panic');
       
-      // Check if this was a quick TAP / POKE (moved less than 12px total)
-      if (!hasPanickedDuringDrag && totalDragDistance < 12) {
+      // Check if this was a quick TAP / POKE (moved less than 22px total)
+      if (!hasPanickedDuringDrag && totalDragDistance < 22) {
         handleBotTap();
       } else if (hasPanickedDuringDrag) {
+        clearTimeout(tapSettleTimer);
+        tapHitCount = 0;
         // Only show dramatic angry/tired reaction if dragged hard into panic!
         const expressions = ['angry', 'tired', 'dizzy'];
         const recoveryEmotion = expressions[Math.floor(Math.random() * expressions.length)];
@@ -2688,7 +2692,9 @@
           }
         }, 2800);
       } else {
-        // Gentle release: only close speech bubble if not actively speaking an important dialogue
+        // Real drag (> 22px) released gently: cancel tap combos and close speech
+        clearTimeout(tapSettleTimer);
+        tapHitCount = 0;
         if (!currentSpeech || !currentSpeech.isImportant) {
           botSpeech.classList.remove('visible');
         }
