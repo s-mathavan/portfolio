@@ -2615,7 +2615,11 @@
       void botBody.offsetWidth; // Force instant layout flush so CSS keyframe re-triggers on every tap
       botBody.classList.add('hit');
       hitRecoilTimer = setTimeout(() => {
-        botBody.classList.remove('hit');
+        // If user is delivering a combo (3+ hits), hold the squinting impact expression
+        // so the settle timer can hand off seamlessly into the dizzy state with zero gap!
+        if (tapHitCount < 3) {
+          botBody.classList.remove('hit');
+        }
       }, 240);
 
       try {
@@ -2627,7 +2631,7 @@
         botSpeech.classList.remove('visible');
       }
 
-      // 2. DEBOUNCED SETTLE WINDOW: Waits 460ms for hits to settle before opening dialogue
+      // 2. DEBOUNCED SETTLE WINDOW: Waits 280ms for hits to settle before opening dialogue
       clearTimeout(tapSettleTimer);
       tapSettleTimer = setTimeout(() => {
         botBody.classList.remove('hit');
@@ -2675,7 +2679,7 @@
           const randomRemark = hitRemarks[Math.floor(Math.random() * hitRemarks.length)];
           speak(randomRemark, 3000, false);
         }
-      }, 460);
+      }, 280);
     }
 
     function endBotDrag() {
