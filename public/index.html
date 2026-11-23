@@ -1199,17 +1199,14 @@
     <section id="projects-section" class="min-h-screen px-0 sm:px-6 md:px-12 lg:px-24 py-20 flex items-center justify-center" style="background-color: var(--bg-main); transition: background-color 0.4s ease;">
       <div class="max-w-5xl mx-auto w-full">
         
-        <!-- MINIMALIST HEADER: Zero progress dots, pure typography -->
-        <div class="px-4 sm:px-0 max-w-4xl mx-auto mb-6 sm:mb-8 pb-3 sm:pb-4 border-b flex flex-col justify-between gap-1" style="border-color: var(--card-border)">
-          <div class="flex items-center gap-2 mb-1">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span id="reel-meta-tag" class="text-[11px] sm:text-xs font-mono uppercase tracking-widest" style="color: var(--text-muted)">
-              [ 01 / 05 • DISTRIBUTED AUDIO & NEURAL DSP ]
-            </span>
-          </div>
+        <!-- MINIMALIST HEADER: Clean title with subtle right-aligned index counter -->
+        <div class="px-4 sm:px-0 max-w-4xl mx-auto mb-6 sm:mb-8 pb-3 sm:pb-4 border-b flex items-baseline justify-between" style="border-color: var(--card-border)">
           <h3 class="text-2xl sm:text-4xl font-semibold tracking-tight" style="color: var(--text-main)">
             Selected Works
           </h3>
+          <span id="reel-meta-tag" class="font-mono text-xs sm:text-sm tracking-widest" style="color: var(--text-muted)">
+            01 <span class="opacity-40">/</span> 05
+          </span>
         </div>
 
         <!-- THE KINETIC REEL STAGE ARENA -->
@@ -2228,7 +2225,7 @@
         }
       });
 
-      if (reelMetaTag) reelMetaTag.textContent = REEL_PROJECTS[currentReelIndex].meta;
+      if (reelMetaTag) reelMetaTag.innerHTML = `0${currentReelIndex + 1} <span class="opacity-40">/</span> 0${REEL_PROJECTS.length}`;
     }
 
     function setReelVisualProgress(shiftPx, animate) {
