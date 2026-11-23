@@ -23,7 +23,9 @@
       --card-thumb: rgba(255, 255, 255, 0.05);
       --bot-bg: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
       --bot-border: rgba(255, 255, 255, 0.15);
-      --bot-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 2px 20px rgba(255,255,255,0.1);
+      --bot-shadow-color: rgba(0, 0, 0, 0.5);
+      --bot-inset-rim: inset 0 2px 20px rgba(255, 255, 255, 0.1);
+      --bot-shadow: 0 20px 40px var(--bot-shadow-color), var(--bot-inset-rim);
       --bubble-bg: rgba(0, 0, 0, 0.75);
       --bubble-text: #ffffff;
       --bubble-border: rgba(255, 255, 255, 0.2);
@@ -49,7 +51,9 @@
       --card-thumb: rgba(0, 0, 0, 0.05);
       --bot-bg: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(226,232,240,0.85));
       --bot-border: rgba(0, 0, 0, 0.12);
-      --bot-shadow: 0 20px 40px rgba(0,0,0,0.12), inset 0 2px 15px rgba(255,255,255,0.9);
+      --bot-shadow-color: rgba(0, 0, 0, 0.12);
+      --bot-inset-rim: inset 0 2px 15px rgba(255, 255, 255, 0.9);
+      --bot-shadow: 0 20px 40px var(--bot-shadow-color), var(--bot-inset-rim);
       --bubble-bg: rgba(255, 255, 255, 0.95);
       --bubble-text: #0f172a;
       --bubble-border: rgba(0, 0, 0, 0.15);
@@ -211,12 +215,18 @@
       transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    /* Hero Default (not peeking): Normal centered floating body */
+    /* Hero Default (not peeking): Normal centered floating body with dynamic drag-lift shadow */
     .bot-container:not(.is-peeking) .bot-body {
       --bot-base-y: 0px;
       --bot-base-scale: 1;
       transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) rotate(var(--bot-tilt, 0deg));
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 calc(4px + var(--drag-lift, 0px) * 0.32) calc(10px + var(--drag-lift, 0px) * 0.55) var(--bot-shadow-color), var(--bot-inset-rim);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    }
+
+    /* Peeking & Popped-out on Project Card: Always matches the card's full floating elevation */
+    .bot-container.is-peeking .bot-body {
+      box-shadow: var(--bot-shadow);
     }
 
     .bot-container .speech-bubble {
@@ -315,7 +325,7 @@
       animation: panic-shake 0.15s infinite;
       background: rgba(255, 60, 60, 0.05);
       border-color: rgba(255, 60, 60, 0.3);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 2px 20px rgba(255, 60, 60, 0.2);
+      box-shadow: var(--bot-shadow), inset 0 2px 20px rgba(255, 60, 60, 0.25);
     }
     .bot-body.panic .eye {
       height: 48px;
@@ -366,7 +376,7 @@
     .bot-body.annoyed {
       background: rgba(245, 158, 11, 0.06);
       border-color: rgba(245, 158, 11, 0.4);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 2px 20px rgba(245, 158, 11, 0.2);
+      box-shadow: var(--bot-shadow), inset 0 2px 20px rgba(245, 158, 11, 0.25);
     }
     .bot-body.annoyed .eye:nth-child(1) {
       height: 12px;
@@ -391,7 +401,7 @@
       border-color: rgba(60, 90, 140, 0.3);
       /* The body physically slumps down and tilts from exhaustion */
       transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + 15px)) rotate(-4deg);
-      box-shadow: 0 30px 40px rgba(0,0,0,0.6), inset 0 -5px 20px rgba(60, 90, 140, 0.2);
+      box-shadow: var(--bot-shadow), inset 0 -5px 20px rgba(60, 90, 140, 0.25);
     }
     .bot-body.tired .eye {
       border-radius: 15px 15px 5px 5px;
@@ -417,7 +427,7 @@
       background: rgba(168, 85, 247, 0.08);
       border-color: rgba(168, 85, 247, 0.35);
       animation: dizzy-sway 1s ease-in-out infinite alternate;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 25px rgba(168, 85, 247, 0.3);
+      box-shadow: var(--bot-shadow), 0 0 25px rgba(168, 85, 247, 0.35);
     }
     .bot-body.dizzy .eye {
       height: 38px;
@@ -2545,9 +2555,11 @@
       pullX = Math.max(-55, Math.min(55, pullX));
       pullY = Math.max(-55, Math.min(55, pullY));
 
-      // Inject displacement into CSS variables
+      // Inject displacement and dynamic optical lift into CSS variables
       botBody.style.setProperty('--drag-x', `${pullX}px`);
       botBody.style.setProperty('--drag-y', `${pullY}px`);
+      const lift = Math.min(60, rawDistance);
+      botBody.style.setProperty('--drag-lift', `${lift}px`);
 
       // PANIC ONLY IF DRAGGED TOO HARD IN HERO (Distance > 90px threshold)
       if (rawDistance > 90) {
@@ -2595,6 +2607,7 @@
       const wobbleDirection = (tapHitCount % 2 === 0) ? 1 : -1;
       const wobble = wobbleDirection * Math.min(8, 2.5 + tapHitCount * 1.2);
       botBody.style.setProperty('--hit-wobble', `${wobble}deg`);
+      botBody.style.setProperty('--drag-lift', '0px');
 
       // 1. INSTANT PHYSICAL RECOIL (Dedicated 240ms timer guarantees eyes always reopen!)
       clearTimeout(hitRecoilTimer);
@@ -2708,6 +2721,7 @@
       botBody.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
       botBody.style.setProperty('--drag-x', `0px`);
       botBody.style.setProperty('--drag-y', `0px`);
+      botBody.style.setProperty('--drag-lift', `0px`);
       botBody.style.removeProperty('--hit-wobble');
       setTimeout(() => { botBody.style.transition = ''; }, 350);
 
