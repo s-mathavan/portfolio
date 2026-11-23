@@ -2407,7 +2407,6 @@
       isTransitioning = true;
       const total = REEL_PROJECTS.length;
       pendingReelTargetIdx = ((newIndex % total) + total) % total;
-      try { navigator.vibrate?.(10); } catch(e) {}
 
       const pitch = getCardPitch();
       const shiftX = direction === 'next' ? -pitch : pitch;
@@ -2475,9 +2474,6 @@
       entranceTimer1 = setTimeout(() => {
         if (isReelDragging || isTransitioning || (!isReelStageInView() && currentActiveSectionId !== 'projects-section')) return;
         if (paws) paws.classList.add('visible');
-        setTimeout(() => {
-          try { navigator.vibrate?.(12); } catch(e) {}
-        }, 180);
       }, 220);
 
       // Stage 2 (480ms): Head pulls up from behind slide into shy peek
@@ -2498,7 +2494,7 @@
             if (!isReelDragging && !hasUserInteracted && (isReelStageInView() || currentActiveSectionId === 'projects-section')) {
               botBody.classList.add('glance-side');
               if (reelTrack) reelTrack.classList.add('bot-tug');
-              try { navigator.vibrate?.(15); } catch(e) {}
+              try { navigator.vibrate?.(38); } catch(e) {}
               
               setTimeout(() => {
                 if (reelTrack) reelTrack.classList.remove('bot-tug');
@@ -2752,7 +2748,7 @@
       }, 240);
 
       try {
-        navigator.vibrate?.(tapHitCount >= 3 ? [15, 20, 25] : 12);
+        navigator.vibrate?.(tapHitCount >= 3 ? [30, 40, 50] : 36);
       } catch (e) {}
 
       // Keep speech bubble tucked while hits are landing continuously
