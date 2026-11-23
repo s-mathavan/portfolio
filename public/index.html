@@ -1938,14 +1938,7 @@
           botBody.classList.remove('using-cane');
         }
 
-        // Eyes track gravity smoothly relative to user's posture
-        if (!botBody.classList.contains('glance-side')) {
-          const eyeX = Math.max(-10, Math.min(10, diffGamma * 0.35));
-          const eyeY = Math.max(-10, Math.min(10, diffBeta * 0.35));
-          pupils.forEach(pupil => {
-            pupil.style.transform = `translate(${eyeX}px, ${eyeY}px)`;
-          });
-        }
+        // Eyes remain free to run natural idleExplore() searching & touch tracking (same as landing page)
 
         // Subtle anchored body sway (clamped to +/- 4px so it never detaches)
         let moveY = Math.max(-4, Math.min(4, diffBeta * 0.12));
