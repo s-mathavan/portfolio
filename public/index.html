@@ -229,10 +229,29 @@
       box-shadow: var(--bot-shadow);
     }
 
-    .bot-container .speech-bubble {
-      top: -75px;
-      max-width: 250px;
-      z-index: 40;
+    /* Hero Speech Bubble: Anchored 18px above bot head, expands UPWARDS into open hero space */
+    .bot-container:not(.is-peeking) .speech-bubble {
+      top: auto;
+      bottom: calc(100% + 18px);
+      left: 50%;
+      transform: translateX(-50%) translateY(8px) scale(0.9);
+      max-width: 280px;
+      z-index: 9999 !important;
+    }
+    .bot-container:not(.is-peeking) .speech-bubble.visible {
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+    .bot-container:not(.is-peeking) .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      width: 12px;
+      height: 12px;
+      background: var(--bubble-bg);
+      border-right: 1px solid var(--bubble-border);
+      border-bottom: 1px solid var(--bubble-border);
     }
 
     
@@ -1084,7 +1103,7 @@
         Hi, I'm <span class="font-semibold" style="color: var(--text-accent)">Mathavan</span>.
       </h1>
       <p class="max-w-md mt-6 text-lg leading-relaxed" style="color: var(--text-muted)">
-        I build high-performance full-stack systems and interactive web experiences. Say hi to my little companion above. Try tilting your phone or nudging him around!
+        I build high-performance full-stack systems and interactive web experiences.
       </p>
     </section>
 
@@ -2875,8 +2894,8 @@
         botBody.classList.add('hit');
         setTimeout(() => botBody.classList.remove('hit'), 380);
 
-        // Grand greeting
-        speak("Whew! Landed safely. 🚀 Hi! I'm Mathavan's digital companion. Try nudging or tilting me!", 4800, true);
+        // Welcoming greeting (crisp, zero tutorial instructions)
+        speak("Landed! 🚀 Welcome to Mathavan's portfolio!", 3600, true);
       }, 1500);
     }
 
