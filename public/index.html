@@ -1512,7 +1512,7 @@
         <div class="inline-block mb-10">
           <button onclick="copyEmail()" class="copy-btn px-6 py-4 rounded-xl flex items-center gap-3 cursor-pointer mx-auto">
             <span class="text-lg">📧</span>
-            <span id="email-text" class="font-mono text-base font-medium" style="color: var(--text-main)">mathavan.dev@example.com</span>
+            <span id="email-text" class="font-mono text-base font-medium" style="color: var(--text-main)">s.mathavanjayalakshmi@gmail.com</span>
             <span id="copy-feedback" class="text-xs px-2.5 py-1 rounded-md ml-2" style="background: var(--card-border); color: var(--text-accent)">Click to copy 📋</span>
           </button>
         </div>
@@ -3015,7 +3015,7 @@
 
     // 1-Click Copy Email Handler
     function copyEmail() {
-      const email = document.getElementById('email-text') ? document.getElementById('email-text').innerText : "mathavan.dev@example.com";
+      const email = document.getElementById('email-text') ? document.getElementById('email-text').innerText : "s.mathavanjayalakshmi@gmail.com";
       navigator.clipboard.writeText(email).then(() => {
         const feedback = document.getElementById('copy-feedback');
         if (feedback) {
