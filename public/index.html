@@ -197,18 +197,24 @@
 
     /* Peeking Rest: Body is tucked 18px down behind the wall ledge so eyes peek over top */
     .bot-container.is-peeking:not(.popped-out) .bot-body {
-      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + 18px)) rotate(var(--bot-tilt, 0deg));
+      --bot-base-y: 18px;
+      --bot-base-scale: 1;
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + var(--bot-base-y, 18px))) rotate(var(--bot-tilt, 0deg));
       transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     /* Popped Out: Springs up over the ledge into full view when speaking, tapped, or dragged */
     .bot-container.is-peeking.popped-out .bot-body {
-      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) - 22px)) scale(1.05) rotate(var(--bot-tilt, 0deg));
+      --bot-base-y: -22px;
+      --bot-base-scale: 1.05;
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + var(--bot-base-y, -22px))) scale(var(--bot-base-scale, 1.05)) rotate(var(--bot-tilt, 0deg));
       transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     /* Hero Default (not peeking): Normal centered floating body */
     .bot-container:not(.is-peeking) .bot-body {
+      --bot-base-y: 0px;
+      --bot-base-scale: 1;
       transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) rotate(var(--bot-tilt, 0deg));
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
@@ -254,16 +260,27 @@
     }
 
 
-    /* Tap Hit / Poke Recoil Animation */
+    /* Tap Hit / Poke Recoil Animation (Impact-first compression + alternating tilt) */
     @keyframes hit-recoil {
-      0% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(0.85, 1.15) translateY(-8px); }
-      35% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(1.15, 0.85) translateY(12px); }
-      70% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(0.95, 1.05) translateY(-3px); }
-      100% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(1, 1) translateY(0); }
+      0% { 
+        transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + var(--bot-base-y, 0px) + 8px)) 
+                   scale(calc(var(--bot-base-scale, 1) * 1.14), calc(var(--bot-base-scale, 1) * 0.86)) 
+                   rotate(calc(var(--bot-tilt, 0deg) + var(--hit-wobble, -3deg))); 
+      }
+      40% { 
+        transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + var(--bot-base-y, 0px) - 4px)) 
+                   scale(calc(var(--bot-base-scale, 1) * 0.94), calc(var(--bot-base-scale, 1) * 1.06)) 
+                   rotate(calc(var(--bot-tilt, 0deg) + var(--hit-wobble, -3deg) * -0.5)); 
+      }
+      100% { 
+        transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + var(--bot-base-y, 0px))) 
+                   scale(var(--bot-base-scale, 1)) 
+                   rotate(var(--bot-tilt, 0deg)); 
+      }
     }
 
     .bot-body.hit {
-      animation: hit-recoil 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: hit-recoil 0.22s cubic-bezier(0.15, 0.85, 0.35, 1.2) !important;
     }
     .bot-body.hit .eye {
       height: 6px !important;
@@ -290,12 +307,7 @@
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       cursor: pointer;
       transform-style: preserve-3d;
-      transform: translate(var(--drag-x, 0px), var(--drag-y, 0px));
-    }
-
-    /* Click Interaction */
-    .bot-body:not(.panic):active {
-      transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) scale(0.9) translateY(10px);
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + var(--bot-base-y, 0px))) rotate(var(--bot-tilt, 0deg));
     }
 
     /* Panic State (Hard Tilt/Aggressive Mouse) */
@@ -862,19 +874,25 @@
 
     /* 1. Submerged Behind Card: Plunges 85px deep so head is completely behind the sheet rim */
     .seam-bot-anchor:not(.visible) .bot-container .bot-body {
-      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + 85px)) scale(0.88) rotate(var(--bot-tilt, 0deg));
+      --bot-base-y: 85px;
+      --bot-base-scale: 0.88;
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + var(--bot-base-y, 85px))) scale(var(--bot-base-scale, 0.88)) rotate(var(--bot-tilt, 0deg));
       transition: transform 0.18s cubic-bezier(0.3, 0, 0.2, 1);
     }
 
     /* 2. Peeking Rest: Physically pulls itself up from behind the slide to peek over paws! */
     .seam-bot-anchor.visible .bot-container.is-peeking:not(.popped-out) .bot-body {
-      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) - 28px)) scale(1) rotate(var(--bot-tilt, 0deg));
+      --bot-base-y: -28px;
+      --bot-base-scale: 1;
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + var(--bot-base-y, -28px))) scale(var(--bot-base-scale, 1)) rotate(var(--bot-tilt, 0deg));
       transition: transform 0.48s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     /* 3. Popped out: Springs up higher to deliver project walkthrough */
     .seam-bot-anchor.visible .bot-container.is-peeking.popped-out .bot-body {
-      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) - 54px)) scale(1.1) rotate(var(--bot-tilt, 0deg));
+      --bot-base-y: -54px;
+      --bot-base-scale: 1.1;
+      transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + var(--bot-base-y, -54px))) scale(var(--bot-base-scale, 1.1)) rotate(var(--bot-tilt, 0deg));
       transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
@@ -2580,17 +2598,22 @@
 
       tapHitCount++;
 
-      // 1. INSTANT PHYSICAL RECOIL (Dedicated 350ms timer guarantees eyes always reopen!)
+      // Alternating punch tilt (-4deg, +4deg, etc.) so rapid hits feel like a dynamic punching bag
+      const wobbleDirection = (tapHitCount % 2 === 0) ? 1 : -1;
+      const wobble = wobbleDirection * Math.min(8, 2.5 + tapHitCount * 1.2);
+      botBody.style.setProperty('--hit-wobble', `${wobble}deg`);
+
+      // 1. INSTANT PHYSICAL RECOIL (Dedicated 240ms timer guarantees eyes always reopen!)
       clearTimeout(hitRecoilTimer);
       botBody.classList.remove('hit');
       void botBody.offsetWidth; // Force instant layout flush so CSS keyframe re-triggers on every tap
       botBody.classList.add('hit');
       hitRecoilTimer = setTimeout(() => {
         botBody.classList.remove('hit');
-      }, 350);
+      }, 240);
 
       try {
-        navigator.vibrate?.(tapHitCount > 2 ? 22 : 12);
+        navigator.vibrate?.(tapHitCount >= 3 ? [15, 20, 25] : 12);
       } catch (e) {}
 
       // Keep speech bubble tucked while hits are landing continuously
@@ -2598,16 +2621,12 @@
         botSpeech.classList.remove('visible');
       }
 
-      // If user is pummeling, squint eyes or express dizzy stress during the barrage
-      if (tapHitCount >= 3) {
-        setEmotion('dizzy', 600);
-      }
-
       // 2. DEBOUNCED SETTLE WINDOW: Waits 460ms for hits to settle before opening dialogue
       clearTimeout(tapSettleTimer);
       tapSettleTimer = setTimeout(() => {
         botBody.classList.remove('hit');
         clearTimeout(hitRecoilTimer);
+        botBody.style.removeProperty('--hit-wobble');
         const hitsDelivered = tapHitCount;
         tapHitCount = 0;
 
@@ -2696,6 +2715,7 @@
       botBody.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
       botBody.style.setProperty('--drag-x', `0px`);
       botBody.style.setProperty('--drag-y', `0px`);
+      botBody.style.removeProperty('--hit-wobble');
       setTimeout(() => { botBody.style.transition = ''; }, 350);
 
       // If peeking, retreat back down into peek position after settling
