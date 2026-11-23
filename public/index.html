@@ -1605,19 +1605,19 @@
       // 10. Section Scroll Remarks (Spoken as user explores different sections)
       sections: {
         experience: [
-          "Here's Mathavan's career pathway! 2 years shipping healthcare PWAs & AI vision at MeddApp! 🏥✨",
-          "From B.Tech foundation to production systems at MeddApp—clean track record, zero fluff! 🚀",
-          "Career pathway! Check out Mathavan's real-world engineering journey. 📈"
+          "Here's my career journey! 2 years shipping healthcare PWAs & AI vision at MeddApp! 🏥✨",
+          "From B.Tech foundation to production systems at MeddApp—my real-world engineering track record! 🚀",
+          "Career pathway! Check out my real-world engineering journey. 📈"
         ],
         projects: [
           "My favorite zone: Selected Works! Click any card to inspect! 🛠️✨",
           "High-performance systems ahead. Built with clean code and coffee! ☕🚀",
-          "Check out the code architectures below! 📐✨"
+          "Check out my code architectures below! 📐✨"
         ],
         contact: [
-          "You made it to the end! Mathavan's inbox is always open! ☕📨",
-          "Looking for a strong engineer? Drop him a message! 🤝✨",
-          "One click to copy his email—let's build something! 🚀"
+          "You made it to the end! My inbox is always open! ☕📨",
+          "Looking for a strong engineer? Drop me a message! 🤝✨",
+          "One click to copy my email—let's build something ambitious! 🚀"
         ]
       }
     };
@@ -2072,7 +2072,7 @@
         domainColor: "text-sky-400",
         tags: ["React", "TypeScript", "WebSockets", "Node.js"],
         liveUrl: "https://github.com/Mathavan-A",
-        insight: "Kinetic Cloud: Built with 60fps canvas telemetry and real-time WebSockets! 🚀"
+        insight: "Kinetic Cloud: I built this with 60fps canvas telemetry and real-time WebSockets! 🚀"
       },
       {
         id: 1,
@@ -2087,7 +2087,7 @@
         domainColor: "text-emerald-400",
         tags: ["Next.js", "PostgreSQL", "Stripe API", "Redis", "Docker"],
         liveUrl: "https://github.com/Mathavan-A",
-        insight: "Autonomous Commerce: Sub-second checkout with PostgreSQL atomic row locks and Redis caching! 🛒✨"
+        insight: "Autonomous Commerce: I engineered sub-second checkouts with atomic row locks and Redis caching! 🛒✨"
       },
       {
         id: 2,
@@ -2102,7 +2102,7 @@
         domainColor: "text-purple-400",
         tags: ["WebAssembly", "C++", "AudioWorklet", "SIMD"],
         liveUrl: "https://github.com/Mathavan-A",
-        insight: "Neural Audio DSP: WebAudio worklets with C++ SIMD spatial synthesis and zero garbage collection! 🎧⚡"
+        insight: "Neural Audio DSP: My low-level C++ SIMD engine running in WebAssembly! 🎧⚡"
       }
     ];
 
@@ -2894,8 +2894,8 @@
         botBody.classList.add('hit');
         setTimeout(() => botBody.classList.remove('hit'), 380);
 
-        // Welcoming greeting (crisp, zero tutorial instructions)
-        speak("Landed! 🚀 Welcome to Mathavan's portfolio!", 3600, true);
+        // Welcoming greeting (using the digital twin persona)
+        speak(DIALOGUES.welcome[0], 4800, true);
       }, 1500);
     }
 
@@ -2914,7 +2914,7 @@
           feedback.innerText = "Copied! 📋✨";
           setTimeout(() => { feedback.innerText = "Click to copy 📋"; }, 2500);
         }
-        speak("Email copied to clipboard! Mathavan looks forward to hearing from you! 📨✨", 3500, false);
+        speak("Email copied to clipboard! Looking forward to hearing from you! 📨✨", 3500, false);
       }).catch(() => {
         speak(`Email: ${email} 📨`, 3500, false);
       });
