@@ -723,12 +723,26 @@
     }
 
     /* CARD SLOT ON THE TRACK */
+    .reel-card-slot,
+    .reel-card-slot .blueprint-sheet,
+    .reel-card-slot .card-pad,
+    .reel-card-slot .card-preview-box,
+    .reel-card-slot .card-title,
+    .reel-card-slot .card-desc,
+    .reel-card-slot .card-footer,
+    .reel-card-slot .card-domain,
+    .reel-card-slot .card-badge,
+    .reel-card-slot .card-tags,
+    .reel-card-slot .card-link,
+    .reel-card-slot.is-side,
+    .reel-card-slot.is-side * {
+      cursor: pointer !important;
+    }
     .reel-card-slot {
       position: relative;
       width: min(580px, calc(100vw - 108px));
       flex-shrink: 0;
       transform-origin: center bottom;
-      cursor: pointer;
       contain: layout;
     }
     @media (min-width: 640px) {
@@ -2461,6 +2475,18 @@
       // Tap on peeking side cards immediately slides the track!
       if (reelSlots[1]) reelSlots[1].addEventListener('click', () => switchReelProject(currentReelIndex - 1, 'prev'));
       if (reelSlots[3]) reelSlots[3].addEventListener('click', () => switchReelProject(currentReelIndex + 1, 'next'));
+
+      // Tap on active center card opens the project repo (unless dragging or clicking companion bot)
+      if (reelSlots[2]) {
+        reelSlots[2].addEventListener('click', (e) => {
+          if (reelHasMoved) return;
+          if (e.target.closest('#companion')) return;
+          const url = REEL_PROJECTS[currentReelIndex].liveUrl;
+          if (url && !e.target.closest('a')) {
+            window.open(url, '_blank');
+          }
+        });
+      }
 
       reelStage.addEventListener('pointerdown', (e) => {
         if (e.target.closest('#companion') || e.target.closest('a')) return;
