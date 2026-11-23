@@ -713,9 +713,9 @@
     /* BOT TUG ON THE ENTIRE TRACK */
     @keyframes track-bot-tug {
       0% { transform: translate3d(0px, 0, 0) rotate(0deg); }
-      25% { transform: translate3d(-32px, 0, 0) rotate(-1.6deg); }
-      50% { transform: translate3d(6px, 0, 0) rotate(0.4deg); }
-      75% { transform: translate3d(-2px, 0, 0) rotate(-0.1deg); }
+      28% { transform: translate3d(-46px, 0, 0) rotate(-2.2deg); }
+      54% { transform: translate3d(8px, 0, 0) rotate(0.6deg); }
+      76% { transform: translate3d(-3px, 0, 0) rotate(-0.2deg); }
       100% { transform: translate3d(0px, 0, 0) rotate(0deg); }
     }
     .reel-track.bot-tug {
@@ -2329,7 +2329,10 @@
     function cancelBotTug() {
       clearTimeout(botTugTimer);
       if (reelTrack) reelTrack.classList.remove('bot-tug');
-      if (botBody) botBody.classList.remove('glance-side');
+      if (botBody) {
+        botBody.classList.remove('glance-side');
+        botBody.style.setProperty('--bot-tilt', '0deg');
+      }
     }
 
     // 🌟 INSTANT BOT HIDE: Ducks immediately when user moves or scrolls
@@ -2470,41 +2473,41 @@
       companion.classList.add('is-peeking');
       botSpeech.classList.remove('visible');
 
-      // Stage 1 (220ms): Paws rise from behind and slap down onto front rim
+      // Stage 1 (180ms): Paws rise from behind and slap down onto front rim
       entranceTimer1 = setTimeout(() => {
         if (isReelDragging || isTransitioning || (!isReelStageInView() && currentActiveSectionId !== 'projects-section')) return;
         if (paws) paws.classList.add('visible');
-      }, 220);
+      }, 180);
 
-      // Stage 2 (480ms): Head pulls up from behind slide into shy peek
+      // Stage 2 (380ms): Head pulls up from behind slide into shy peek
       entranceTimer2 = setTimeout(() => {
         if (isReelDragging || isTransitioning || (!isReelStageInView() && currentActiveSectionId !== 'projects-section')) return;
         if (seamSlot) seamSlot.classList.add('visible');
-      }, 480);
+      }, 380);
 
-      // Stage 3 (850ms): Springs up into presenter mode
+      // Stage 3 (620ms): Springs up into presenter mode and delivers rail tug
       entranceTimer3 = setTimeout(() => {
         if (isReelDragging || isTransitioning || (!isReelStageInView() && currentActiveSectionId !== 'projects-section')) return;
         companion.classList.add('popped-out');
         if (onReadySpeak) onReadySpeak();
 
-        // 🌟 SYNCHRONIZED BOT TUG: Pulls the ENTIRE rail at 2.0s if still idle!
-        if (!hasUserInteracted) {
-          botTugTimer = setTimeout(() => {
-            if (!isReelDragging && !hasUserInteracted && (isReelStageInView() || currentActiveSectionId === 'projects-section')) {
-              botBody.classList.add('glance-side');
-              if (reelTrack) reelTrack.classList.add('bot-tug');
-              try { navigator.vibrate?.(38); } catch(e) {}
-              
-              setTimeout(() => {
-                if (reelTrack) reelTrack.classList.remove('bot-tug');
-                botBody.classList.remove('glance-side');
-              }, 980);
-            }
-          }, 800);
-        }
+        // 🌟 SYNCHRONIZED BOT TUG: Pulls the ENTIRE rail cleanly at 650ms
+        botTugTimer = setTimeout(() => {
+          if (!isReelDragging && !isTransitioning && (isReelStageInView() || currentActiveSectionId === 'projects-section')) {
+            botBody.classList.add('glance-side');
+            botBody.style.setProperty('--bot-tilt', '-6deg');
+            if (reelTrack) reelTrack.classList.add('bot-tug');
+            try { navigator.vibrate?.(38); } catch(e) {}
+            
+            setTimeout(() => {
+              if (reelTrack) reelTrack.classList.remove('bot-tug');
+              botBody.classList.remove('glance-side');
+              botBody.style.setProperty('--bot-tilt', '0deg');
+            }, 980);
+          }
+        }, 650);
 
-      }, 850);
+      }, 620);
     }
 
     function triggerReelProjectSpeech() {
@@ -2563,7 +2566,6 @@
         reelStartX = e.clientX;
         reelStartY = e.clientY;
         cancelBotTug();
-        hasUserInteracted = true;
         if (reelTrack) reelTrack.style.transition = 'none';
       });
 
