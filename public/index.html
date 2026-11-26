@@ -34,6 +34,9 @@
       --eye-border: transparent;
       --eye-shadow: 0 0 15px rgba(255,255,255,0.2);
       --pupil-bg: #000000;
+      --rope-base: rgba(255, 255, 255, 0.22);
+      --rope-strand: rgba(255, 255, 255, 0.11);
+      --climb-bot-solid: #161922;
     }
 
     body.light-theme {
@@ -62,6 +65,9 @@
       --eye-border: rgba(0, 0, 0, 0.15);
       --eye-shadow: 0 2px 8px rgba(0,0,0,0.08);
       --pupil-bg: #0f172a;
+      --rope-base: rgba(15, 23, 42, 0.22);
+      --rope-strand: rgba(15, 23, 42, 0.1);
+      --climb-bot-solid: #e2e8f0;
     }
 
     body {
@@ -229,8 +235,8 @@
       box-shadow: var(--bot-shadow);
     }
 
-    /* Hero Speech Bubble: Anchored 18px above bot head, expands UPWARDS into open hero space */
-    .bot-container:not(.is-peeking) .speech-bubble {
+    /* Unified Speech Bubble: Anchored 18px above bot head, expands UPWARDS so face is never covered */
+    .bot-container .speech-bubble {
       top: auto;
       bottom: calc(100% + 18px);
       left: 50%;
@@ -238,10 +244,14 @@
       max-width: 280px;
       z-index: 9999 !important;
     }
-    .bot-container:not(.is-peeking) .speech-bubble.visible {
+    /* Match the -22px pop-out lift in Contact & Projects so speech bubble never touches popped bot head */
+    .bot-container.is-peeking.popped-out .speech-bubble {
+      bottom: calc(100% + 40px);
+    }
+    .bot-container .speech-bubble.visible {
       transform: translateX(-50%) translateY(0) scale(1);
     }
-    .bot-container:not(.is-peeking) .speech-bubble::after {
+    .bot-container .speech-bubble::after {
       content: '';
       position: absolute;
       bottom: -6px;
@@ -574,31 +584,163 @@
       border-color: var(--card-hover-border);
     }
 
-    /* Experience Timeline */
+    /* Experience Timeline: Elastic Rope & Centered Overhead Climbing Bot */
+    .rope-timeline {
+      position: relative;
+      padding-left: 60px;
+    }
+    @media (min-width: 640px) {
+      .rope-timeline {
+        padding-left: 78px;
+      }
+    }
+    #rope-svg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 60px;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 8;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 28px, black calc(100% - 28px), transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0%, black 28px, black calc(100% - 28px), transparent 100%);
+    }
     .timeline-item {
       position: relative;
-      padding-left: 28px;
-      border-left: 2px solid var(--card-border);
-      transition: border-color 0.3s ease;
-    }
-    .timeline-item:hover {
-      border-color: var(--text-accent);
+      padding-top: 62px; /* Clean headroom lane above each milestone for overhead grip & speech pill */
+      padding-bottom: 24px;
     }
     .timeline-dot {
       position: absolute;
-      left: -7px;
-      top: 6px;
-      width: 12px;
-      height: 12px;
+      top: 68px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      background: var(--bg-main);
-      border: 2px solid var(--text-accent);
-      box-shadow: 0 0 8px var(--text-accent);
-      transition: all 0.3s ease;
+      background: var(--bg-works);
+      border: 2.5px solid var(--rope-base);
+      z-index: 9;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
     }
-    .timeline-item:hover .timeline-dot {
-      transform: scale(1.3);
-      background: var(--text-accent);
+    .timeline-item.is-active .timeline-dot {
+      transform: scale(1.25);
+      border-color: #38bdf8;
+      background: #38bdf8;
+      box-shadow: 0 0 12px #38bdf8;
+    }
+    #rope-bot {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 44px;
+      height: 66px;
+      z-index: 12;
+      pointer-events: none;
+      will-change: transform;
+    }
+    .climb-arms-svg {
+      position: absolute;
+      inset: -16px -14px;
+      width: 72px;
+      height: 98px;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .climb-bot-body {
+      position: absolute;
+      left: 2px;
+      top: 24px;
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      background: var(--bot-bg);
+      backdrop-filter: blur(12px);
+      border: 1.5px solid var(--bot-border);
+      box-shadow: 0 10px 24px var(--bot-shadow-color), var(--bot-inset-rim);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      z-index: 12;
+      pointer-events: auto;
+      cursor: pointer;
+      transition: transform 0.14s ease-out;
+      will-change: transform;
+    }
+    .climb-bot-body.hit {
+      transform: scale(1.12, 0.88) !important;
+    }
+    .climb-eye {
+      width: 8px;
+      height: 12.5px;
+      background: var(--eye-bg);
+      border: 1px solid var(--eye-border);
+      border-radius: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: var(--eye-shadow);
+      overflow: hidden;
+      transition: height 0.08s ease;
+    }
+    .climb-eye.blink {
+      height: 2px !important;
+      border-radius: 2px !important;
+    }
+    .climb-bot-body.hit .climb-eye {
+      height: 4px !important;
+      border-radius: 4px !important;
+    }
+    .climb-pupil {
+      width: 4px;
+      height: 6px;
+      background: var(--pupil-bg);
+      border-radius: 50%;
+      transition: transform 0.14s ease-out;
+    }
+    .climb-paw {
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      width: 13px;
+      height: 10px;
+      background: var(--climb-bot-solid);
+      border: 1.5px solid var(--bot-border);
+      border-radius: 999px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+      z-index: 16;
+      will-change: transform;
+    }
+    .climb-speech {
+      position: absolute;
+      left: 60px;
+      background: var(--bubble-bg);
+      backdrop-filter: blur(12px);
+      color: var(--bubble-text);
+      border: 1px solid var(--bubble-border);
+      padding: 7px 12px;
+      border-radius: 13px;
+      font-size: 12px;
+      line-height: 1.35;
+      width: max-content;
+      max-width: calc(100vw - 108px);
+      box-shadow: var(--bubble-shadow);
+      opacity: 0;
+      transform: translateX(-8px) scale(0.94);
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 30;
+      pointer-events: none;
+    }
+    @media (min-width: 640px) {
+      .climb-speech {
+        left: 78px;
+        max-width: 360px;
+      }
+    }
+    .climb-speech.visible {
+      opacity: 1;
+      transform: translateX(0) scale(1);
     }
 
     /* Contact Card */
@@ -1122,19 +1264,45 @@
     </section>
 
     <!-- 2. Work Experience Section -->
-    <section id="experience-section" class="min-h-screen px-6 md:px-12 lg:px-24 py-24 flex items-center" style="background-color: var(--bg-works); transition: background-color 0.4s ease;">
+    <section id="experience-section" class="min-h-screen px-4 sm:px-6 md:px-12 lg:px-24 py-24 flex items-center" style="background-color: var(--bg-works); transition: background-color 0.4s ease;">
       <div class="max-w-4xl mx-auto w-full">
-        <!-- BOT SLOT ON TOP OF WORK EXPERIENCE -->
-        <div id="experience-bot-slot" class="section-bot-slot">
-          <div class="peek-station">
-            <div class="peek-ledge"></div>
-          </div>
-        </div>
-
         <h2 class="text-sm tracking-widest uppercase mb-3 text-center md:text-left" style="color: var(--text-muted)">Track Record</h2>
-        <h3 class="text-3xl md:text-4xl font-semibold mb-12 text-center md:text-left" style="color: var(--text-main)">Career Pathway</h3>
+        <h3 class="text-3xl md:text-4xl font-semibold mb-4 text-center md:text-left" style="color: var(--text-main)">Career Pathway</h3>
 
-        <div class="space-y-12">
+        <div id="rope-timeline" class="rope-timeline">
+          <!-- Elastic SVG Rope -->
+          <svg id="rope-svg">
+            <defs>
+              <linearGradient id="rope-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.95" />
+                <stop offset="50%" stop-color="#818cf8" stop-opacity="0.8" />
+                <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.7" />
+              </linearGradient>
+            </defs>
+            <path id="rope-path-bg" fill="none" stroke="var(--rope-base)" stroke-width="4" stroke-linecap="round" />
+            <path id="rope-path-braid" fill="none" stroke="var(--rope-strand)" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round" />
+            <path id="rope-path-active" fill="none" stroke="url(#rope-grad)" stroke-width="4" stroke-linecap="round" />
+          </svg>
+
+          <!-- Centered Overhead Rope-Climbing Bot -->
+          <div id="rope-bot">
+            <svg class="climb-arms-svg" viewBox="-14 -16 72 98">
+              <path id="arm-l" fill="none" stroke="var(--bot-border)" stroke-width="5" stroke-linecap="round" />
+              <path id="arm-l-fill" fill="none" stroke="var(--climb-bot-solid)" stroke-width="2.5" stroke-linecap="round" />
+              <path id="arm-r" fill="none" stroke="var(--bot-border)" stroke-width="5" stroke-linecap="round" />
+              <path id="arm-r-fill" fill="none" stroke="var(--climb-bot-solid)" stroke-width="2.5" stroke-linecap="round" />
+            </svg>
+            <div class="climb-paw" id="paw-l"></div>
+            <div class="climb-paw" id="paw-r"></div>
+            <div class="climb-bot-body" id="climb-body">
+              <div class="climb-eye"><div class="climb-pupil" id="climb-pupil-l"></div></div>
+              <div class="climb-eye"><div class="climb-pupil" id="climb-pupil-r"></div></div>
+            </div>
+          </div>
+
+          <!-- Minimal Speech Pill sitting cleanly in active milestone headroom -->
+          <div class="climb-speech" id="climb-speech"></div>
+
           <!-- Pathway Node 1: Industry Work Experience -->
           <div class="timeline-item">
             <div class="timeline-dot"></div>
@@ -2022,6 +2190,10 @@
       let diffBeta = Math.abs(rawDiffBeta) > 2.5 ? (rawDiffBeta - Math.sign(rawDiffBeta) * 2.5) : 0;
       let diffGamma = Math.abs(rawDiffGamma) > 2.5 ? (rawDiffGamma - Math.sign(rawDiffGamma) * 2.5) : 0;
 
+      // Feed real-time calibrated gyroscope tilt to the Career Rope Pendulum Engine
+      window.ropeGyroBeta = diffBeta;
+      window.ropeGyroGamma = diffGamma;
+
       const isPeekingSection = companion.classList.contains('is-peeking');
 
       if (isPeekingSection) {
@@ -2889,7 +3061,6 @@
     // ==========================================
     const botSlots = {
       'hero-section': document.getElementById('hero-bot-anchor'),
-      'experience-section': document.getElementById('experience-bot-slot'),
       'projects-section': document.getElementById('projects-bot-slot'),
       'contact-section': document.getElementById('contact-bot-slot')
     };
@@ -2898,6 +3069,24 @@
 
     function updateBotSectionPlacement(activeSectionId) {
       currentActiveSectionId = activeSectionId;
+
+      if (activeSectionId === 'experience-section') {
+        cancelBotTug();
+        hideProjectBotInstantly();
+        // Hand off seamlessly to the Career Rope-Climbing Bot!
+        companion.style.opacity = '0';
+        companion.style.pointerEvents = 'none';
+        const pawsEl = document.getElementById('blueprint-paws');
+        if (pawsEl) pawsEl.classList.remove('visible');
+        if (botSlots['projects-section']) botSlots['projects-section'].classList.remove('visible');
+        if (window.syncCareerRopeLayout) window.syncCareerRopeLayout();
+        return;
+      }
+
+      // Restore main companion when leaving Career Pathway
+      companion.style.opacity = '';
+      companion.style.pointerEvents = '';
+
       const targetSlot = botSlots[activeSectionId];
       if (!targetSlot) return;
 
@@ -2927,7 +3116,7 @@
       } else {
         cancelBotTug();
         hideProjectBotInstantly();
-        // Other sections: Wall-grip peeking mode!
+        // Contact Section: Wall-grip peeking mode!
         const station = targetSlot.querySelector('.peek-station');
         if (station && companion.parentElement !== station) {
           station.insertBefore(companion, station.firstChild);
@@ -2965,19 +3154,224 @@
 
           if (!visitedSections.has(sectionId) && sectionId !== 'hero-section') {
             visitedSections.add(sectionId);
-            if (sectionId === 'experience-section') {
-              const remarks = DIALOGUES.sections.experience;
-              speak(remarks[Math.floor(Math.random() * remarks.length)], 4000, false);
-            } else if (sectionId === 'contact-section') {
+            if (sectionId === 'contact-section') {
               const remarks = DIALOGUES.sections.contact;
               speak(remarks[Math.floor(Math.random() * remarks.length)], 4500, false);
             }
           }
         }
       });
-    }, { threshold: 0.25 });
+    }, { threshold: 0.18 });
 
     sectionsToWatch.forEach(sec => sectionObserver.observe(sec));
+
+    // ==========================================
+    // 7. CAREER PATHWAY ROPE-CLIMBING BOT ENGINE
+    // ==========================================
+    (function initCareerRopeBot() {
+      const timeline = document.getElementById('rope-timeline');
+      const items = Array.from(timeline ? timeline.querySelectorAll('.timeline-item') : []);
+      if (!timeline || items.length === 0) return;
+
+      const knots = items.map(el => el.querySelector('.timeline-dot'));
+      const ropeBg = document.getElementById('rope-path-bg');
+      const ropeBraid = document.getElementById('rope-path-braid');
+      const ropeActive = document.getElementById('rope-path-active');
+      const ropeBot = document.getElementById('rope-bot');
+      const climbBody = document.getElementById('climb-body');
+      const pawL = document.getElementById('paw-l');
+      const pawR = document.getElementById('paw-r');
+      const armL = document.getElementById('arm-l');
+      const armLFill = document.getElementById('arm-l-fill');
+      const armR = document.getElementById('arm-r');
+      const armRFill = document.getElementById('arm-r-fill');
+      const pupilL = document.getElementById('climb-pupil-l');
+      const pupilR = document.getElementById('climb-pupil-r');
+      const speechEl = document.getElementById('climb-speech');
+      const climbEyes = timeline.querySelectorAll('.climb-eye');
+
+      const CAREER_QUIPS = [
+        "2 yrs shipping PWAs & PyTorch AI vision at MeddApp! 🏥⚡",
+        "My B.Tech roots—Java, WebSockets & Deep Learning! 🎓💻",
+        "High school STEM grind—Math, Physics & CS! 📐🧪",
+        "Where it all started—77.4% Distinction! ✨📚"
+      ];
+
+      const ROPE_X = 24;
+      let targetY = 12;
+      let currentY = 12;
+      let velocityY = 0;
+
+      let ropeSwayX = 0;
+      let ropeSwayVel = 0;
+      let gyroFloatX = 0;
+      let gyroFloatY = 0;
+
+      let climbPhase = 0;
+      let lastActiveIdx = 0;
+      let idleTicks = 0;
+      let isSettled = false;
+      let tapImpulseDir = 1;
+
+      function layoutKnots() {
+        const padLeft = parseFloat(getComputedStyle(timeline).paddingLeft) || 60;
+        knots.forEach(knot => {
+          if (knot) knot.style.left = `${-padLeft + ROPE_X - 7}px`;
+        });
+      }
+
+      function computeTarget() {
+        const tlRect = timeline.getBoundingClientRect();
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        const firstRestY = items[0].offsetTop + 4;
+        const lastRestY = items[items.length - 1].offsetTop + 6;
+        const focusInTimeline = (vh * 0.44) - tlRect.top;
+        targetY = Math.max(firstRestY, Math.min(lastRestY, focusInTimeline));
+
+        let closestIdx = 0;
+        let minDist = Infinity;
+        items.forEach((item, i) => {
+          const d = Math.abs(targetY - (item.offsetTop + 6));
+          if (d < minDist) { minDist = d; closestIdx = i; }
+        });
+        lastActiveIdx = closestIdx;
+        items.forEach((el, i) => el.classList.toggle('is-active', i === closestIdx));
+      }
+
+      window.syncCareerRopeLayout = () => {
+        layoutKnots();
+        computeTarget();
+      };
+
+      // Tap Bot on Rope -> Pendulum Swing Impulse + Squint + 36ms Haptic!
+      if (climbBody) {
+        climbBody.addEventListener('click', (e) => {
+          e.stopPropagation();
+          tapImpulseDir = -tapImpulseDir;
+          ropeSwayVel += tapImpulseDir * 9.5;
+          climbBody.classList.add('hit');
+          try { navigator.vibrate?.(36); } catch (err) {}
+          setTimeout(() => climbBody.classList.remove('hit'), 220);
+        });
+      }
+
+      // Natural Eye Blinking Synced on the Rope
+      setInterval(() => {
+        if (Math.random() > 0.35 && climbBody && !climbBody.classList.contains('hit')) {
+          climbEyes.forEach(eye => eye.classList.add('blink'));
+          setTimeout(() => climbEyes.forEach(eye => eye.classList.remove('blink')), 130);
+        }
+      }, 3400);
+
+      function tickPhysics() {
+        const dy = targetY - currentY;
+        const springForceY = dy * 0.14;
+        velocityY = (velocityY + springForceY) * 0.70;
+        currentY += velocityY;
+
+        const speed = Math.abs(velocityY);
+        const isMoving = speed > 0.35;
+
+        if (isMoving) {
+          climbPhase += velocityY * 0.14;
+          isSettled = false;
+          idleTicks = 0;
+          if (speechEl) speechEl.classList.remove('visible');
+        } else if (!isSettled) {
+          idleTicks++;
+          if (idleTicks > 10) {
+            isSettled = true;
+            if (speechEl && lastActiveIdx >= 0 && items[lastActiveIdx]) {
+              speechEl.style.top = `${items[lastActiveIdx].offsetTop + 10}px`;
+              speechEl.textContent = CAREER_QUIPS[lastActiveIdx];
+              speechEl.classList.add('visible');
+            }
+          }
+        }
+
+        // Smooth Gyroscope Gravity Pendulum Float (uses calibrated global portfolio tilt!)
+        const rawGamma = window.ropeGyroGamma || 0;
+        const rawBeta = window.ropeGyroBeta || 0;
+        const targetGyroX = Math.max(-13, Math.min(13, rawGamma * 0.34));
+        const targetGyroY = Math.max(-5, Math.min(5, rawBeta * 0.14));
+        gyroFloatX += (targetGyroX - gyroFloatX) * 0.12;
+        gyroFloatY += (targetGyroY - gyroFloatY) * 0.12;
+
+        // Centered Overhead Hand-Over-Hand Climb Kinematics
+        const reachAmp = isMoving ? Math.min(9.5, 4 + speed * 0.45) : 0;
+        const leftHandY = isMoving ? (4 + Math.sin(climbPhase) * reachAmp) : 2;
+        const rightHandY = isMoving ? (4 + Math.sin(climbPhase + Math.PI) * reachAmp) : 8;
+
+        const climbSwayX = isMoving ? Math.sin(climbPhase) * 2.8 : 0;
+        const bodySwayX = climbSwayX + gyroFloatX;
+        const bodyTilt = (isMoving ? Math.sin(climbPhase) * 6.5 : 0) + (gyroFloatX * 1.15) - (ropeSwayVel * 0.6);
+        const stretchY = isMoving ? Math.min(1.09, 1 + speed * 0.006) : 1;
+        const squashX = 2 - stretchY;
+
+        const lookY = isMoving ? Math.max(-3.5, Math.min(3.5, velocityY * 0.5)) : (gyroFloatY * 0.3);
+        const lookX = isMoving ? (gyroFloatX * 0.15) : Math.max(-2.5, Math.min(2.8, 2.0 + gyroFloatX * 0.15));
+        if (pupilL) pupilL.style.transform = `translate(${lookX}px, ${lookY}px)`;
+        if (pupilR) pupilR.style.transform = `translate(${lookX}px, ${lookY}px)`;
+
+        const botContainerLeft = ROPE_X - 22;
+        const displayY = currentY + gyroFloatY;
+        if (ropeBot) ropeBot.style.transform = `translate3d(${botContainerLeft + bodySwayX}px, ${displayY}px, 0)`;
+        if (climbBody) climbBody.style.transform = `rotate(${bodyTilt}deg) scale(${squashX}, ${stretchY})`;
+
+        // Overhead Mitten Paws locked ON the flexing rope
+        const ropeLocalPawX = 15.5 + (ropeSwayX - bodySwayX);
+        if (pawL) pawL.style.transform = `translate3d(${ropeLocalPawX - 1.5}px, ${leftHandY}px, 0) scale(${isMoving && Math.cos(climbPhase) > 0 ? 1.12 : 1})`;
+        if (pawR) pawR.style.transform = `translate3d(${ropeLocalPawX + 1.5}px, ${rightHandY}px, 0) scale(${isMoving && Math.cos(climbPhase) < 0 ? 1.12 : 1})`;
+
+        // Smoother Symmetric Overhead Arm Curves
+        const handCenterX = 22 + (ropeSwayX - bodySwayX);
+        const lHandCY = leftHandY + 5;
+        const rHandCY = rightHandY + 5;
+        const lShoulderX = 8, lShoulderY = 30;
+        const rShoulderX = 36, rShoulderY = 30;
+
+        const lCtrlX = Math.min(lShoulderX, handCenterX) - 7;
+        const lCtrlY = Math.min(lShoulderY, lHandCY) - 1;
+        const rCtrlX = Math.max(rShoulderX, handCenterX) + 7;
+        const rCtrlY = Math.min(rShoulderY, rHandCY) - 1;
+
+        const lPath = `M ${lShoulderX} ${lShoulderY} Q ${lCtrlX} ${lCtrlY}, ${handCenterX - 1.5} ${lHandCY}`;
+        const rPath = `M ${rShoulderX} ${rShoulderY} Q ${rCtrlX} ${rCtrlY}, ${handCenterX + 1.5} ${rHandCY}`;
+        if (armL) armL.setAttribute('d', lPath);
+        if (armLFill) armLFill.setAttribute('d', lPath);
+        if (armR) armR.setAttribute('d', rPath);
+        if (armRFill) armRFill.setAttribute('d', rPath);
+
+        // Elastic SVG Rope Spring Physics
+        const targetRopeX = (climbSwayX * 1.1) + (gyroFloatX * 0.72) + (isMoving ? Math.sin(climbPhase * 1.2) * 2.2 : 0);
+        const ropeForce = (targetRopeX - ropeSwayX) * 0.20;
+        ropeSwayVel = (ropeSwayVel + ropeForce) * 0.80;
+        ropeSwayX += ropeSwayVel;
+
+        const totalH = Math.max(120, timeline.offsetHeight - 16);
+        const grabY = Math.max(24, Math.min(totalH - 24, displayY + 12));
+        const deflectionX = ROPE_X + ropeSwayX;
+
+        const topMidY = grabY * 0.5;
+        const botMidY = grabY + (totalH - grabY) * 0.5;
+        const fullPath = `M ${ROPE_X} 0 C ${ROPE_X} ${topMidY}, ${deflectionX} ${grabY - 36}, ${deflectionX} ${grabY} C ${deflectionX} ${grabY + 36}, ${ROPE_X} ${botMidY}, ${ROPE_X} ${totalH}`;
+        const activePath = `M ${ROPE_X} 0 C ${ROPE_X} ${topMidY}, ${deflectionX} ${grabY - 36}, ${deflectionX} ${grabY}`;
+
+        if (ropeBg) ropeBg.setAttribute('d', fullPath);
+        if (ropeBraid) ropeBraid.setAttribute('d', fullPath);
+        if (ropeActive) ropeActive.setAttribute('d', activePath);
+
+        requestAnimationFrame(tickPhysics);
+      }
+
+      window.addEventListener('scroll', computeTarget, { passive: true });
+      window.addEventListener('resize', () => { layoutKnots(); computeTarget(); });
+
+      layoutKnots();
+      computeTarget();
+      currentY = targetY;
+      requestAnimationFrame(tickPhysics);
+    })();
 
     // ==========================================
     // INITIAL CHILDISH HIDE-AND-SEEK ENTRANCE
