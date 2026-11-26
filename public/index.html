@@ -668,12 +668,38 @@
       gap: 6px;
       z-index: 12;
       pointer-events: auto;
-      cursor: pointer;
-      transition: transform 0.14s ease-out;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      cursor: grab;
+      transition: transform 0.14s ease-out, border-color 0.2s ease, box-shadow 0.2s ease;
       will-change: transform;
+    }
+    .climb-bot-body:active {
+      cursor: grabbing;
     }
     .climb-bot-body.hit {
       transform: scale(1.12, 0.88) !important;
+    }
+    .climb-bot-body.strained {
+      border-color: rgba(245, 158, 11, 0.75);
+      box-shadow: 0 10px 26px rgba(245, 158, 11, 0.28), var(--bot-inset-rim);
+    }
+    .climb-bot-body.strained .climb-eye {
+      height: 15px;
+    }
+    .climb-bot-body.panicked {
+      border-color: rgba(239, 68, 68, 0.88);
+      box-shadow: 0 10px 28px rgba(239, 68, 68, 0.35), var(--bot-inset-rim);
+    }
+    .climb-bot-body.panicked .climb-eye {
+      height: 16.5px;
+      width: 9.5px;
+    }
+    .climb-bot-body.panicked .climb-pupil {
+      width: 3px;
+      height: 3.5px;
+      background: #ef4444;
     }
     .climb-eye {
       width: 8px;
@@ -718,33 +744,65 @@
     }
     .climb-speech {
       position: absolute;
-      left: 72px;
+      left: 70px;
       background: var(--bubble-bg);
       backdrop-filter: blur(12px);
       color: var(--bubble-text);
       border: 1px solid var(--bubble-border);
-      padding: 7px 12px;
-      border-radius: 13px;
+      padding: 8px 13px;
+      border-radius: 14px;
       font-size: 12px;
-      line-height: 1.35;
+      line-height: 1.38;
       width: max-content;
-      max-width: calc(100vw - 108px);
+      max-width: min(260px, calc(100vw - 92px));
       box-shadow: var(--bubble-shadow);
       opacity: 0;
       transform: translateX(-8px) scale(0.94);
-      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: opacity 0.22s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
       z-index: 30;
       pointer-events: none;
     }
+    .climb-speech::after {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: -5px;
+      width: 9px;
+      height: 9px;
+      transform: rotate(45deg);
+      background: var(--bubble-bg);
+      border-left: 1px solid var(--bubble-border);
+      border-bottom: 1px solid var(--bubble-border);
+    }
     @media (min-width: 640px) {
       .climb-speech {
-        left: 84px;
-        max-width: 360px;
+        left: 78px;
+        max-width: 340px;
       }
     }
     .climb-speech.visible {
       opacity: 1;
       transform: translateX(0) scale(1);
+    }
+    .climb-speech.has-retie {
+      pointer-events: auto;
+    }
+    .climb-retie-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      background: rgba(56, 189, 248, 0.14);
+      color: #38bdf8;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .climb-retie-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
     }
 
     /* Contact Section: Borderless Canvas + Form-Rim Perched Companion */
@@ -1412,6 +1470,7 @@
           <!-- Centered Overhead Rope-Climbing Bot -->
           <div id="rope-bot">
             <svg class="climb-arms-svg" viewBox="-14 -16 72 98">
+              <path id="rope-bot-torn" fill="none" stroke="var(--rope-base)" stroke-width="4" stroke-linecap="round" style="display:none;" />
               <path id="arm-l" fill="none" stroke="var(--bot-border)" stroke-width="5" stroke-linecap="round" />
               <path id="arm-l-fill" fill="none" stroke="var(--climb-bot-solid)" stroke-width="2.5" stroke-linecap="round" />
               <path id="arm-r" fill="none" stroke="var(--bot-border)" stroke-width="5" stroke-linecap="round" />
@@ -3356,6 +3415,7 @@
       const pupilL = document.getElementById('climb-pupil-l');
       const pupilR = document.getElementById('climb-pupil-r');
       const speechEl = document.getElementById('climb-speech');
+      const tornStub = document.getElementById('rope-bot-torn');
       const climbEyes = timeline.querySelectorAll('.climb-eye');
 
       const CAREER_QUIPS = [
@@ -3366,6 +3426,7 @@
       ];
 
       const ROPE_X = 38;
+      const SNAP_PULL_THRESHOLD = 148; // Gentle push/tug (< 148px) springs back; harder yank snaps!
       let targetY = 68;
       let currentY = 68;
       let velocityY = 0;
@@ -3378,6 +3439,23 @@
       let gyroFloatX = 0;
       let gyroFloatY = 0;
 
+      // Interactive Pull-to-Snap + Thrown-Away Projectile State
+      let isPullingRope = false;
+      let pullStartX = 0, pullStartY = 0, totalPullMoved = 0;
+      let pullX = 0, pullY = 0, pullVX = 0, pullVY = 0;
+      let pullVelSampleX = 0, pullVelSampleY = 0;
+      let pullSpeechStage = 0;
+      let tempSpeechUntil = 0;
+      let tempSpeechText = '';
+
+      let isSnapped = false;
+      let snapAnchorY = 0;
+      let snapIdx = 0;
+      let snapTopWhipX = 0, snapTopWhipV = 0;
+      let fallX = 0, fallY = 0, fallVx = 0, fallVy = 0, fallDeg = 0, fallSpin = 0;
+      let snappedAtMs = 0;
+      let snappedMessageShown = false;
+
       // 2-Node Coupled 360deg Angular Pendulum for the Free Wobbling Loose Rope End
       let tailDeg1 = 0, tailV1 = 0;
       let tailDeg2 = 0, tailV2 = 0;
@@ -3389,6 +3467,35 @@
       let isHoldingKnot = false;
       let tapImpulseDir = 1;
       let knotYs = [];
+
+      function getSpeechBaseLeft() {
+        return window.innerWidth >= 640 ? 78 : 70;
+      }
+
+      function showClimbSpeech(text, yPos, xOffset = 0, withRetie = false) {
+        if (!speechEl) return;
+        const maxLeft = Math.max(16, (window.innerWidth || 390) - 275);
+        const targetLeft = Math.min(maxLeft, Math.max(14, getSpeechBaseLeft() + xOffset));
+        speechEl.style.top = `${Math.max(4, yPos)}px`;
+        speechEl.style.left = `${targetLeft}px`;
+        if (withRetie) {
+          speechEl.classList.add('has-retie');
+          speechEl.textContent = text + ' ';
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'climb-retie-btn';
+          btn.textContent = 'Re-tie rope 🪢';
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            retieRope();
+          });
+          speechEl.appendChild(btn);
+        } else {
+          speechEl.classList.remove('has-retie');
+          speechEl.textContent = text;
+        }
+        speechEl.classList.add('visible');
+      }
 
       function layoutKnots() {
         const padLeft = parseFloat(getComputedStyle(timeline).paddingLeft) || 60;
@@ -3433,10 +3540,122 @@
         computeTarget();
       };
 
-      // Tap Bot on Rope -> Pendulum Swing + Loose Tail Whip + Squint + 36ms Haptic!
-      if (climbBody) {
-        climbBody.addEventListener('click', (e) => {
-          e.stopPropagation();
+      function triggerRopeSnap() {
+        if (isSnapped) return;
+        isSnapped = true;
+        isPullingRope = false;
+        climbBody.classList.remove('strained', 'hit');
+        climbBody.classList.add('panicked');
+
+        snapAnchorY = currentY + 10;
+        snapIdx = knotYs.findIndex(ky => snapAnchorY <= ky);
+        if (snapIdx < 0) snapIdx = Math.max(0, knotYs.length - 1);
+
+        snapTopWhipX = pullX * 0.72;
+        snapTopWhipV = -pullX * 0.24;
+
+        fallX = (ROPE_X - 22) + pullX;
+        fallY = currentY + pullY;
+        fallVx = (pullVelSampleX * 0.95) + Math.sign(pullX || 1) * 4.2;
+        fallVy = (pullVelSampleY * 0.7) - 3.2;
+        fallDeg = pendulumDeg;
+        fallSpin = (pullX >= 0 ? 1 : -1) * (12 + Math.random() * 5);
+        snappedAtMs = performance.now();
+        snappedMessageShown = false;
+
+        if (tornStub) {
+          tornStub.setAttribute('d', 'M 22 -14 Q 27 -4, 22 7');
+          tornStub.style.display = 'block';
+        }
+        showClimbSpeech("WAAAAIT—YOU SNAPPED IT!! 😱💥", Math.max(8, fallY - 48), Math.max(-24, pullX - 42), false);
+        try { navigator.vibrate?.([40, 25, 95]); } catch (err) {}
+      }
+
+      function retieRope() {
+        isSnapped = false;
+        snappedMessageShown = false;
+        pullX = 0; pullY = 0; pullVX = 0; pullVY = 0;
+        pullSpeechStage = 0;
+        if (climbBody) climbBody.classList.remove('panicked', 'strained', 'hit');
+        if (tornStub) tornStub.style.display = 'none';
+        if (ropeBot) {
+          ropeBot.style.opacity = '1';
+          ropeBot.style.pointerEvents = '';
+        }
+        currentY = Math.max(20, (knotYs[0] || 75) - 55);
+        velocityY = 2.0;
+        pendulumVel = 5;
+        computeTarget();
+        tempSpeechText = "Knot retied! Easy on the rope this time... 🪢😅";
+        tempSpeechUntil = performance.now() + 2400;
+        isSettled = true;
+      }
+
+      function startRopePull(cx, cy) {
+        if (isSnapped) return;
+        isPullingRope = true;
+        pullStartX = cx - pullX;
+        pullStartY = cy - pullY;
+        totalPullMoved = 0;
+        pullVelSampleX = 0;
+        pullVelSampleY = 0;
+        pullSpeechStage = 0;
+      }
+
+      function moveRopePull(cx, cy) {
+        if (!isPullingRope || isSnapped) return;
+        const rawDx = cx - pullStartX;
+        const rawDy = cy - pullStartY;
+        totalPullMoved = Math.max(totalPullMoved, Math.hypot(rawDx, rawDy));
+
+        const nextX = Math.max(-72, Math.min(240, rawDx * 0.85));
+        const nextY = Math.max(-130, Math.min(185, rawDy * 0.85));
+        pullVelSampleX = nextX - pullX;
+        pullVelSampleY = nextY - pullY;
+        pullX = nextX;
+        pullY = nextY;
+
+        const pullDist = Math.hypot(pullX, pullY);
+        const tension = pullDist / SNAP_PULL_THRESHOLD;
+
+        if (tension >= 1.0) {
+          triggerRopeSnap();
+          return;
+        }
+
+        if (tension >= 0.74) {
+          climbBody.classList.remove('strained');
+          climbBody.classList.add('panicked');
+          if (pullSpeechStage < 2) {
+            pullSpeechStage = 2;
+            try { navigator.vibrate?.(18); } catch (err) {}
+          }
+          const pullBubbleY = currentY + pullY - (pullX > 24 ? 50 : 8);
+          const pullBubbleXOff = pullX > 24 ? (pullX - 65) : Math.max(0, pullX * 0.45);
+          showClimbSpeech("STOP PULLING! IT'S ABOUT TO SNAP!! 😱", pullBubbleY, pullBubbleXOff, false);
+        } else if (tension >= 0.42) {
+          climbBody.classList.remove('panicked');
+          climbBody.classList.add('strained');
+          pullSpeechStage = Math.max(pullSpeechStage, 1);
+          const pullBubbleY = currentY + pullY - (pullX > 24 ? 50 : 8);
+          const pullBubbleXOff = pullX > 24 ? (pullX - 65) : Math.max(0, pullX * 0.45);
+          showClimbSpeech("Whoa, gentle! This rope isn't titanium! 😅", pullBubbleY, pullBubbleXOff, false);
+        } else {
+          climbBody.classList.remove('strained', 'panicked');
+        }
+      }
+
+      function endRopePull() {
+        if (!isPullingRope) return;
+        isPullingRope = false;
+        if (climbBody) climbBody.classList.remove('strained', 'panicked');
+        if (isSnapped) return;
+
+        const pullDist = Math.hypot(pullX, pullY);
+        const releaseSpeed = Math.hypot(pullVelSampleX, pullVelSampleY);
+
+        if (totalPullMoved < 12) {
+          // Small tap / little poke: bounce & swing, never snap!
           tapImpulseDir = -tapImpulseDir;
           pendulumVel += tapImpulseDir * 7.5;
           ropeSwayVel += tapImpulseDir * 10.5;
@@ -3445,7 +3664,46 @@
           climbBody.classList.add('hit');
           try { navigator.vibrate?.(36); } catch (err) {}
           setTimeout(() => climbBody.classList.remove('hit'), 220);
+        } else if (pullDist >= 105 && releaseSpeed > 22) {
+          // Fast hard whip-yank breaks the rope!
+          triggerRopeSnap();
+        } else {
+          // Gentle push or pull released under threshold: springs elastically back!
+          pullVX = -pullX * 0.14 + pullVelSampleX * 0.25;
+          pullVY = -pullY * 0.14;
+          ropeSwayVel += pullX * 0.10;
+          pendulumVel -= pullX * 0.08;
+          tailV1 += Math.sign(pullX || 1) * 16;
+          if (pullDist > 42) {
+            tempSpeechText = "Phew! Nice gentle tug—still hanging on! 😌";
+            tempSpeechUntil = performance.now() + 2100;
+            isSettled = true;
+          }
+        }
+      }
+
+      if (climbBody) {
+        climbBody.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          startRopePull(e.clientX, e.clientY);
         });
+        window.addEventListener('mousemove', (e) => moveRopePull(e.clientX, e.clientY));
+        window.addEventListener('mouseup', endRopePull);
+
+        climbBody.addEventListener('touchstart', (e) => {
+          if (e.touches && e.touches.length > 0) {
+            startRopePull(e.touches[0].clientX, e.touches[0].clientY);
+          }
+        }, { passive: true });
+        window.addEventListener('touchmove', (e) => {
+          if (isPullingRope && e.touches && e.touches.length > 0) {
+            if (e.cancelable) e.preventDefault();
+            moveRopePull(e.touches[0].clientX, e.touches[0].clientY);
+          }
+        }, { passive: false });
+        window.addEventListener('touchend', endRopePull);
+        window.addEventListener('touchcancel', endRopePull);
       }
 
       // Natural Eye Blinking Synced on the Rope
@@ -3459,39 +3717,116 @@
       function tickPhysics() {
         if (!knotYs.length) layoutKnots();
 
+        // -----------------------------------------------------
+        // SNAPPED ROPE MODE: Broken stub recoil + thrown bot free-fall!
+        // -----------------------------------------------------
+        if (isSnapped) {
+          fallVy += 0.62;
+          fallX += fallVx;
+          fallY += fallVy;
+          fallDeg += fallSpin;
+          fallVx *= 0.992;
+
+          if (ropeBot) {
+            ropeBot.style.transform = `translate3d(${fallX}px, ${fallY}px, 0) rotate(${fallDeg}deg)`;
+            if (fallY > timeline.offsetHeight + 160) {
+              ropeBot.style.opacity = '0';
+              ropeBot.style.pointerEvents = 'none';
+            }
+          }
+
+          snapTopWhipV = (snapTopWhipV - snapTopWhipX * 0.22) * 0.84;
+          snapTopWhipX += snapTopWhipV;
+
+          if (!snappedMessageShown && (performance.now() - snappedAtMs > 1050 || fallY > snapAnchorY + 260)) {
+            snappedMessageShown = true;
+            showClimbSpeech("Oops... you threw him out of his own career. 😳", Math.max(12, snapAnchorY - 18), 0, true);
+          }
+
+          // Build broken SVG rope: top piece ends in a whipping stub; remaining lower piece drops away cleanly
+          let topPath = `M ${ROPE_X} 0`;
+          let prevBrokenY = 0;
+          for (let i = 0; i < snapIdx; i++) {
+            const ky = knotYs[i];
+            const midY = (prevBrokenY + ky) * 0.5;
+            topPath += ` Q ${ROPE_X + snapTopWhipX * 0.14} ${midY}, ${ROPE_X} ${ky}`;
+            prevBrokenY = ky;
+          }
+          const stubEndY = Math.max(prevBrokenY + 26, snapAnchorY - 14);
+          const stubCtrlX = ROPE_X + snapTopWhipX * 0.55;
+          const stubEndX = ROPE_X + snapTopWhipX;
+          topPath += ` Q ${stubCtrlX} ${(prevBrokenY + stubEndY) * 0.5}, ${stubEndX} ${stubEndY}`;
+
+          let lowerPath = '';
+          if (snapIdx < knotYs.length) {
+            let lPrevY = knotYs[snapIdx];
+            lowerPath = `M ${ROPE_X} ${lPrevY}`;
+            for (let i = snapIdx + 1; i < knotYs.length; i++) {
+              const ky = knotYs[i];
+              lowerPath += ` Q ${ROPE_X} ${(lPrevY + ky) * 0.5}, ${ROPE_X} ${ky}`;
+              lPrevY = ky;
+            }
+            const lLastY = knotYs[knotYs.length - 1] || lPrevY;
+            lowerPath += ` Q ${ROPE_X + 6} ${lLastY + 26}, ${ROPE_X + 2} ${lLastY + 50}`;
+            if (ropeLooseTip) {
+              ropeLooseTip.setAttribute('cx', ROPE_X + 2);
+              ropeLooseTip.setAttribute('cy', lLastY + 50);
+            }
+          }
+
+          const combinedBrokenPath = lowerPath ? `${topPath} ${lowerPath}` : topPath;
+          if (ropeBg) ropeBg.setAttribute('d', combinedBrokenPath);
+          if (ropeBraid) ropeBraid.setAttribute('d', combinedBrokenPath);
+          if (ropeActive) ropeActive.setAttribute('d', topPath);
+
+          requestAnimationFrame(tickPhysics);
+          return;
+        }
+
         const dy = targetY - currentY;
         const springForceY = dy * 0.14;
         velocityY = (velocityY + springForceY) * 0.70;
         currentY += velocityY;
 
+        // Elastic recovery of pull offset when released below snap threshold
+        if (!isPullingRope) {
+          pullVX = (pullVX - pullX * 0.24) * 0.72;
+          pullVY = (pullVY - pullY * 0.24) * 0.72;
+          pullX += pullVX;
+          pullY += pullVY;
+          if (Math.abs(pullX) < 0.08 && Math.abs(pullVX) < 0.08) { pullX = 0; pullVX = 0; }
+          if (Math.abs(pullY) < 0.08 && Math.abs(pullVY) < 0.08) { pullY = 0; pullVY = 0; }
+        }
+
         const speed = Math.abs(velocityY);
         const isMoving = speed > 0.35;
 
-        if (isMoving) {
+        if (isMoving && !isPullingRope) {
           climbPhase += velocityY * 0.14;
           isSettled = false;
           idleTicks = 0;
-          if (speechEl) speechEl.classList.remove('visible');
-        } else if (!isSettled) {
-          idleTicks++;
-          if (idleTicks > 10) {
-            isSettled = true;
-            if (speechEl && lastActiveIdx >= 0 && items[lastActiveIdx]) {
-              speechEl.style.top = `${items[lastActiveIdx].offsetTop + 10}px`;
-              speechEl.textContent = CAREER_QUIPS[lastActiveIdx];
-              speechEl.classList.add('visible');
-            }
+          if (speechEl && performance.now() > tempSpeechUntil) speechEl.classList.remove('visible');
+        } else if (!isPullingRope) {
+          if (!isSettled) {
+            idleTicks++;
+            if (idleTicks > 10) isSettled = true;
+          }
+          if (isSettled && speechEl && lastActiveIdx >= 0 && items[lastActiveIdx]) {
+            const nowMs = performance.now();
+            const txt = (nowMs < tempSpeechUntil && tempSpeechText) ? tempSpeechText : CAREER_QUIPS[lastActiveIdx];
+            showClimbSpeech(txt, currentY + pullY - 6, Math.max(0, pullX * 0.45), false);
           }
         }
 
-        // True 360deg Gravity-Driven Gyroscope Pendulum (Shortest-path angular spring, zero 180deg gimbal snap!)
+        // True 360deg Gravity-Driven Gyroscope Pendulum + Pull Tilt
         const grav = window.ropeGravity;
         const gravWeight = grav ? Math.max(0, Math.min(1, (grav.mag - 0.14) / 0.22)) : 0;
         const effGravDeg = grav ? (angleDelta(grav.deg, 0) * gravWeight) : 0;
         const effGx = grav ? (grav.gx * gravWeight) : 0;
         const effGy = grav ? (grav.gy * gravWeight) : 1;
 
-        const targetPendulumDeg = -effGravDeg + (isMoving ? Math.sin(climbPhase) * 7 : 0);
+        const pullTiltDeg = Math.max(-52, Math.min(52, -pullX * 0.35));
+        const targetPendulumDeg = -effGravDeg + pullTiltDeg + (isMoving ? Math.sin(climbPhase) * 7 : 0);
         const pendErr = angleDelta(targetPendulumDeg, pendulumDeg);
         pendulumVel = (pendulumVel + pendErr * 0.14) * 0.78;
         pendulumDeg += pendulumVel;
@@ -3521,24 +3856,24 @@
         if (pupilL) pupilL.style.transform = `translate(${lookX}px, ${lookY}px)`;
         if (pupilR) pupilR.style.transform = `translate(${lookX}px, ${lookY}px)`;
 
-        // Apply Full 360deg Pendulum Float + Gravity Pivot around Overhead Grip (22px, 7px)
+        // Apply Full 360deg Pendulum + Elastic Pull Offset around Overhead Grip (22px, 7px)
         const botContainerLeft = ROPE_X - 22;
         const anchorShiftY = isHoldingKnot && !isMoving ? (effGy * 2.0 * gravWeight) : 0;
         const displayY = currentY + (isMoving ? 0 : anchorShiftY);
-        const totalSwingX = gripSwayX;
+        const totalSwingX = gripSwayX + pullX;
+        const pullJitterX = (isPullingRope && Math.hypot(pullX, pullY) > SNAP_PULL_THRESHOLD * 0.72) ? (Math.sin(performance.now() * 0.09) * 2.2) : 0;
         const stretchY = isMoving ? Math.min(1.09, 1 + speed * 0.006) : 1;
         const squashX = 2 - stretchY;
 
         if (ropeBot) {
-          ropeBot.style.transform = `translate3d(${botContainerLeft + totalSwingX}px, ${displayY}px, 0) rotate(${pendulumDeg}deg)`;
+          ropeBot.style.transform = `translate3d(${botContainerLeft + totalSwingX + pullJitterX}px, ${displayY + pullY}px, 0) rotate(${pendulumDeg}deg)`;
         }
         if (climbBody) {
-          // Body stays aligned with the pendulum container while subtly squashing/stretching on climb
           climbBody.style.transform = `scale(${squashX}, ${stretchY})`;
         }
 
-        // Keep gripping hands locked directly onto the knot / elastic rope across 0deg, +-90deg sideways & 180deg upside-down
-        const handPullOffsetX = isHoldingKnot && !isMoving ? (ropeSwayX * 0.18) : (ropeSwayX - gripSwayX);
+        // Keep gripping hands locked directly onto the knot / pulled elastic rope
+        const handPullOffsetX = (isHoldingKnot && !isMoving && !isPullingRope) ? (ropeSwayX * 0.18) : (ropeSwayX - gripSwayX);
         const gripCX = 22 + handPullOffsetX;
         const gripCY = 7;
 
@@ -3584,7 +3919,7 @@
 
         // Coupled 2-Node 360deg Angular Pendulum for the Free Wobbling Loose Rope End
         const scrollImpulseDeg = isMoving ? Math.sin(climbPhase * 0.7) * 14 : 0;
-        const tailTargetDeg1 = effGravDeg + (ropeSwayX * 1.35) + scrollImpulseDeg;
+        const tailTargetDeg1 = effGravDeg + ((ropeSwayX + pullX * 0.22) * 1.35) + scrollImpulseDeg;
         const tailErr1 = angleDelta(tailTargetDeg1, tailDeg1);
         tailV1 = (tailV1 + tailErr1 * 0.15) * 0.84;
         tailDeg1 += tailV1;
@@ -3594,9 +3929,10 @@
         tailV2 = (tailV2 + tailErr2 * 0.11) * 0.86;
         tailDeg2 += tailV2;
 
-        // Build Multi-Anchor SVG Rope: Anchored tightly at each milestone knot, elastic around bot, wobbling loose tail!
-        const grabY = displayY + 10;
-        const grabX = ROPE_X + (isHoldingKnot && !isMoving ? ropeSwayX * 0.25 : ropeSwayX);
+        // Build Multi-Anchor SVG Rope: Stretches cleanly toward user pull, anchored tightly at knots
+        const botAnchorY = displayY + 10;
+        const grabY = botAnchorY + pullY;
+        const grabX = ROPE_X + ((isHoldingKnot && !isMoving && !isPullingRope) ? ropeSwayX * 0.25 : ropeSwayX) + pullX;
 
         let fullPath = `M ${ROPE_X} 0`;
         let activePath = `M ${ROPE_X} 0`;
@@ -3605,12 +3941,10 @@
         let activeDone = false;
 
         knotYs.forEach((ky, idx) => {
-          // Each milestone knot anchors the rope, giving only a tiny micro-flex when loaded nearby
-          const nearBot = Math.abs(grabY - ky) < 48;
-          const anchorX = ROPE_X + (nearBot ? ropeSwayX * 0.25 : 0);
+          const nearBot = Math.abs(botAnchorY - ky) < 48;
+          const anchorX = ROPE_X + (nearBot ? (ropeSwayX * 0.25 + pullX * 0.10) : 0);
 
-          if (!activeDone && grabY <= ky) {
-            // Segment contains bot's hands: bend elastically through grab point!
+          if (!activeDone && botAnchorY <= ky) {
             const m1Y = prevY + (grabY - prevY) * 0.5;
             const m2Y = grabY + (ky - grabY) * 0.5;
             fullPath += ` C ${prevX} ${m1Y}, ${grabX} ${grabY - 24}, ${grabX} ${grabY}`;
@@ -3618,8 +3952,7 @@
             fullPath += ` C ${grabX} ${grabY + 24}, ${anchorX} ${m2Y}, ${anchorX} ${ky}`;
             activeDone = true;
           } else {
-            // Elastic segment anchored between two milestone knots (subtly bows during climb/tilt)
-            const segSlack = (ropeSwayX * 0.18) * (idx <= lastActiveIdx ? 0.5 : 0.9);
+            const segSlack = ((ropeSwayX + pullX * 0.35) * 0.18) * (idx <= lastActiveIdx ? 0.5 : 0.9);
             const midY = (prevY + ky) * 0.5;
             fullPath += ` Q ${ROPE_X + segSlack} ${midY}, ${anchorX} ${ky}`;
             if (!activeDone) {
