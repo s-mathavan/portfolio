@@ -1440,7 +1440,7 @@
     </section>
 
     <!-- 2. Work Experience Section -->
-    <section id="experience-section" class="min-h-screen px-4 sm:px-6 md:px-12 lg:px-24 py-24 flex items-center" style="background-color: var(--bg-works); transition: background-color 0.4s ease;">
+    <section id="experience-section" class="min-h-screen px-4 sm:px-6 md:px-12 lg:px-24 py-24 flex items-center" style="background-color: var(--bg-works); transition: background-color 0.4s ease; overflow: clip;">
       <div class="max-w-4xl mx-auto w-full">
         <h2 class="text-sm tracking-widest uppercase mb-3 text-center md:text-left" style="color: var(--text-muted)">Track Record</h2>
         <h3 class="text-3xl md:text-4xl font-semibold mb-4 text-center md:text-left" style="color: var(--text-main)">Career Pathway</h3>
@@ -3459,6 +3459,7 @@
       let fallX = 0, fallY = 0, fallVx = 0, fallVy = 0, fallDeg = 0, fallSpin = 0;
       let snappedAtMs = 0;
       let snappedMessageShown = false;
+      let botThrownOff = false;
 
       // 2-Node Coupled 360deg Angular Pendulum for the Free Wobbling Loose Rope End
       let tailDeg1 = 0, tailV1 = 0;
@@ -3567,6 +3568,7 @@
         fallSpin = (pullX >= 0 ? 1 : -1) * (12 + Math.random() * 5);
         snappedAtMs = performance.now();
         snappedMessageShown = false;
+        botThrownOff = false;
 
         if (tornStub) {
           tornStub.setAttribute('d', 'M 22 -14 Q 27 -4, 22 7');
@@ -3579,11 +3581,13 @@
       function retieRope() {
         isSnapped = false;
         snappedMessageShown = false;
+        botThrownOff = false;
         pullX = 0; pullY = 0; pullVX = 0; pullVY = 0;
         pullSpeechStage = 0;
         if (climbBody) climbBody.classList.remove('panicked', 'strained', 'hit');
         if (tornStub) tornStub.style.display = 'none';
         if (ropeBot) {
+          ropeBot.style.display = '';
           ropeBot.style.opacity = '1';
           ropeBot.style.pointerEvents = '';
         }
@@ -3726,17 +3730,23 @@
         // SNAPPED ROPE MODE: Broken stub recoil + thrown bot free-fall!
         // -----------------------------------------------------
         if (isSnapped) {
-          fallVy += 0.62;
-          fallX += fallVx;
-          fallY += fallVy;
-          fallDeg += fallSpin;
-          fallVx *= 0.992;
+          if (!botThrownOff) {
+            fallVy += 0.62;
+            fallX += fallVx;
+            fallY += fallVy;
+            fallDeg += fallSpin;
+            fallVx *= 0.992;
 
-          if (ropeBot) {
-            ropeBot.style.transform = `translate3d(${fallX}px, ${fallY}px, 0) rotate(${fallDeg}deg)`;
-            if (fallY > timeline.offsetHeight + 160) {
-              ropeBot.style.opacity = '0';
-              ropeBot.style.pointerEvents = 'none';
+            if (ropeBot) {
+              ropeBot.style.transform = `translate3d(${fallX}px, ${fallY}px, 0) rotate(${fallDeg}deg)`;
+              if (fallY > timeline.offsetHeight + 120) {
+                botThrownOff = true;
+                fallVx = 0;
+                fallVy = 0;
+                ropeBot.style.opacity = '0';
+                ropeBot.style.pointerEvents = 'none';
+                ropeBot.style.display = 'none';
+              }
             }
           }
 
