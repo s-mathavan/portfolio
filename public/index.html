@@ -587,25 +587,23 @@
     /* Experience Timeline: Elastic Rope & Centered Overhead Climbing Bot */
     .rope-timeline {
       position: relative;
-      padding-left: 60px;
+      padding-left: 72px;
       padding-bottom: 58px; /* Clean space for wobbling loose rope tail below final knot */
     }
     @media (min-width: 640px) {
       .rope-timeline {
-        padding-left: 78px;
+        padding-left: 84px;
       }
     }
     #rope-svg {
       position: absolute;
       left: 0;
       top: 0;
-      width: 60px;
+      width: 72px;
       height: 100%;
       overflow: visible;
       pointer-events: none;
       z-index: 8;
-      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 24px, black 100%);
-      mask-image: linear-gradient(to bottom, transparent 0%, black 24px, black 100%);
     }
     .timeline-item {
       position: relative;
@@ -652,7 +650,7 @@
     .climb-bot-body {
       position: absolute;
       left: 2px;
-      top: 24px;
+      top: 22px;
       width: 40px;
       height: 40px;
       border-radius: 13px;
@@ -716,7 +714,7 @@
     }
     .climb-speech {
       position: absolute;
-      left: 60px;
+      left: 72px;
       background: var(--bubble-bg);
       backdrop-filter: blur(12px);
       color: var(--bubble-text);
@@ -736,7 +734,7 @@
     }
     @media (min-width: 640px) {
       .climb-speech {
-        left: 78px;
+        left: 84px;
         max-width: 360px;
       }
     }
@@ -1280,11 +1278,21 @@
                 <stop offset="50%" stop-color="#818cf8" stop-opacity="0.8" />
                 <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.7" />
               </linearGradient>
+              <linearGradient id="rope-top-fade-grad" x1="0" y1="0" x2="0" y2="26" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="black" />
+                <stop offset="100%" stop-color="white" />
+              </linearGradient>
+              <mask id="rope-top-mask" maskUnits="userSpaceOnUse" x="-160" y="0" width="520" height="5000">
+                <rect x="-160" y="0" width="520" height="26" fill="url(#rope-top-fade-grad)" />
+                <rect x="-160" y="26" width="520" height="5000" fill="white" />
+              </mask>
             </defs>
-            <path id="rope-path-bg" fill="none" stroke="var(--rope-base)" stroke-width="4" stroke-linecap="round" />
-            <path id="rope-path-braid" fill="none" stroke="var(--rope-strand)" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round" />
-            <path id="rope-path-active" fill="none" stroke="url(#rope-grad)" stroke-width="4" stroke-linecap="round" />
-            <circle id="rope-loose-tip" r="4" fill="var(--bg-works)" stroke="var(--rope-base)" stroke-width="2.5" />
+            <g mask="url(#rope-top-mask)">
+              <path id="rope-path-bg" fill="none" stroke="var(--rope-base)" stroke-width="4" stroke-linecap="round" />
+              <path id="rope-path-braid" fill="none" stroke="var(--rope-strand)" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round" />
+              <path id="rope-path-active" fill="none" stroke="url(#rope-grad)" stroke-width="4" stroke-linecap="round" />
+              <circle id="rope-loose-tip" r="4" fill="var(--bg-works)" stroke="var(--rope-base)" stroke-width="2.5" />
+            </g>
           </svg>
 
           <!-- Centered Overhead Rope-Climbing Bot -->
@@ -2156,6 +2164,25 @@
       const rawBeta = e.beta;
       const rawGamma = e.gamma;
 
+      // Project true Earth gravity (0, 0, -1) into 2D viewport screen coordinates for full 360deg rope physics
+      const bRad = rawBeta * (Math.PI / 180);
+      const gRad = rawGamma * (Math.PI / 180);
+      const gxPortrait = Math.cos(bRad) * Math.sin(gRad);
+      const gyPortrait = Math.sin(bRad);
+      const screenDeg = (window.screen && window.screen.orientation && typeof window.screen.orientation.angle === 'number')
+        ? window.screen.orientation.angle
+        : (typeof window.orientation === 'number' ? window.orientation : 0);
+      const sRad = screenDeg * (Math.PI / 180);
+      const gx = gxPortrait * Math.cos(sRad) + gyPortrait * Math.sin(sRad);
+      const gy = -gxPortrait * Math.sin(sRad) + gyPortrait * Math.cos(sRad);
+      const gMag = Math.hypot(gx, gy);
+      window.ropeGravity = {
+        gx,
+        gy,
+        mag: gMag,
+        deg: Math.atan2(gx, gy) * (180 / Math.PI)
+      };
+
       // 1. Initialise baseline once on first valid reading
       if (!hasCalibratedGyro) {
         hasCalibratedGyro = true;
@@ -2272,7 +2299,9 @@
       companion.style.transform = `translate(${moveX}px, ${moveY}px) rotate(${moveX * 0.35}deg)`;
     }
 
-    // iOS 13+ Gyroscope unlock via first interaction
+    // Attach orientation listener immediately for browsers that allow sensors without prompt (Android/Brave/Desktop),
+    // and also unlock iOS 13+ Safari permission cleanly on first gesture.
+    window.addEventListener('deviceorientation', handleOrientation);
     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
       const initHiddenGyro = () => {
         DeviceOrientationEvent.requestPermission()
@@ -2281,7 +2310,7 @@
               window.addEventListener('deviceorientation', handleOrientation);
             }
           })
-          .catch(console.error);
+          .catch(() => {});
         
         // Clean up listeners after the first tap
         document.removeEventListener('click', initHiddenGyro);
@@ -2291,9 +2320,6 @@
       // Bind to actual active gestures (no passive flag)
       document.addEventListener('click', initHiddenGyro);
       document.addEventListener('touchstart', initHiddenGyro);
-    } else {
-      // Android / Older browsers don't need permission
-      window.addEventListener('deviceorientation', handleOrientation);
     }
 
     // ==========================================
@@ -3201,7 +3227,7 @@
         "Where it all started—77.4% Distinction! ✨📚"
       ];
 
-      const ROPE_X = 24;
+      const ROPE_X = 38;
       let targetY = 68;
       let currentY = 68;
       let velocityY = 0;
@@ -3214,9 +3240,9 @@
       let gyroFloatX = 0;
       let gyroFloatY = 0;
 
-      // 2-Node Coupled Spring for the Free Wobbling Loose Rope End
-      let tailX1 = 0, tailV1 = 0;
-      let tailX2 = 0, tailV2 = 0;
+      // 2-Node Coupled 360deg Angular Pendulum for the Free Wobbling Loose Rope End
+      let tailDeg1 = 0, tailV1 = 0;
+      let tailDeg2 = 0, tailV2 = 0;
 
       let climbPhase = 0;
       let lastActiveIdx = 0;
@@ -3276,8 +3302,8 @@
           tapImpulseDir = -tapImpulseDir;
           pendulumVel += tapImpulseDir * 7.5;
           ropeSwayVel += tapImpulseDir * 10.5;
-          tailV1 += tapImpulseDir * 6.5;
-          tailV2 -= tapImpulseDir * 9.0;
+          tailV1 += tapImpulseDir * 14.0;
+          tailV2 -= tapImpulseDir * 20.0;
           climbBody.classList.add('hit');
           try { navigator.vibrate?.(36); } catch (err) {}
           setTimeout(() => climbBody.classList.remove('hit'), 220);
@@ -3320,36 +3346,47 @@
           }
         }
 
-        // True Gravity-Driven Gyroscope Pendulum (Pivots & floats naturally toward phone tilt direction!)
-        const rawGamma = window.ropeGyroGamma || 0;
-        const rawBeta = window.ropeGyroBeta || 0;
-        // Phone tilt right (rawGamma > 0) pulls gravity right (+X), rotating hanging body counter-clockwise around overhead grip!
-        const targetPendulumDeg = Math.max(-44, Math.min(44, -rawGamma * 0.88)) + (isMoving ? Math.sin(climbPhase) * 7 : 0);
-        pendulumVel = (pendulumVel + (targetPendulumDeg - pendulumDeg) * 0.14) * 0.78;
+        // True 360deg Gravity-Driven Gyroscope Pendulum (Shortest-path angular spring, zero 180deg gimbal snap!)
+        const grav = window.ropeGravity;
+        const gravWeight = grav ? Math.max(0, Math.min(1, (grav.mag - 0.14) / 0.22)) : 0;
+        const effGravDeg = grav ? (angleDelta(grav.deg, 0) * gravWeight) : 0;
+        const effGx = grav ? (grav.gx * gravWeight) : 0;
+        const effGy = grav ? (grav.gy * gravWeight) : 1;
+
+        const targetPendulumDeg = -effGravDeg + (isMoving ? Math.sin(climbPhase) * 7 : 0);
+        const pendErr = angleDelta(targetPendulumDeg, pendulumDeg);
+        pendulumVel = (pendulumVel + pendErr * 0.14) * 0.78;
         pendulumDeg += pendulumVel;
 
-        const targetGyroX = Math.max(-24, Math.min(24, rawGamma * 0.52));
-        const targetGyroY = Math.max(-7, Math.min(9, rawBeta * 0.20));
+        const targetGyroX = Math.max(-14, Math.min(14, effGx * 14));
+        const targetGyroY = Math.max(-6, Math.min(6, (effGy - 1) * 3));
         gyroFloatX += (targetGyroX - gyroFloatX) * 0.14;
         gyroFloatY += (targetGyroY - gyroFloatY) * 0.14;
 
-        // Centered Overhead Hand-Over-Hand Climb Kinematics (Settled: Top paw literally holds the glowing milestone dot!)
+        // 360deg Adaptive Hand-Over-Hand Climb & Anchor Grip Kinematics
+        const pendRad = pendulumDeg * (Math.PI / 180);
+        const downY = Math.cos(pendRad);
+        const uprightW = Math.max(0, downY);
+        const invertW = Math.max(0, -downY);
+        const sideW = 1 - Math.abs(downY);
+
         const reachAmp = isMoving ? Math.min(9.5, 4 + speed * 0.45) : 0;
-        const leftHandY = isMoving ? (4 + Math.sin(climbPhase) * reachAmp) : 2;
-        const rightHandY = isMoving ? (4 + Math.sin(climbPhase + Math.PI) * reachAmp) : 13;
+        const climbL = isMoving ? Math.sin(climbPhase) * reachAmp : 0;
+        const climbR = isMoving ? Math.sin(climbPhase + Math.PI) * reachAmp : 0;
 
         const climbSwayX = isMoving ? Math.sin(climbPhase) * 3.0 : 0;
-        const gripSwayX = isHoldingKnot && !isMoving ? (gyroFloatX * 0.18) : (climbSwayX + gyroFloatX * 0.65);
+        const gripSwayX = isHoldingKnot && !isMoving ? (effGx * 2.2) : (climbSwayX + gyroFloatX * 0.65);
 
-        // Pupils track climb direction & gravity float direction
-        const lookY = isMoving ? Math.max(-3.5, Math.min(3.5, velocityY * 0.5)) : Math.max(-3, Math.min(3, gyroFloatY * 0.35));
-        const lookX = isMoving ? (gyroFloatX * 0.12) : Math.max(-3, Math.min(3, 1.5 + gyroFloatX * 0.14));
+        // Pupils track climb velocity or swing inertia subtly
+        const lookY = isMoving ? Math.max(-3.5, Math.min(3.5, velocityY * 0.5)) : Math.max(-2.5, Math.min(2.5, (effGy - 1) * -1.2));
+        const lookX = isMoving ? Math.max(-2.5, Math.min(2.5, effGx * 2.0)) : Math.max(-3, Math.min(3, 1.5 - pendulumVel * 0.18));
         if (pupilL) pupilL.style.transform = `translate(${lookX}px, ${lookY}px)`;
         if (pupilR) pupilR.style.transform = `translate(${lookX}px, ${lookY}px)`;
 
-        // Apply Full Pendulum Float + Gravity Pivot around Overhead Grip (22px, 7px)
+        // Apply Full 360deg Pendulum Float + Gravity Pivot around Overhead Grip (22px, 7px)
         const botContainerLeft = ROPE_X - 22;
-        const displayY = currentY + (isMoving ? 0 : gyroFloatY * 0.45);
+        const anchorShiftY = isHoldingKnot && !isMoving ? (effGy * 2.0 * gravWeight) : 0;
+        const displayY = currentY + (isMoving ? 0 : anchorShiftY);
         const totalSwingX = gripSwayX;
         const stretchY = isMoving ? Math.min(1.09, 1 + speed * 0.006) : 1;
         const squashX = 2 - stretchY;
@@ -3362,46 +3399,62 @@
           climbBody.style.transform = `scale(${squashX}, ${stretchY})`;
         }
 
-        // Keep gripping hands locked directly onto the knot / elastic rope
-        const handPullOffsetX = isHoldingKnot && !isMoving ? (ropeSwayX * 0.25) : (ropeSwayX - gripSwayX);
-        const ropeLocalPawX = 15.5 + handPullOffsetX;
-        if (pawL) pawL.style.transform = `translate3d(${ropeLocalPawX - 1.5}px, ${leftHandY}px, 0) scale(${isMoving && Math.cos(climbPhase) > 0 ? 1.12 : 1})`;
-        if (pawR) pawR.style.transform = `translate3d(${ropeLocalPawX + 1.5}px, ${rightHandY}px, 0) scale(${isMoving && Math.cos(climbPhase) < 0 ? 1.12 : 1})`;
+        // Keep gripping hands locked directly onto the knot / elastic rope across 0deg, +-90deg sideways & 180deg upside-down
+        const handPullOffsetX = isHoldingKnot && !isMoving ? (ropeSwayX * 0.18) : (ropeSwayX - gripSwayX);
+        const gripCX = 22 + handPullOffsetX;
+        const gripCY = 7;
+
+        let lHandCX, lHandCY, rHandCX, rHandCY;
+        if (isMoving) {
+          const sinP = Math.sin(pendRad);
+          const cosP = Math.cos(pendRad);
+          lHandCX = gripCX - 1.5 + climbL * sinP;
+          lHandCY = (gripCY + 2) + climbL * cosP;
+          rHandCX = gripCX + 1.5 + climbR * sinP;
+          rHandCY = (gripCY + 2) + climbR * cosP;
+        } else {
+          lHandCX = gripCX - (1.5 * uprightW + 6.0 * sideW + 5.0 * invertW);
+          lHandCY = gripCY + (1.0 * invertW);
+          rHandCX = gripCX + (1.5 * uprightW + 6.0 * sideW + 5.0 * invertW);
+          rHandCY = gripCY + (11.0 * uprightW + 1.0 * invertW);
+        }
+
+        if (pawL) pawL.style.transform = `translate3d(${lHandCX - 6.5}px, ${lHandCY - 5}px, 0) scale(${isMoving && Math.cos(climbPhase) > 0 ? 1.12 : 1})`;
+        if (pawR) pawR.style.transform = `translate3d(${rHandCX - 6.5}px, ${rHandCY - 5}px, 0) scale(${isMoving && Math.cos(climbPhase) < 0 ? 1.12 : 1})`;
 
         // Smoother Symmetric Overhead Arm Curves
-        const handCenterX = 22 + handPullOffsetX;
-        const lHandCY = leftHandY + 5;
-        const rHandCY = rightHandY + 5;
-        const lShoulderX = 8, lShoulderY = 30;
-        const rShoulderX = 36, rShoulderY = 30;
+        const lShoulderX = 8, lShoulderY = 28;
+        const rShoulderX = 36, rShoulderY = 28;
 
-        const lCtrlX = Math.min(lShoulderX, handCenterX) - 7;
+        const lCtrlX = Math.min(lShoulderX, lHandCX) - 7;
         const lCtrlY = Math.min(lShoulderY, lHandCY) - 1;
-        const rCtrlX = Math.max(rShoulderX, handCenterX) + 7;
+        const rCtrlX = Math.max(rShoulderX, rHandCX) + 7;
         const rCtrlY = Math.min(rShoulderY, rHandCY) - 1;
 
-        const lPath = `M ${lShoulderX} ${lShoulderY} Q ${lCtrlX} ${lCtrlY}, ${handCenterX - 1.5} ${lHandCY}`;
-        const rPath = `M ${rShoulderX} ${rShoulderY} Q ${rCtrlX} ${rCtrlY}, ${handCenterX + 1.5} ${rHandCY}`;
+        const lPath = `M ${lShoulderX} ${lShoulderY} Q ${lCtrlX} ${lCtrlY}, ${lHandCX} ${lHandCY}`;
+        const rPath = `M ${rShoulderX} ${rShoulderY} Q ${rCtrlX} ${rCtrlY}, ${rHandCX} ${rHandCY}`;
         if (armL) armL.setAttribute('d', lPath);
         if (armLFill) armLFill.setAttribute('d', lPath);
         if (armR) armR.setAttribute('d', rPath);
         if (armRFill) armRFill.setAttribute('d', rPath);
 
         // Elastic Knot-Anchored Rope Physics
-        const targetRopeX = (climbSwayX * 1.15) + (gyroFloatX * 0.6) + (isMoving ? Math.sin(climbPhase * 1.2) * 2.2 : 0);
+        const targetRopeX = (climbSwayX * 1.15) + (effGx * 10) + (isMoving ? Math.sin(climbPhase * 1.2) * 2.2 : 0);
         const ropeForce = (targetRopeX - ropeSwayX) * 0.20;
         ropeSwayVel = (ropeSwayVel + ropeForce) * 0.80;
         ropeSwayX += ropeSwayVel;
 
-        // Coupled Double-Wave Physics for the Free Wobbling Loose Rope End (clamped cleanly inside left lane)
-        const scrollImpulse = isMoving ? Math.sin(climbPhase * 0.7) * 4.5 : 0;
-        const tailTarget1 = Math.max(-14, Math.min(14, (gyroFloatX * 0.55) + (ropeSwayX * 0.4) + scrollImpulse));
-        tailV1 = (tailV1 + (tailTarget1 - tailX1) * 0.16) * 0.84;
-        tailX1 = Math.max(-16, Math.min(16, tailX1 + tailV1));
+        // Coupled 2-Node 360deg Angular Pendulum for the Free Wobbling Loose Rope End
+        const scrollImpulseDeg = isMoving ? Math.sin(climbPhase * 0.7) * 14 : 0;
+        const tailTargetDeg1 = effGravDeg + (ropeSwayX * 1.35) + scrollImpulseDeg;
+        const tailErr1 = angleDelta(tailTargetDeg1, tailDeg1);
+        tailV1 = (tailV1 + tailErr1 * 0.15) * 0.84;
+        tailDeg1 += tailV1;
 
-        const tailTarget2 = Math.max(-18, Math.min(18, (gyroFloatX * 0.85) + (tailX1 * 1.1) - (tailV1 * 0.7)));
-        tailV2 = (tailV2 + (tailTarget2 - tailX2) * 0.12) * 0.86;
-        tailX2 = Math.max(-18, Math.min(18, tailX2 + tailV2));
+        const tailTargetDeg2 = effGravDeg + angleDelta(tailDeg1, effGravDeg) * 1.15 - (tailV1 * 0.65);
+        const tailErr2 = angleDelta(tailTargetDeg2, tailDeg2);
+        tailV2 = (tailV2 + tailErr2 * 0.11) * 0.86;
+        tailDeg2 += tailV2;
 
         // Build Multi-Anchor SVG Rope: Anchored tightly at each milestone knot, elastic around bot, wobbling loose tail!
         const grabY = displayY + 10;
@@ -3439,13 +3492,16 @@
           prevX = anchorX;
         });
 
-        // Loose Wobbling Rope End extending 68px freely below the 4th milestone knot!
+        // Loose Wobbling 360deg Rope End extending 50px freely around the 4th milestone knot!
         const lastKnotY = knotYs[knotYs.length - 1] || (timeline.offsetHeight - 70);
-        const looseLen = 68;
-        const tailEndY = lastKnotY + looseLen;
-        const tailMidY = lastKnotY + looseLen * 0.52;
-        const looseEndX = ROPE_X + tailX2;
-        const looseCtrlX = ROPE_X + tailX1;
+        const lastKnotX = prevX;
+        const looseLen = 50;
+        const t1Rad = tailDeg1 * (Math.PI / 180);
+        const t2Rad = tailDeg2 * (Math.PI / 180);
+        const looseCtrlX = lastKnotX + Math.sin(t1Rad) * (looseLen * 0.52);
+        const tailMidY = lastKnotY + Math.cos(t1Rad) * (looseLen * 0.52);
+        const looseEndX = lastKnotX + Math.sin(t2Rad) * looseLen;
+        const tailEndY = lastKnotY + Math.cos(t2Rad) * looseLen;
 
         fullPath += ` Q ${looseCtrlX} ${tailMidY}, ${looseEndX} ${tailEndY}`;
 
