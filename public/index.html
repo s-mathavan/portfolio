@@ -37,6 +37,8 @@
       --rope-base: rgba(255, 255, 255, 0.22);
       --rope-strand: rgba(255, 255, 255, 0.11);
       --climb-bot-solid: #161922;
+      --contact-form-bg: #11131a;
+      --contact-input-bg: rgba(255, 255, 255, 0.03);
     }
 
     body.light-theme {
@@ -68,6 +70,8 @@
       --rope-base: rgba(15, 23, 42, 0.22);
       --rope-strand: rgba(15, 23, 42, 0.1);
       --climb-bot-solid: #e2e8f0;
+      --contact-form-bg: #f6f8fc;
+      --contact-input-bg: rgba(15, 23, 42, 0.035);
     }
 
     body {
@@ -743,21 +747,126 @@
       transform: translateX(0) scale(1);
     }
 
-    /* Contact Card */
-    .contact-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      backdrop-filter: blur(12px);
+    /* Contact Section: Borderless Canvas + Form-Rim Perched Companion */
+    .contact-form-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 410px;
+      margin: 144px auto 26px auto;
     }
-    .copy-btn {
-      background: var(--card-hover-bg);
-      border: 1px solid var(--card-border);
-      transition: all 0.2s ease;
+    .seam-bot-anchor.contact-seam-anchor {
+      top: -70px;
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%) scale(0.72);
+      transform-origin: bottom center;
+      opacity: 1 !important;
+      visibility: visible !important;
     }
-    .copy-btn:hover {
+    .seam-bot-anchor.contact-seam-anchor.visible .bot-container.is-peeking:not(.popped-out) .bot-body {
+      --bot-base-y: -30px;
+    }
+    .seam-bot-anchor.contact-seam-anchor.visible .bot-container.is-peeking.popped-out .bot-body {
+      --bot-base-y: -36px;
+      --bot-base-scale: 1.05;
+    }
+    .seam-bot-anchor.contact-seam-anchor .speech-bubble {
+      top: auto;
+      bottom: calc(100% + 36px);
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%) translateY(8px) scale(0.92);
+      transform-origin: bottom center;
+      max-width: min(320px, calc(100vw - 36px));
+      font-size: 14px;
+    }
+    .seam-bot-anchor.contact-seam-anchor .bot-container.is-peeking.popped-out .speech-bubble {
+      bottom: calc(100% + 50px);
+    }
+    .seam-bot-anchor.contact-seam-anchor .speech-bubble.visible {
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+    .seam-bot-anchor.contact-seam-anchor .speech-bubble::after {
+      right: auto;
+      left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+    }
+    .contact-paws {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 64px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 25;
+      opacity: 0;
+      transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .contact-paws.visible {
+      opacity: 1;
+    }
+    .contact-form-shell {
+      position: relative;
+      z-index: 10;
+      background: var(--contact-form-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 16px;
+      text-align: left;
+      transition: background-color 0.35s ease, border-color 0.35s ease;
+    }
+    .contact-input {
+      width: 100%;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      outline: none;
+      background: var(--contact-input-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .contact-input:focus {
       border-color: var(--text-accent);
-      transform: translateY(-2px);
+    }
+    .contact-send-btn {
+      width: 100%;
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: 13.5px;
+      font-weight: 500;
+      background: var(--text-main);
+      color: var(--bg-works);
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.18s ease, transform 0.15s ease;
+    }
+    .contact-send-btn:hover { opacity: 0.9; }
+    .contact-send-btn:active { transform: scale(0.985); }
+    .contact-send-btn:disabled { opacity: 0.6; cursor: wait; }
+    .contact-email-text {
+      font-size: clamp(11px, 2.95vw, 13.5px);
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: -0.015em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    .contact-plain-link {
+      font-size: 13.5px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: opacity 0.18s ease;
+    }
+    .contact-plain-link:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
     }
 
     /* Childish Hide-and-Seek Entrance (Peeking from behind Mathavan's Name) */
@@ -1672,42 +1781,54 @@
     </section>
 
     <!-- 4. Contact Section -->
-    <section id="contact-section" class="min-h-screen px-6 md:px-12 lg:px-24 py-24 flex items-center justify-center" style="background-color: var(--bg-works); transition: background-color 0.4s ease;">
-      <div class="max-w-2xl w-full contact-card p-8 md:p-14 text-center">
-        <!-- BOT SLOT ON TOP OF CONTACT -->
-        <div id="contact-bot-slot" class="section-bot-slot">
-          <div class="peek-station">
-            <div class="peek-ledge"></div>
-          </div>
-        </div>
-
-        <h2 class="text-sm tracking-widest uppercase mb-3" style="color: var(--text-muted)">Get In Touch</h2>
-        <h3 class="text-3xl md:text-5xl font-semibold mb-6 tracking-tight" style="color: var(--text-main)">Let's build something remarkable.</h3>
-        <p class="text-base mb-8 max-w-lg mx-auto leading-relaxed" style="color: var(--text-muted)">
+    <section id="contact-section" class="min-h-screen px-5 md:px-12 lg:px-24 py-24 flex items-center justify-center" style="background-color: var(--bg-works); transition: background-color 0.4s ease;">
+      <div class="max-w-2xl w-full text-center">
+        <h2 class="text-xs sm:text-sm tracking-widest uppercase mb-3" style="color: var(--text-muted)">Get In Touch</h2>
+        <h3 class="text-3xl md:text-5xl font-semibold mb-5 tracking-tight" style="color: var(--text-main)">Let's build something remarkable.</h3>
+        <p class="text-sm sm:text-base max-w-md mx-auto leading-relaxed" style="color: var(--text-muted)">
           Whether you're looking to build a high-performance web platform, optimize complex systems, or just chat engineering architecture—my inbox is open.
         </p>
 
-        <!-- 1-Click Copy Email Button -->
-        <div class="inline-block mb-10">
-          <button onclick="copyEmail()" class="copy-btn px-6 py-4 rounded-xl flex items-center gap-3 cursor-pointer mx-auto">
-            <span class="text-lg">📧</span>
-            <span id="email-text" class="font-mono text-base font-medium" style="color: var(--text-main)">s.mathavanjayalakshmi@gmail.com</span>
-            <span id="copy-feedback" class="text-xs px-2.5 py-1 rounded-md ml-2" style="background: var(--card-border); color: var(--text-accent)">Click to copy 📋</span>
-          </button>
+        <!-- Form-Rim Companion + Always-Open Direct Message Form -->
+        <div class="contact-form-wrap">
+          <div id="contact-bot-slot" class="seam-bot-anchor contact-seam-anchor visible"></div>
+          <div id="contact-paws" class="contact-paws">
+            <div class="cartoon-paw paw-left"></div>
+            <div class="cartoon-paw paw-right"></div>
+          </div>
+
+          <div class="contact-form-shell">
+            <form id="contact-msg-form" class="space-y-2.5">
+              <input type="text" id="msg-hp" name="company" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+              <input id="msg-contact" type="text" inputmode="email" autocomplete="email" required
+                     placeholder="Your email (for reply)" class="contact-input" />
+              <textarea id="msg-body" rows="3" required maxlength="2000"
+                        placeholder="Write your message..." class="contact-input resize-none"></textarea>
+              <button id="msg-submit" type="submit" class="contact-send-btn">
+                <span id="msg-submit-label">Send Message</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Secondary Plain Copy-Email Link -->
+          <div class="mt-4 flex items-center justify-center">
+            <button id="copy-email-btn" type="button" onclick="copyEmail()" class="contact-plain-link max-w-full cursor-pointer" title="Click to copy email">
+              <span id="email-text" class="contact-email-text">s.mathavanjayalakshmi@gmail.com</span>
+              <span id="copy-feedback" class="shrink-0 text-[11px] font-mono ml-1.5" style="color: var(--text-accent)">Copy</span>
+            </button>
+          </div>
         </div>
 
-        <!-- Social Links & Resume -->
-        <div class="flex flex-wrap items-center justify-center gap-6 text-sm font-medium">
-          <a href="https://github.com/s-mathavan" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-1.5" style="color: var(--text-main)">
-            <span>GitHub</span> ↗
+        <!-- Clean Single-Row Social & Resume Links -->
+        <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5">
+          <a href="https://github.com/s-mathavan" target="_blank" rel="noopener noreferrer" class="contact-plain-link" style="color: var(--text-main)">
+            <span>GitHub</span> <span style="color: var(--text-muted)">↗</span>
           </a>
-          <span style="color: var(--card-border)">•</span>
-          <a href="https://www.linkedin.com/in/mathavan1/" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-1.5" style="color: var(--text-main)">
-            <span>LinkedIn</span> ↗
+          <a href="https://www.linkedin.com/in/mathavan1/" target="_blank" rel="noopener noreferrer" class="contact-plain-link" style="color: var(--text-main)">
+            <span>LinkedIn</span> <span style="color: var(--text-muted)">↗</span>
           </a>
-          <span style="color: var(--card-border)">•</span>
-          <a href="Assets/Mathavan_Resume.pdf" download="Mathavan_Resume.pdf" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-1.5" style="color: var(--text-accent)">
-            <span>Download Resume</span> 📄
+          <a href="Assets/Mathavan_Resume.pdf" download="Mathavan_Resume.pdf" target="_blank" rel="noopener noreferrer" class="contact-plain-link" style="color: var(--text-accent)">
+            <span>Resume</span> <span>📄</span>
           </a>
         </div>
       </div>
@@ -2124,12 +2245,17 @@
       resetIdleTimer();
       updateEyes(e.clientX, e.clientY);
       
-      // Desktop Parallax for body (Fallback for no gyro)
+      // Desktop Parallax for body (Clamped gently in seam/peeking mode so head never sinks below form rim)
       const moveX = (e.clientX / window.innerWidth - 0.5) * 30;
       const moveY = (e.clientY / window.innerHeight - 0.5) * 30;
       
-      // Apply transform to container to leave body free for CSS animations
-      companion.style.transform = `translate(${moveX}px, ${moveY}px) rotateY(${moveX}deg) rotateX(${-moveY}deg)`;
+      if (companion.classList.contains('is-peeking')) {
+        const peekX = Math.max(-5, Math.min(5, moveX * 0.28));
+        const peekY = Math.max(-4, Math.min(2, moveY * 0.14));
+        companion.style.transform = `translate(${peekX}px, ${peekY}px) rotate(${peekX * 0.35}deg)`;
+      } else {
+        companion.style.transform = `translate(${moveX}px, ${moveY}px) rotateY(${moveX}deg) rotateX(${-moveY}deg)`;
+      }
     });
 
     window.addEventListener('touchmove', (e) => {
@@ -3107,6 +3233,8 @@
         companion.style.pointerEvents = 'none';
         const pawsEl = document.getElementById('blueprint-paws');
         if (pawsEl) pawsEl.classList.remove('visible');
+        const contactPaws = document.getElementById('contact-paws');
+        if (contactPaws) contactPaws.classList.remove('visible');
         if (botSlots['projects-section']) botSlots['projects-section'].classList.remove('visible');
         if (window.syncCareerRopeLayout) window.syncCareerRopeLayout();
         return;
@@ -3118,6 +3246,8 @@
 
       const targetSlot = botSlots[activeSectionId];
       if (!targetSlot) return;
+
+      const contactPaws = document.getElementById('contact-paws');
 
       if (activeSectionId === 'hero-section') {
         cancelBotTug();
@@ -3132,6 +3262,7 @@
 
         const pawsEl = document.getElementById('blueprint-paws');
         if (pawsEl) pawsEl.classList.remove('visible');
+        if (contactPaws) contactPaws.classList.remove('visible');
         if (botSlots['projects-section']) botSlots['projects-section'].classList.remove('visible');
       } else if (activeSectionId === 'projects-section') {
         currentActiveSectionId = 'projects-section';
@@ -3141,20 +3272,22 @@
         }
         clearAllEmotions();
         hideProjectBotInstantly();
+        if (contactPaws) contactPaws.classList.remove('visible');
         scheduleProjectBotSettleEntrance(900); // 🌟 Crisp 900ms settle after section scroll settles!
       } else {
         cancelBotTug();
         hideProjectBotInstantly();
-        // Contact Section: Wall-grip peeking mode!
-        const station = targetSlot.querySelector('.peek-station');
-        if (station && companion.parentElement !== station) {
-          station.insertBefore(companion, station.firstChild);
+        // Contact Section: Borderless form-rim perch!
+        if (companion.parentElement !== targetSlot) {
+          targetSlot.appendChild(companion);
         }
         companion.classList.add('is-peeking');
+        companion.style.transform = '';
         clearAllEmotions();
 
         const pawsEl = document.getElementById('blueprint-paws');
         if (pawsEl) pawsEl.classList.remove('visible');
+        if (contactPaws) contactPaws.classList.add('visible');
         if (botSlots['projects-section']) botSlots['projects-section'].classList.remove('visible');
       }
     }
@@ -3562,17 +3695,81 @@
     // 1-Click Copy Email Handler
     function copyEmail() {
       const email = document.getElementById('email-text') ? document.getElementById('email-text').innerText : "s.mathavanjayalakshmi@gmail.com";
-      navigator.clipboard.writeText(email).then(() => {
+      const onCopied = () => {
         const feedback = document.getElementById('copy-feedback');
         if (feedback) {
-          feedback.innerText = "Copied! 📋✨";
-          setTimeout(() => { feedback.innerText = "Click to copy 📋"; }, 2500);
+          feedback.innerText = "Copied! ✓";
+          setTimeout(() => { feedback.innerText = "Copy"; }, 2500);
         }
         speak("Email copied to clipboard! Looking forward to hearing from you! 📨✨", 3500, false);
-      }).catch(() => {
-        speak(`Email: ${email} 📨`, 3500, false);
-      });
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(email).then(onCopied).catch(() => speak(`Email: ${email} 📨`, 3500, false));
+      } else {
+        onCopied();
+      }
     }
+
+    // Direct Gmail Relay Submission (Google Apps Script Web App) + Input Eye Tracking
+    (function initContactMessageForm() {
+      const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwThTY_UtobjwW8jWVV0VVK8s56vbwsmRQBvul2biDlxBp-dlv4jrd_qyzs8zjfnqNBSw/exec";
+      const form = document.getElementById('contact-msg-form');
+      const contactInput = document.getElementById('msg-contact');
+      const bodyInput = document.getElementById('msg-body');
+      const hpInput = document.getElementById('msg-hp');
+      const submitBtn = document.getElementById('msg-submit');
+      const submitLabel = document.getElementById('msg-submit-label');
+      if (!form || !contactInput || !bodyInput) return;
+
+      [contactInput, bodyInput].forEach(el => {
+        el.addEventListener('focus', () => {
+          resetIdleTimer();
+          const r = el.getBoundingClientRect();
+          updateEyes(r.left + r.width / 2, r.top + r.height / 2);
+        });
+        el.addEventListener('input', () => {
+          resetIdleTimer();
+          const r = el.getBoundingClientRect();
+          updateEyes(r.left + Math.min(r.width - 10, (el.value.length * 7) % r.width), r.top + 10);
+        });
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const contact = contactInput.value.trim();
+        const message = bodyInput.value.trim();
+        const hp = hpInput ? hpInput.value.trim() : '';
+        if (!message) return;
+
+        submitBtn.disabled = true;
+        submitLabel.textContent = "Sending...";
+        speak("Sending straight to inbox... 📨", 2500, false);
+
+        try {
+          const res = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ contact, message, hp })
+          });
+          const data = await res.json();
+          if (!data.ok) throw new Error('Relay returned ok:false');
+
+          contactInput.value = '';
+          bodyInput.value = '';
+          submitLabel.textContent = "Sent! ✓";
+          botBody.classList.add('hit');
+          setTimeout(() => botBody.classList.remove('hit'), 320);
+          try { navigator.vibrate?.(36); } catch (err) {}
+          speak("Sent directly to Mathavan's Gmail! Thank you ✈️✨", 4000, false);
+          setTimeout(() => { submitLabel.textContent = "Send Message"; }, 2200);
+        } catch (err) {
+          submitLabel.textContent = "Retry Send";
+          speak("Could not send—copy the email link below! ⚠️", 3500, false);
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+    })();
   </script>
 
   <!-- Firebase Analytics Integration -->
