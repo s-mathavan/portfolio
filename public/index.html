@@ -787,7 +787,8 @@
     .climb-speech.has-retie {
       pointer-events: auto;
     }
-    .climb-speech.has-retie::after {
+    .climb-speech.has-retie::after,
+    .climb-speech.in-headroom::after {
       display: none;
     }
     .climb-retie-btn {
@@ -3475,12 +3476,13 @@
         return window.innerWidth >= 640 ? 78 : 70;
       }
 
-      function showClimbSpeech(text, yPos, xOffset = 0, withRetie = false) {
+      function showClimbSpeech(text, yPos, xOffset = 0, withRetie = false, inHeadroom = false) {
         if (!speechEl) return;
         const maxLeft = Math.max(16, (window.innerWidth || 390) - 275);
         const targetLeft = Math.min(maxLeft, Math.max(14, getSpeechBaseLeft() + xOffset));
         speechEl.style.top = `${Math.max(4, yPos)}px`;
         speechEl.style.left = `${targetLeft}px`;
+        speechEl.classList.toggle('in-headroom', Boolean(inHeadroom));
         if (withRetie) {
           speechEl.classList.add('has-retie');
           speechEl.textContent = text + ' ';
@@ -3819,7 +3821,9 @@
           if (isSettled && speechEl && lastActiveIdx >= 0 && items[lastActiveIdx]) {
             const nowMs = performance.now();
             const txt = (nowMs < tempSpeechUntil && tempSpeechText) ? tempSpeechText : CAREER_QUIPS[lastActiveIdx];
-            showClimbSpeech(txt, currentY + pullY - 6, Math.max(0, pullX * 0.45), false);
+            const useHeadroom = isHoldingKnot && Math.abs(pullX) < 6 && Math.abs(pullY) < 6;
+            const speechY = useHeadroom ? (items[lastActiveIdx].offsetTop + 10) : (currentY + pullY - 6);
+            showClimbSpeech(txt, speechY, useHeadroom ? 0 : Math.max(0, pullX * 0.45), false, useHeadroom);
           }
         }
 
