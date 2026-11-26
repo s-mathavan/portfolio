@@ -588,6 +588,7 @@
     .rope-timeline {
       position: relative;
       padding-left: 60px;
+      padding-bottom: 58px; /* Clean space for wobbling loose rope tail below final knot */
     }
     @media (min-width: 640px) {
       .rope-timeline {
@@ -603,8 +604,8 @@
       overflow: visible;
       pointer-events: none;
       z-index: 8;
-      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 28px, black calc(100% - 28px), transparent 100%);
-      mask-image: linear-gradient(to bottom, transparent 0%, black 28px, black calc(100% - 28px), transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 24px, black 100%);
+      mask-image: linear-gradient(to bottom, transparent 0%, black 24px, black 100%);
     }
     .timeline-item {
       position: relative;
@@ -623,10 +624,10 @@
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
     }
     .timeline-item.is-active .timeline-dot {
-      transform: scale(1.25);
+      transform: scale(1.22);
       border-color: #38bdf8;
-      background: #38bdf8;
-      box-shadow: 0 0 12px #38bdf8;
+      background: var(--bg-works); /* Hollow ring anchor so bot visibly holds onto the knot! */
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.7), inset 0 0 4px rgba(56, 189, 248, 0.6);
     }
     #rope-bot {
       position: absolute;
@@ -634,8 +635,9 @@
       top: 0;
       width: 44px;
       height: 66px;
-      z-index: 12;
+      z-index: 22;
       pointer-events: none;
+      transform-origin: 22px 7px; /* Pivots naturally right around overhead grip point! */
       will-change: transform;
     }
     .climb-arms-svg {
@@ -1282,6 +1284,7 @@
             <path id="rope-path-bg" fill="none" stroke="var(--rope-base)" stroke-width="4" stroke-linecap="round" />
             <path id="rope-path-braid" fill="none" stroke="var(--rope-strand)" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round" />
             <path id="rope-path-active" fill="none" stroke="url(#rope-grad)" stroke-width="4" stroke-linecap="round" />
+            <circle id="rope-loose-tip" r="4" fill="var(--bg-works)" stroke="var(--rope-base)" stroke-width="2.5" />
           </svg>
 
           <!-- Centered Overhead Rope-Climbing Bot -->
@@ -3177,6 +3180,7 @@
       const ropeBg = document.getElementById('rope-path-bg');
       const ropeBraid = document.getElementById('rope-path-braid');
       const ropeActive = document.getElementById('rope-path-active');
+      const ropeLooseTip = document.getElementById('rope-loose-tip');
       const ropeBot = document.getElementById('rope-bot');
       const climbBody = document.getElementById('climb-body');
       const pawL = document.getElementById('paw-l');
@@ -3198,42 +3202,64 @@
       ];
 
       const ROPE_X = 24;
-      let targetY = 12;
-      let currentY = 12;
+      let targetY = 68;
+      let currentY = 68;
       let velocityY = 0;
 
+      // Elastic Rope + Anchored Segment + Wobbling Loose Tail Physics State
       let ropeSwayX = 0;
       let ropeSwayVel = 0;
+      let pendulumDeg = 0;
+      let pendulumVel = 0;
       let gyroFloatX = 0;
       let gyroFloatY = 0;
+
+      // 2-Node Coupled Spring for the Free Wobbling Loose Rope End
+      let tailX1 = 0, tailV1 = 0;
+      let tailX2 = 0, tailV2 = 0;
 
       let climbPhase = 0;
       let lastActiveIdx = 0;
       let idleTicks = 0;
       let isSettled = false;
+      let isHoldingKnot = false;
       let tapImpulseDir = 1;
+      let knotYs = [];
 
       function layoutKnots() {
         const padLeft = parseFloat(getComputedStyle(timeline).paddingLeft) || 60;
-        knots.forEach(knot => {
+        knotYs = items.map((item, idx) => {
+          const knot = knots[idx];
           if (knot) knot.style.left = `${-padLeft + ROPE_X - 7}px`;
+          return item.offsetTop + 75; // Exact vertical center of the 14px milestone knot
         });
       }
 
       function computeTarget() {
+        if (!knotYs.length) layoutKnots();
         const tlRect = timeline.getBoundingClientRect();
         const vh = window.innerHeight || document.documentElement.clientHeight;
-        const firstRestY = items[0].offsetTop + 4;
-        const lastRestY = items[items.length - 1].offsetTop + 6;
+        const firstHoldY = (knotYs[0] || 75) - 7;
+        const lastHoldY = (knotYs[knotYs.length - 1] || 75) - 7;
         const focusInTimeline = (vh * 0.44) - tlRect.top;
-        targetY = Math.max(firstRestY, Math.min(lastRestY, focusInTimeline));
+        let rawY = Math.max(firstHoldY, Math.min(lastHoldY, focusInTimeline));
 
         let closestIdx = 0;
         let minDist = Infinity;
-        items.forEach((item, i) => {
-          const d = Math.abs(targetY - (item.offsetTop + 6));
+        knotYs.forEach((ky, i) => {
+          const d = Math.abs(rawY - (ky - 7));
           if (d < minDist) { minDist = d; closestIdx = i; }
         });
+
+        // Generous magnetic knot dock so when reading a milestone, his upper paw grips & holds the glowing dot!
+        if (minDist < 115) {
+          rawY = (knotYs[closestIdx] - 7);
+          isHoldingKnot = true;
+        } else {
+          isHoldingKnot = false;
+        }
+
+        targetY = rawY;
         lastActiveIdx = closestIdx;
         items.forEach((el, i) => el.classList.toggle('is-active', i === closestIdx));
       }
@@ -3243,12 +3269,15 @@
         computeTarget();
       };
 
-      // Tap Bot on Rope -> Pendulum Swing Impulse + Squint + 36ms Haptic!
+      // Tap Bot on Rope -> Pendulum Swing + Loose Tail Whip + Squint + 36ms Haptic!
       if (climbBody) {
         climbBody.addEventListener('click', (e) => {
           e.stopPropagation();
           tapImpulseDir = -tapImpulseDir;
-          ropeSwayVel += tapImpulseDir * 9.5;
+          pendulumVel += tapImpulseDir * 7.5;
+          ropeSwayVel += tapImpulseDir * 10.5;
+          tailV1 += tapImpulseDir * 6.5;
+          tailV2 -= tapImpulseDir * 9.0;
           climbBody.classList.add('hit');
           try { navigator.vibrate?.(36); } catch (err) {}
           setTimeout(() => climbBody.classList.remove('hit'), 220);
@@ -3264,6 +3293,8 @@
       }, 3400);
 
       function tickPhysics() {
+        if (!knotYs.length) layoutKnots();
+
         const dy = targetY - currentY;
         const springForceY = dy * 0.14;
         velocityY = (velocityY + springForceY) * 0.70;
@@ -3289,42 +3320,56 @@
           }
         }
 
-        // Smooth Gyroscope Gravity Pendulum Float (uses calibrated global portfolio tilt!)
+        // True Gravity-Driven Gyroscope Pendulum (Pivots & floats naturally toward phone tilt direction!)
         const rawGamma = window.ropeGyroGamma || 0;
         const rawBeta = window.ropeGyroBeta || 0;
-        const targetGyroX = Math.max(-13, Math.min(13, rawGamma * 0.34));
-        const targetGyroY = Math.max(-5, Math.min(5, rawBeta * 0.14));
-        gyroFloatX += (targetGyroX - gyroFloatX) * 0.12;
-        gyroFloatY += (targetGyroY - gyroFloatY) * 0.12;
+        // Phone tilt right (rawGamma > 0) pulls gravity right (+X), rotating hanging body counter-clockwise around overhead grip!
+        const targetPendulumDeg = Math.max(-44, Math.min(44, -rawGamma * 0.88)) + (isMoving ? Math.sin(climbPhase) * 7 : 0);
+        pendulumVel = (pendulumVel + (targetPendulumDeg - pendulumDeg) * 0.14) * 0.78;
+        pendulumDeg += pendulumVel;
 
-        // Centered Overhead Hand-Over-Hand Climb Kinematics
+        const targetGyroX = Math.max(-24, Math.min(24, rawGamma * 0.52));
+        const targetGyroY = Math.max(-7, Math.min(9, rawBeta * 0.20));
+        gyroFloatX += (targetGyroX - gyroFloatX) * 0.14;
+        gyroFloatY += (targetGyroY - gyroFloatY) * 0.14;
+
+        // Centered Overhead Hand-Over-Hand Climb Kinematics (Settled: Top paw literally holds the glowing milestone dot!)
         const reachAmp = isMoving ? Math.min(9.5, 4 + speed * 0.45) : 0;
         const leftHandY = isMoving ? (4 + Math.sin(climbPhase) * reachAmp) : 2;
-        const rightHandY = isMoving ? (4 + Math.sin(climbPhase + Math.PI) * reachAmp) : 8;
+        const rightHandY = isMoving ? (4 + Math.sin(climbPhase + Math.PI) * reachAmp) : 13;
 
-        const climbSwayX = isMoving ? Math.sin(climbPhase) * 2.8 : 0;
-        const bodySwayX = climbSwayX + gyroFloatX;
-        const bodyTilt = (isMoving ? Math.sin(climbPhase) * 6.5 : 0) + (gyroFloatX * 1.15) - (ropeSwayVel * 0.6);
-        const stretchY = isMoving ? Math.min(1.09, 1 + speed * 0.006) : 1;
-        const squashX = 2 - stretchY;
+        const climbSwayX = isMoving ? Math.sin(climbPhase) * 3.0 : 0;
+        const gripSwayX = isHoldingKnot && !isMoving ? (gyroFloatX * 0.18) : (climbSwayX + gyroFloatX * 0.65);
 
-        const lookY = isMoving ? Math.max(-3.5, Math.min(3.5, velocityY * 0.5)) : (gyroFloatY * 0.3);
-        const lookX = isMoving ? (gyroFloatX * 0.15) : Math.max(-2.5, Math.min(2.8, 2.0 + gyroFloatX * 0.15));
+        // Pupils track climb direction & gravity float direction
+        const lookY = isMoving ? Math.max(-3.5, Math.min(3.5, velocityY * 0.5)) : Math.max(-3, Math.min(3, gyroFloatY * 0.35));
+        const lookX = isMoving ? (gyroFloatX * 0.12) : Math.max(-3, Math.min(3, 1.5 + gyroFloatX * 0.14));
         if (pupilL) pupilL.style.transform = `translate(${lookX}px, ${lookY}px)`;
         if (pupilR) pupilR.style.transform = `translate(${lookX}px, ${lookY}px)`;
 
+        // Apply Full Pendulum Float + Gravity Pivot around Overhead Grip (22px, 7px)
         const botContainerLeft = ROPE_X - 22;
-        const displayY = currentY + gyroFloatY;
-        if (ropeBot) ropeBot.style.transform = `translate3d(${botContainerLeft + bodySwayX}px, ${displayY}px, 0)`;
-        if (climbBody) climbBody.style.transform = `rotate(${bodyTilt}deg) scale(${squashX}, ${stretchY})`;
+        const displayY = currentY + (isMoving ? 0 : gyroFloatY * 0.45);
+        const totalSwingX = gripSwayX;
+        const stretchY = isMoving ? Math.min(1.09, 1 + speed * 0.006) : 1;
+        const squashX = 2 - stretchY;
 
-        // Overhead Mitten Paws locked ON the flexing rope
-        const ropeLocalPawX = 15.5 + (ropeSwayX - bodySwayX);
+        if (ropeBot) {
+          ropeBot.style.transform = `translate3d(${botContainerLeft + totalSwingX}px, ${displayY}px, 0) rotate(${pendulumDeg}deg)`;
+        }
+        if (climbBody) {
+          // Body stays aligned with the pendulum container while subtly squashing/stretching on climb
+          climbBody.style.transform = `scale(${squashX}, ${stretchY})`;
+        }
+
+        // Keep gripping hands locked directly onto the knot / elastic rope
+        const handPullOffsetX = isHoldingKnot && !isMoving ? (ropeSwayX * 0.25) : (ropeSwayX - gripSwayX);
+        const ropeLocalPawX = 15.5 + handPullOffsetX;
         if (pawL) pawL.style.transform = `translate3d(${ropeLocalPawX - 1.5}px, ${leftHandY}px, 0) scale(${isMoving && Math.cos(climbPhase) > 0 ? 1.12 : 1})`;
         if (pawR) pawR.style.transform = `translate3d(${ropeLocalPawX + 1.5}px, ${rightHandY}px, 0) scale(${isMoving && Math.cos(climbPhase) < 0 ? 1.12 : 1})`;
 
         // Smoother Symmetric Overhead Arm Curves
-        const handCenterX = 22 + (ropeSwayX - bodySwayX);
+        const handCenterX = 22 + handPullOffsetX;
         const lHandCY = leftHandY + 5;
         const rHandCY = rightHandY + 5;
         const lShoulderX = 8, lShoulderY = 30;
@@ -3342,24 +3387,75 @@
         if (armR) armR.setAttribute('d', rPath);
         if (armRFill) armRFill.setAttribute('d', rPath);
 
-        // Elastic SVG Rope Spring Physics
-        const targetRopeX = (climbSwayX * 1.1) + (gyroFloatX * 0.72) + (isMoving ? Math.sin(climbPhase * 1.2) * 2.2 : 0);
+        // Elastic Knot-Anchored Rope Physics
+        const targetRopeX = (climbSwayX * 1.15) + (gyroFloatX * 0.6) + (isMoving ? Math.sin(climbPhase * 1.2) * 2.2 : 0);
         const ropeForce = (targetRopeX - ropeSwayX) * 0.20;
         ropeSwayVel = (ropeSwayVel + ropeForce) * 0.80;
         ropeSwayX += ropeSwayVel;
 
-        const totalH = Math.max(120, timeline.offsetHeight - 16);
-        const grabY = Math.max(24, Math.min(totalH - 24, displayY + 12));
-        const deflectionX = ROPE_X + ropeSwayX;
+        // Coupled Double-Wave Physics for the Free Wobbling Loose Rope End (clamped cleanly inside left lane)
+        const scrollImpulse = isMoving ? Math.sin(climbPhase * 0.7) * 4.5 : 0;
+        const tailTarget1 = Math.max(-14, Math.min(14, (gyroFloatX * 0.55) + (ropeSwayX * 0.4) + scrollImpulse));
+        tailV1 = (tailV1 + (tailTarget1 - tailX1) * 0.16) * 0.84;
+        tailX1 = Math.max(-16, Math.min(16, tailX1 + tailV1));
 
-        const topMidY = grabY * 0.5;
-        const botMidY = grabY + (totalH - grabY) * 0.5;
-        const fullPath = `M ${ROPE_X} 0 C ${ROPE_X} ${topMidY}, ${deflectionX} ${grabY - 36}, ${deflectionX} ${grabY} C ${deflectionX} ${grabY + 36}, ${ROPE_X} ${botMidY}, ${ROPE_X} ${totalH}`;
-        const activePath = `M ${ROPE_X} 0 C ${ROPE_X} ${topMidY}, ${deflectionX} ${grabY - 36}, ${deflectionX} ${grabY}`;
+        const tailTarget2 = Math.max(-18, Math.min(18, (gyroFloatX * 0.85) + (tailX1 * 1.1) - (tailV1 * 0.7)));
+        tailV2 = (tailV2 + (tailTarget2 - tailX2) * 0.12) * 0.86;
+        tailX2 = Math.max(-18, Math.min(18, tailX2 + tailV2));
+
+        // Build Multi-Anchor SVG Rope: Anchored tightly at each milestone knot, elastic around bot, wobbling loose tail!
+        const grabY = displayY + 10;
+        const grabX = ROPE_X + (isHoldingKnot && !isMoving ? ropeSwayX * 0.25 : ropeSwayX);
+
+        let fullPath = `M ${ROPE_X} 0`;
+        let activePath = `M ${ROPE_X} 0`;
+        let prevY = 0;
+        let prevX = ROPE_X;
+        let activeDone = false;
+
+        knotYs.forEach((ky, idx) => {
+          // Each milestone knot anchors the rope, giving only a tiny micro-flex when loaded nearby
+          const nearBot = Math.abs(grabY - ky) < 48;
+          const anchorX = ROPE_X + (nearBot ? ropeSwayX * 0.25 : 0);
+
+          if (!activeDone && grabY <= ky) {
+            // Segment contains bot's hands: bend elastically through grab point!
+            const m1Y = prevY + (grabY - prevY) * 0.5;
+            const m2Y = grabY + (ky - grabY) * 0.5;
+            fullPath += ` C ${prevX} ${m1Y}, ${grabX} ${grabY - 24}, ${grabX} ${grabY}`;
+            activePath += ` C ${prevX} ${m1Y}, ${grabX} ${grabY - 24}, ${grabX} ${grabY}`;
+            fullPath += ` C ${grabX} ${grabY + 24}, ${anchorX} ${m2Y}, ${anchorX} ${ky}`;
+            activeDone = true;
+          } else {
+            // Elastic segment anchored between two milestone knots (subtly bows during climb/tilt)
+            const segSlack = (ropeSwayX * 0.18) * (idx <= lastActiveIdx ? 0.5 : 0.9);
+            const midY = (prevY + ky) * 0.5;
+            fullPath += ` Q ${ROPE_X + segSlack} ${midY}, ${anchorX} ${ky}`;
+            if (!activeDone) {
+              activePath += ` Q ${ROPE_X + segSlack} ${midY}, ${anchorX} ${ky}`;
+            }
+          }
+          prevY = ky;
+          prevX = anchorX;
+        });
+
+        // Loose Wobbling Rope End extending 68px freely below the 4th milestone knot!
+        const lastKnotY = knotYs[knotYs.length - 1] || (timeline.offsetHeight - 70);
+        const looseLen = 68;
+        const tailEndY = lastKnotY + looseLen;
+        const tailMidY = lastKnotY + looseLen * 0.52;
+        const looseEndX = ROPE_X + tailX2;
+        const looseCtrlX = ROPE_X + tailX1;
+
+        fullPath += ` Q ${looseCtrlX} ${tailMidY}, ${looseEndX} ${tailEndY}`;
 
         if (ropeBg) ropeBg.setAttribute('d', fullPath);
         if (ropeBraid) ropeBraid.setAttribute('d', fullPath);
         if (ropeActive) ropeActive.setAttribute('d', activePath);
+        if (ropeLooseTip) {
+          ropeLooseTip.setAttribute('cx', looseEndX);
+          ropeLooseTip.setAttribute('cy', tailEndY);
+        }
 
         requestAnimationFrame(tickPhysics);
       }
