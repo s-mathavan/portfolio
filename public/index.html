@@ -486,8 +486,8 @@
     }
 
     @keyframes dizzy-sway {
-      0% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) rotate(-6deg); }
-      100% { transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) rotate(6deg); }
+      0% { transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + var(--bot-base-y, 0px))) scale(var(--bot-base-scale, 1)) rotate(-6deg); }
+      100% { transform: translate(var(--drag-x, 0px), calc(var(--drag-y, 0px) + var(--bot-base-y, 0px))) scale(var(--bot-base-scale, 1)) rotate(6deg); }
     }
 
 
