@@ -787,6 +787,9 @@
     .climb-speech.has-retie {
       pointer-events: auto;
     }
+    .climb-speech.has-retie::after {
+      display: none;
+    }
     .climb-retie-btn {
       display: inline-flex;
       align-items: center;
@@ -3740,7 +3743,9 @@
 
           if (!snappedMessageShown && (performance.now() - snappedAtMs > 1050 || fallY > snapAnchorY + 260)) {
             snappedMessageShown = true;
-            showClimbSpeech("Oops... you threw him out of his own career. 😳", Math.max(12, snapAnchorY - 18), 0, true);
+            const headroomItem = items[Math.max(0, Math.min(items.length - 1, lastActiveIdx))];
+            const safeRetieY = headroomItem ? (headroomItem.offsetTop + 10) : Math.max(12, snapAnchorY - 18);
+            showClimbSpeech("Oops... you threw him out of his own career. 😳", safeRetieY, 0, true);
           }
 
           // Build broken SVG rope: top piece ends in a whipping stub; remaining lower piece drops away cleanly
