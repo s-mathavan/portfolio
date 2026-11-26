@@ -752,7 +752,12 @@
       position: relative;
       width: 100%;
       max-width: 410px;
-      margin: 144px auto 26px auto;
+      margin: 146px auto 22px auto;
+    }
+    @media (min-width: 768px) {
+      .contact-form-wrap {
+        margin: 132px auto 18px auto;
+      }
     }
     .seam-bot-anchor.contact-seam-anchor {
       top: -70px;
@@ -764,24 +769,24 @@
       visibility: visible !important;
     }
     .seam-bot-anchor.contact-seam-anchor.visible .bot-container.is-peeking:not(.popped-out) .bot-body {
-      --bot-base-y: -30px;
+      --bot-base-y: -42px;
     }
     .seam-bot-anchor.contact-seam-anchor.visible .bot-container.is-peeking.popped-out .bot-body {
-      --bot-base-y: -36px;
+      --bot-base-y: -50px;
       --bot-base-scale: 1.05;
     }
     .seam-bot-anchor.contact-seam-anchor .speech-bubble {
       top: auto;
-      bottom: calc(100% + 36px);
+      bottom: calc(100% + 42px);
       left: 50%;
       right: auto;
       transform: translateX(-50%) translateY(8px) scale(0.92);
       transform-origin: bottom center;
-      max-width: min(320px, calc(100vw - 36px));
-      font-size: 14px;
+      max-width: min(330px, calc(100vw - 36px));
+      font-size: 13.5px;
     }
     .seam-bot-anchor.contact-seam-anchor .bot-container.is-peeking.popped-out .speech-bubble {
-      bottom: calc(100% + 50px);
+      bottom: calc(100% + 58px);
     }
     .seam-bot-anchor.contact-seam-anchor .speech-bubble.visible {
       transform: translateX(-50%) translateY(0) scale(1);
@@ -1781,11 +1786,11 @@
     </section>
 
     <!-- 4. Contact Section -->
-    <section id="contact-section" class="min-h-screen px-5 md:px-12 lg:px-24 py-24 flex items-center justify-center" style="background-color: var(--bg-works); transition: background-color 0.4s ease;">
+    <section id="contact-section" class="min-h-screen px-5 md:px-12 lg:px-24 py-12 md:py-8 flex items-center justify-center" style="background-color: var(--bg-works); transition: background-color 0.4s ease;">
       <div class="max-w-2xl w-full text-center">
-        <h2 class="text-xs sm:text-sm tracking-widest uppercase mb-3" style="color: var(--text-muted)">Get In Touch</h2>
-        <h3 class="text-3xl md:text-5xl font-semibold mb-5 tracking-tight" style="color: var(--text-main)">Let's build something remarkable.</h3>
-        <p class="text-sm sm:text-base max-w-md mx-auto leading-relaxed" style="color: var(--text-muted)">
+        <h2 class="text-xs sm:text-sm tracking-widest uppercase mb-2" style="color: var(--text-muted)">Get In Touch</h2>
+        <h3 class="text-3xl md:text-4xl font-semibold mb-3 tracking-tight" style="color: var(--text-main)">Let's build something remarkable.</h3>
+        <p class="text-sm sm:text-base max-w-md md:max-w-xl mx-auto leading-relaxed" style="color: var(--text-muted)">
           Whether you're looking to build a high-performance web platform, optimize complex systems, or just chat engineering architecture—my inbox is open.
         </p>
 
